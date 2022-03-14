@@ -19,8 +19,8 @@ Example: `script-runner -s '../my-script-name.wasm' '../my-input.json'`
 |                |                                                                                                 |
 |----------------|-------------------------------------------------------------------------------------------------|
 | Current status | Prototype                                                                                       |
-| Owner          | [Scripts Platform](https://vault.shopify.io/pages/7064-Scripts-Platform-Team)                   |
-| Help           | [#scripts](https://shopify.slack.com/app_redirect?channel=scripts)                              |
+| Owner          | [#shopify-vm](https://shopify.slack.com/app_redirect?channel=scripts)                   |
+| Help           | [#shopify-vm](https://shopify.slack.com/app_redirect?channel=scripts)                              |
 
 
 ## Commands (optional)
