@@ -8,10 +8,7 @@ use wasmtime_wasi::sync::WasiCtxBuilder;
 
 /// Simple script runner which takes JSON as a convenience.
 #[derive(Parser)]
-#[clap(
-    version = "0.1.0",
-    author = "Steven MacLeod <steven.macleod@shopify.com>"
-)]
+#[clap(version = "0.1.0")]
 struct Opts {
     /// Path to wasm/wat script
     #[clap(short, long, default_value = "script.wasm")]
@@ -68,6 +65,9 @@ fn main() -> Result<()> {
     // Translate msgpack output to JSON and write to STDOUT
     let output: serde_json::Value = rmp_serde::decode::from_read(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
-    println!("{}", serde_json::to_string_pretty(&output)?.to_colored_json_auto()?);
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&output)?.to_colored_json_auto()?
+    );
     Ok(())
 }
