@@ -30,8 +30,6 @@ and add the `script-runner` command to your path.
 $ script-runner --help
 script-runner 0.1.0
 
-Steven MacLeod <steven.macleod@shopify.com>
-
 Simple script runner which takes JSON as a convenience
 
 USAGE:
