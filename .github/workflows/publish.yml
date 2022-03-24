@@ -5,7 +5,7 @@ on:
     types:
       - created
 
-jobs:    
+jobs:
   compile:
     name: Compile
     runs-on: ${{ matrix.os }}
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name : Install Rust
+      - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           profile: default
@@ -46,7 +46,7 @@ jobs:
 
       - name: Upload assets to artifacts
         uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: ${{ matrix.asset_name }}.gz
           path: ${{ matrix.asset_name }}.gz
 
@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload asset hash to artifacts
         uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: ${{ matrix.asset_name }}.gz.sha256
           path: ${{ matrix.asset_name }}.gz.sha256
 
