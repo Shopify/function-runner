@@ -2,7 +2,6 @@ use std::path::PathBuf;
 
 use anyhow::{anyhow, Result};
 use clap::Parser;
-use colored_json::prelude::*;
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
@@ -65,9 +64,6 @@ fn main() -> Result<()> {
     // Translate msgpack output to JSON and write to STDOUT
     let output: serde_json::Value = rmp_serde::decode::from_read(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
-    println!(
-        "{}",
-        serde_json::to_string_pretty(&output)?.to_colored_json_auto()?
-    );
+    println!("{}", serde_json::to_string_pretty(&output)?);
     Ok(())
 }
