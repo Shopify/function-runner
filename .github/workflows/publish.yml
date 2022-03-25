@@ -1,0 +1,80 @@
+name: Publish
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  compile:
+    name: Compile
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-latest
+            path: target/release/script-runner
+            asset_name: script-runner-x86_64-linux-${{ github.event.release.tag_name }}
+            shasum_cmd: sha256sum
+          - name: macos
+            os: macos-latest
+            path: target/release/script-runner
+            asset_name: script-runner-x86_64-macos-${{ github.event.release.tag_name }}
+            shasum_cmd: shasum -a 256
+          - name: windows
+            os: windows-latest
+            path: target\release\script-runner.exe
+            asset_name: script-runner-x86_64-windows-${{ github.event.release.tag_name }}
+            shasum_cmd: sha256sum
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: default
+          toolchain: 1.59.0
+          default: true
+
+      - name: Build ${{ matrix.os }}
+        run: cargo build --release --package script-runner
+
+      - name: Archive assets
+        run: gzip -k -f ${{ matrix.path }} && mv ${{ matrix.path }}.gz ${{ matrix.asset_name }}.gz
+
+      - name: Upload assets to artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.asset_name }}.gz
+          path: ${{ matrix.asset_name }}.gz
+
+      - name: Upload assets to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./${{ matrix.asset_name }}.gz
+          asset_name: ${{ matrix.asset_name }}.gz
+          asset_content_type: application/gzip
+
+      - name: Generate asset hash
+        run: ${{ matrix.shasum_cmd }} ${{ matrix.asset_name }}.gz | awk '{ print $1 }' > ${{ matrix.asset_name }}.gz.sha256
+
+      - name: Upload asset hash to artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.asset_name }}.gz.sha256
+          path: ${{ matrix.asset_name }}.gz.sha256
+
+      - name: Upload asset hash to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./${{ matrix.asset_name }}.gz.sha256
+          asset_name: ${{ matrix.asset_name }}.gz.sha256
+          asset_content_type: plain/text
