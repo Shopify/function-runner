@@ -36,6 +36,9 @@ fn main() -> Result<()> {
     // Create a stream for capturing the output
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
+    // Create a stream for capturing the error logs
+    let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
+
     {
         // Link WASI and construct the store.
         let mut linker = Linker::new(&engine);
@@ -43,6 +46,7 @@ fn main() -> Result<()> {
         let wasi = WasiCtxBuilder::new()
             .stdin(Box::new(input_stream))
             .stdout(Box::new(output_stream.clone()))
+            .stderr(Box::new(error_stream.clone()))
             .inherit_args()?
             .build();
         let mut store = Store::new(&engine, wasi);
@@ -50,10 +54,17 @@ fn main() -> Result<()> {
         linker.module(&mut store, "", &module)?;
 
         // Execute the module
-        linker
+        let result = linker
             .get_default(&mut store, "")?
             .typed::<(), (), _>(&store)?
-            .call(&mut store, ())?;
+            .call(&mut store, ());
+
+        match result {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!("Error:\n{}", e);
+            }
+        }
     };
 
     let output = output_stream
@@ -61,9 +72,19 @@ fn main() -> Result<()> {
         .expect("Output stream reference still exists")
         .into_inner();
 
+    // Print error logs
+    let logs = error_stream
+        .try_into_inner()
+        .expect("Error stream reference still exists")
+        .into_inner();
+
+    let logs =
+        std::str::from_utf8(&logs).map_err(|e| anyhow!("Couldn't print Script Logs: {}", e))?;
+    println!("Logs:\n{}", logs);
+
     // Translate msgpack output to JSON and write to STDOUT
     let output: serde_json::Value = rmp_serde::decode::from_read(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
-    println!("{}", serde_json::to_string_pretty(&output)?);
+    println!("Output:\n{}", serde_json::to_string_pretty(&output)?);
     Ok(())
 }
