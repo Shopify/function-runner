@@ -24,19 +24,15 @@ fn main() -> Result<()> {
     let module = Module::from_file(&engine, &opts.script)
         .map_err(|e| anyhow!("Couldn't load script {:?}: {}", &opts.script, e))?;
 
-    // Read input and translate to a msgpack stream
     let input: serde_json::Value = serde_json::from_reader(
         std::fs::File::open(&opts.input)
             .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &opts.input, e))?,
     )
     .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &opts.input, e))?;
-    let input = rmp_serde::encode::to_vec(&input)?;
+    let input = serde_json::to_vec(&input)?;
+
     let input_stream = wasi_common::pipe::ReadPipe::new(std::io::Cursor::new(input));
-
-    // Create a stream for capturing the output
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
-
-    // Create a stream for capturing the error logs
     let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
     {
@@ -67,24 +63,21 @@ fn main() -> Result<()> {
         }
     };
 
-    let output = output_stream
-        .try_into_inner()
-        .expect("Output stream reference still exists")
-        .into_inner();
-
-    // Print error logs
     let logs = error_stream
         .try_into_inner()
         .expect("Error stream reference still exists")
         .into_inner();
-
     let logs =
         std::str::from_utf8(&logs).map_err(|e| anyhow!("Couldn't print Script Logs: {}", e))?;
     println!("Logs:\n{}", logs);
 
-    // Translate msgpack output to JSON and write to STDOUT
-    let output: serde_json::Value = rmp_serde::decode::from_read(output.as_slice())
+    let output = output_stream
+        .try_into_inner()
+        .expect("Output stream reference still exists")
+        .into_inner();
+    let output: serde_json::Value = serde_json::from_slice(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
     println!("Output:\n{}", serde_json::to_string_pretty(&output)?);
+
     Ok(())
 }
