@@ -28,7 +28,7 @@ and add the `script-runner` command to your path.
 ### Usage
 ```
 $ script-runner --help
-script-runner 0.1.0
+script-runner 0.2.0
 
 Simple script runner which takes JSON as a convenience
 
