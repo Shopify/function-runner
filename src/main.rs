@@ -7,7 +7,7 @@ use wasmtime_wasi::sync::WasiCtxBuilder;
 
 /// Simple script runner which takes JSON as a convenience.
 #[derive(Parser)]
-#[clap(version = "0.1.0")]
+#[clap(version = "0.2.0")]
 struct Opts {
     /// Path to wasm/wat script
     #[clap(short, long, default_value = "script.wasm")]
