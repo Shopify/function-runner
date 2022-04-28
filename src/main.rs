@@ -1,9 +1,11 @@
 use std::path::PathBuf;
-
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
+
+mod memory_limiter;
+use memory_limiter::MemoryLimiter;
 
 /// Simple script runner which takes JSON as a convenience.
 #[derive(Parser)]
@@ -15,6 +17,13 @@ struct Opts {
 
     /// Path to json file containing script input
     input: PathBuf,
+}
+
+const DEFAULT_LINEAR_MEMORY_LIMIT: usize = 1;
+
+struct StoreData {
+    wasi: wasmtime_wasi::WasiCtx,
+    limiter: MemoryLimiter,
 }
 
 fn main() -> Result<()> {
@@ -38,14 +47,20 @@ fn main() -> Result<()> {
     {
         // Link WASI and construct the store.
         let mut linker = Linker::new(&engine);
-        wasmtime_wasi::add_to_linker(&mut linker, |s| s)?;
+        wasmtime_wasi::add_to_linker(&mut linker, |ctx: &mut StoreData| &mut ctx.wasi)?;
         let wasi = WasiCtxBuilder::new()
             .stdin(Box::new(input_stream))
             .stdout(Box::new(output_stream.clone()))
             .stderr(Box::new(error_stream.clone()))
             .inherit_args()?
             .build();
-        let mut store = Store::new(&engine, wasi);
+        let limiter =  MemoryLimiter::new(DEFAULT_LINEAR_MEMORY_LIMIT);
+        let store_data = StoreData {
+            wasi,
+            limiter,
+        };
+        let mut store = Store::new(&engine, store_data);
+        store.limiter(|d| &mut d.limiter);
 
         linker.module(&mut store, "", &module)?;
 
