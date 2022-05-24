@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use colored::Colorize;
-use script_runner::FunctionBenchmark;
+use script_runner::function_benchmark::FunctionBenchmark;
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
