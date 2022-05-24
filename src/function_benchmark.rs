@@ -8,8 +8,6 @@ const RUNTIME_THRESHOLD: Duration = Duration::from_millis(5);
 
 pub struct FunctionBenchmark {
     pub runtime: Option<Duration>,
-    memory_size: Option<u32>,
-    stack_size: Option<u32>,
     start: Option<Instant>,
 }
 
@@ -17,8 +15,6 @@ impl FunctionBenchmark {
     pub fn new() -> Self {
         FunctionBenchmark {
             runtime: None,
-            memory_size: None,
-            stack_size: None,
             start: None,
         }
     }
@@ -55,8 +51,7 @@ impl fmt::Display for FunctionBenchmark {
         }
 
         writeln!(f, "Runtime: {}", runtime_display)?;
-        writeln!(f, "Memory: {:#?} bytes", self.memory_size)?;
-        writeln!(f, "Stack: {:#?} bytes", self.stack_size)?;
+
         Ok(())
     }
 }
@@ -78,7 +73,7 @@ mod tests {
     #[test]
     fn test_benchmark_display_no_stop() {
         let benchmark = FunctionBenchmark::new();
-        assert_eq!(format!("{}", benchmark), "\u{1b}[102;30m      Benchmark Results      \u{1b}[0m\n\nRuntime: \u{1b}[34mN/A\u{1b}[0m\nMemory: None bytes\nStack: None bytes\n");
+        assert_eq!(format!("{}", benchmark), "\u{1b}[102;30m      Benchmark Results      \u{1b}[0m\n\nRuntime: \u{1b}[34mN/A\u{1b}[0m\n");
     }
 
     #[test]
