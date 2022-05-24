@@ -14,6 +14,7 @@ pub struct FunctionBenchmark {
 }
 
 impl FunctionBenchmark {
+    /// Create a new `FunctionBenchmark`
     pub fn new() -> Self {
         FunctionBenchmark {
             runtime: None,
@@ -23,10 +24,12 @@ impl FunctionBenchmark {
         }
     }
 
+    /// Start the benchmark
     pub fn start(&mut self) {
         self.start = Some(Instant::now());
     }
 
+    /// Stop the benchmark
     pub fn stop(&mut self) {
         self.runtime = Some(self.start.unwrap().elapsed());
     }
@@ -99,6 +102,7 @@ mod tests {
         assert!(benchmark.runtime.unwrap() > RUNTIME_THRESHOLD);
     }
 
+    /// Executes a given script and runs the benchmark
     fn run_function(script_path: PathBuf, input_path: PathBuf, benchmark: &mut FunctionBenchmark) {
         let engine = Engine::default();
         let module = Module::from_file(&engine, &script_path)
