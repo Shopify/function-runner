@@ -80,7 +80,7 @@ fn main() -> Result<()> {
         std::str::from_utf8(&logs).map_err(|e| anyhow!("Couldn't print Script Logs: {}", e))?;
 
     println!(
-        "{}\n{}",
+        "{}\n\n{}",
         "            Logs             ".black().on_bright_blue(),
         logs
     );
