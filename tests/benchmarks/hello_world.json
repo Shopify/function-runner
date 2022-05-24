@@ -1,0 +1,11 @@
+{
+  "input": {
+    "context": {
+      "suffix": "From Core!"
+    }
+  },
+  "configuration": {
+    "message": "From Core!"
+  },
+  "extension_point": "hello_world"
+}

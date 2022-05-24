@@ -2,6 +2,8 @@ use std::path::PathBuf;
 
 use anyhow::{anyhow, Result};
 use clap::Parser;
+use colored::Colorize;
+use script_runner::FunctionBenchmark;
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
@@ -49,11 +51,18 @@ fn main() -> Result<()> {
 
         linker.module(&mut store, "", &module)?;
 
+        let mut benchmark = FunctionBenchmark::new();
+
+        benchmark.start();
+
         // Execute the module
         let result = linker
             .get_default(&mut store, "")?
             .typed::<(), (), _>(&store)?
             .call(&mut store, ());
+
+        benchmark.stop();
+        println!("{}", benchmark);
 
         match result {
             Ok(_) => {}
@@ -69,7 +78,12 @@ fn main() -> Result<()> {
         .into_inner();
     let logs =
         std::str::from_utf8(&logs).map_err(|e| anyhow!("Couldn't print Script Logs: {}", e))?;
-    println!("Logs:\n{}", logs);
+
+    println!(
+        "{}\n{}",
+        "            Logs             ".black().on_bright_blue(),
+        logs
+    );
 
     let output = output_stream
         .try_into_inner()
