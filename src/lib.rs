@@ -57,10 +57,16 @@ impl fmt::Display for FunctionBenchmark {
             runtime_display = "N/A".blue().to_string();
         }
 
-        write!(f, "Runtime: {}\n", runtime_display)?;
-        write!(f, "Memory: {:#?} bytes\n", self.memory_size)?;
-        write!(f, "Stack: {:#?} bytes\n", self.stack_size)?;
+        writeln!(f, "Runtime: {}", runtime_display)?;
+        writeln!(f, "Memory: {:#?} bytes", self.memory_size)?;
+        writeln!(f, "Stack: {:#?} bytes", self.stack_size)?;
         Ok(())
+    }
+}
+
+impl Default for FunctionBenchmark {
+    fn default() -> Self {
+        FunctionBenchmark::new()
     }
 }
 
