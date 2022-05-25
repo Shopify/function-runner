@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::Parser;
-use script_runner::run::run;
+use script_runner::engine::run;
 
 /// Simple script runner which takes JSON as a convenience.
 #[derive(Parser)]
