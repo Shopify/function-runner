@@ -1,15 +1,14 @@
 use colored::Colorize;
 use std::{fmt, time::Duration};
 
-const RUNTIME_THRESHOLD: Duration = Duration::from_millis(5);
-
 pub struct FunctionBenchmark {
     pub runtime: Duration,
+    pub threshold: Duration,
 }
 
 impl FunctionBenchmark {
-    pub fn new(runtime: Duration) -> Self {
-        FunctionBenchmark { runtime }
+    pub fn new(runtime: Duration, threshold: Duration) -> Self {
+        FunctionBenchmark { runtime, threshold }
     }
 }
 
@@ -18,12 +17,12 @@ impl fmt::Display for FunctionBenchmark {
         let title = "      Benchmark Results      ".black().on_bright_green();
         write!(f, "{}\n\n", title)?;
 
-        let runtime_display: String = if self.runtime <= RUNTIME_THRESHOLD {
+        let runtime_display: String = if self.runtime <= self.threshold {
             format!("{:?}", self.runtime).bright_green().to_string()
         } else {
             format!(
                 "{:?} <- maximum allowed is {:?}",
-                self.runtime, RUNTIME_THRESHOLD
+                self.runtime, self.threshold
             )
             .red()
             .to_string()
@@ -53,7 +52,7 @@ mod tests {
             Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
         );
 
-        assert!(benchmark.runtime <= RUNTIME_THRESHOLD);
+        assert!(benchmark.runtime <= benchmark.threshold);
     }
 
     #[test]
@@ -63,7 +62,7 @@ mod tests {
             Path::new("tests/benchmarks/sleeps.json").to_path_buf(),
         );
 
-        assert!(benchmark.runtime > RUNTIME_THRESHOLD);
+        assert!(benchmark.runtime > benchmark.threshold);
     }
 
     /// Executes a given script and runs the benchmark
@@ -114,7 +113,7 @@ mod tests {
 
             let elapsed = start.elapsed();
 
-            benchmark = FunctionBenchmark::new(elapsed);
+            benchmark = FunctionBenchmark::new(elapsed, Duration::from_millis(5));
 
             match result {
                 Ok(_) => {}

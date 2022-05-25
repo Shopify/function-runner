@@ -1,4 +1,7 @@
-use std::{path::PathBuf, time::Instant};
+use std::{
+    path::PathBuf,
+    time::{Duration, Instant},
+};
 
 use anyhow::{anyhow, Result};
 use clap::Parser;
@@ -61,7 +64,7 @@ fn main() -> Result<()> {
 
         let runtime = start.elapsed();
 
-        let benchmark = FunctionBenchmark::new(runtime);
+        let benchmark = FunctionBenchmark::new(runtime, Duration::from_millis(5));
 
         println!("{}", benchmark);
 
