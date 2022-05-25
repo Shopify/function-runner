@@ -1,18 +1,18 @@
 use colored::Colorize;
 use std::{fmt, time::Duration};
 
-pub struct FunctionBenchmark {
+pub struct RunStatistics {
     pub runtime: Duration,
     pub threshold: Duration,
 }
 
-impl FunctionBenchmark {
+impl RunStatistics {
     pub fn new(runtime: Duration, threshold: Duration) -> Self {
-        FunctionBenchmark { runtime, threshold }
+        RunStatistics { runtime, threshold }
     }
 }
 
-impl fmt::Display for FunctionBenchmark {
+impl fmt::Display for RunStatistics {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let title = "      Benchmark Results      ".black().on_bright_green();
         write!(f, "{}\n\n", title)?;
@@ -66,7 +66,7 @@ mod tests {
     }
 
     /// Executes a given script and runs the benchmark
-    fn run_function(script_path: PathBuf, input_path: PathBuf) -> FunctionBenchmark {
+    fn run_function(script_path: PathBuf, input_path: PathBuf) -> RunStatistics {
         let engine = Engine::default();
         let module = Module::from_file(&engine, &script_path)
             .map_err(|e| anyhow!("Couldn't load script {:?}: {}", &script_path, e))
@@ -113,7 +113,7 @@ mod tests {
 
             let elapsed = start.elapsed();
 
-            benchmark = FunctionBenchmark::new(elapsed, Duration::from_millis(5));
+            benchmark = RunStatistics::new(elapsed, Duration::from_millis(5));
 
             match result {
                 Ok(_) => {}

@@ -6,7 +6,7 @@ use std::{
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use colored::Colorize;
-use script_runner::function_benchmark::FunctionBenchmark;
+use script_runner::function_benchmark::RunStatistics;
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
@@ -64,7 +64,7 @@ fn main() -> Result<()> {
 
         let runtime = start.elapsed();
 
-        let benchmark = FunctionBenchmark::new(runtime, Duration::from_millis(5));
+        let benchmark = RunStatistics::new(runtime, Duration::from_millis(5));
 
         println!("{}", benchmark);
 
