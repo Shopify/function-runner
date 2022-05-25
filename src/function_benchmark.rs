@@ -73,7 +73,7 @@ mod tests {
     #[test]
     fn test_benchmark_display_no_stop() {
         let benchmark = FunctionBenchmark::new();
-        assert_eq!(format!("{}", benchmark), "\u{1b}[102;30m      Benchmark Results      \u{1b}[0m\n\nRuntime: \u{1b}[34mN/A\u{1b}[0m\n");
+        assert!(benchmark.runtime.is_none());
     }
 
     #[test]
