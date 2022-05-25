@@ -28,7 +28,6 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<RunStatistics> {
     let runtime: Duration;
 
     {
-        // Link WASI and construct the store.
         let mut linker = Linker::new(&engine);
         wasmtime_wasi::add_to_linker(&mut linker, |s| s)?;
         let wasi = WasiCtxBuilder::new()
@@ -43,15 +42,14 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<RunStatistics> {
 
         let start = Instant::now();
 
-        // Execute the module
-        let result = linker
+        let module_result = linker
             .get_default(&mut store, "")?
             .typed::<(), (), _>(&store)?
             .call(&mut store, ());
 
         runtime = start.elapsed();
 
-        match result {
+        match module_result {
             Ok(_) => {}
             Err(e) => {
                 eprintln!("Error:\n{}", e);
