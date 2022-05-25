@@ -6,7 +6,7 @@ use std::{
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use colored::Colorize;
-use script_runner::function_benchmark::RunStatistics;
+use script_runner::run_statistics::RunStatistics;
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
