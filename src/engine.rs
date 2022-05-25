@@ -3,7 +3,8 @@ use std::{
     path::PathBuf,
     time::{Duration, Instant},
 };
-use wasmtime::*;
+use wasmtime::{Engine, Linker, Module, Store};
+
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
 use crate::run_statistics::RunStatistics;
