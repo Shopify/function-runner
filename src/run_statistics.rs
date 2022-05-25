@@ -4,11 +4,23 @@ use std::{fmt, time::Duration};
 pub struct RunStatistics {
     pub runtime: Duration,
     pub threshold: Duration,
+    pub logs: String,
+    pub output: serde_json::Value,
 }
 
 impl RunStatistics {
-    pub fn new(runtime: Duration, threshold: Duration) -> Self {
-        RunStatistics { runtime, threshold }
+    pub fn new(
+        runtime: Duration,
+        threshold: Duration,
+        output: serde_json::Value,
+        logs: String,
+    ) -> Self {
+        RunStatistics {
+            runtime,
+            threshold,
+            output,
+            logs,
+        }
     }
 }
 
@@ -28,117 +40,21 @@ impl fmt::Display for RunStatistics {
             .to_string()
         };
 
-        writeln!(f, "Runtime: {}", runtime_display)?;
+        writeln!(f, "Runtime: {}\n", runtime_display)?;
+
+        writeln!(
+            f,
+            "{}\n\n{}",
+            "            Logs             ".black().on_bright_blue(),
+            self.logs
+        )?;
+
+        writeln!(
+            f,
+            "Output:\n{}",
+            serde_json::to_string_pretty(&self.output).unwrap_or_else(|error| error.to_string())
+        )?;
 
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use anyhow::anyhow;
-    use std::{
-        path::{Path, PathBuf},
-        time::Instant,
-    };
-    use wasmtime::*;
-    use wasmtime_wasi::WasiCtxBuilder;
-
-    #[test]
-    fn test_benchmark_runtime_allowed() {
-        let benchmark = run_function(
-            Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
-            Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
-        );
-
-        assert!(benchmark.runtime <= benchmark.threshold);
-    }
-
-    #[test]
-    fn test_benchmark_runtime_not_allowed() {
-        let benchmark = run_function(
-            Path::new("tests/benchmarks/sleeps.wasm").to_path_buf(),
-            Path::new("tests/benchmarks/sleeps.json").to_path_buf(),
-        );
-
-        assert!(benchmark.runtime > benchmark.threshold);
-    }
-
-    /// Executes a given script and runs the benchmark
-    fn run_function(script_path: PathBuf, input_path: PathBuf) -> RunStatistics {
-        let engine = Engine::default();
-        let module = Module::from_file(&engine, &script_path)
-            .map_err(|e| anyhow!("Couldn't load script {:?}: {}", &script_path, e))
-            .unwrap();
-
-        let input: serde_json::Value = serde_json::from_reader(
-            std::fs::File::open(&input_path)
-                .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))
-                .unwrap(),
-        )
-        .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))
-        .unwrap();
-        let input = serde_json::to_vec(&input).unwrap();
-
-        let input_stream = wasi_common::pipe::ReadPipe::new(std::io::Cursor::new(input));
-        let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
-        let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
-
-        let benchmark;
-        {
-            // Link WASI and construct the store.
-            let mut linker = Linker::new(&engine);
-            wasmtime_wasi::add_to_linker(&mut linker, |s| s).unwrap();
-            let wasi = WasiCtxBuilder::new()
-                .stdin(Box::new(input_stream))
-                .stdout(Box::new(output_stream.clone()))
-                .stderr(Box::new(error_stream.clone()))
-                .inherit_args()
-                .unwrap()
-                .build();
-            let mut store = Store::new(&engine, wasi);
-
-            linker.module(&mut store, "", &module).unwrap();
-
-            let start = Instant::now();
-
-            // Execute the module
-            let result = linker
-                .get_default(&mut store, "")
-                .unwrap()
-                .typed::<(), (), _>(&store)
-                .unwrap()
-                .call(&mut store, ());
-
-            let elapsed = start.elapsed();
-
-            benchmark = RunStatistics::new(elapsed, Duration::from_millis(5));
-
-            match result {
-                Ok(_) => {}
-                Err(e) => {
-                    eprintln!("Error:\n{}", e);
-                }
-            }
-        };
-
-        let logs = error_stream
-            .try_into_inner()
-            .expect("Error stream reference still exists")
-            .into_inner();
-        let _logs = std::str::from_utf8(&logs)
-            .map_err(|e| anyhow!("Couldn't print Script Logs: {}", e))
-            .unwrap();
-
-        let output = output_stream
-            .try_into_inner()
-            .expect("Output stream reference still exists")
-            .into_inner();
-        let _output: serde_json::Value = serde_json::from_slice(output.as_slice())
-            .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))
-            .unwrap();
-
-        benchmark
     }
 }
