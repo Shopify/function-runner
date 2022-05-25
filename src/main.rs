@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Instant};
 
 use anyhow::{anyhow, Result};
 use clap::Parser;
@@ -51,9 +51,7 @@ fn main() -> Result<()> {
 
         linker.module(&mut store, "", &module)?;
 
-        let mut benchmark = FunctionBenchmark::new();
-
-        benchmark.start();
+        let start = Instant::now();
 
         // Execute the module
         let result = linker
@@ -61,7 +59,10 @@ fn main() -> Result<()> {
             .typed::<(), (), _>(&store)?
             .call(&mut store, ());
 
-        benchmark.stop();
+        let runtime = start.elapsed();
+
+        let benchmark = FunctionBenchmark::new(runtime);
+
         println!("{}", benchmark);
 
         match result {

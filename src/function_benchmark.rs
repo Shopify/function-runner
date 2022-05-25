@@ -1,30 +1,15 @@
 use colored::Colorize;
-use std::{
-    fmt,
-    time::{Duration, Instant},
-};
+use std::{fmt, time::Duration};
 
 const RUNTIME_THRESHOLD: Duration = Duration::from_millis(5);
 
 pub struct FunctionBenchmark {
-    pub runtime: Option<Duration>,
-    start: Option<Instant>,
+    pub runtime: Duration,
 }
 
 impl FunctionBenchmark {
-    pub fn new() -> Self {
-        FunctionBenchmark {
-            runtime: None,
-            start: None,
-        }
-    }
-
-    pub fn start(&mut self) {
-        self.start = Some(Instant::now());
-    }
-
-    pub fn stop(&mut self) {
-        self.runtime = Some(self.start.unwrap().elapsed());
+    pub fn new(runtime: Duration) -> Self {
+        FunctionBenchmark { runtime }
     }
 }
 
@@ -33,22 +18,16 @@ impl fmt::Display for FunctionBenchmark {
         let title = "      Benchmark Results      ".black().on_bright_green();
         write!(f, "{}\n\n", title)?;
 
-        let runtime_display: String;
-
-        if let Some(runtime) = self.runtime {
-            if runtime <= RUNTIME_THRESHOLD {
-                runtime_display = format!("{:?}", runtime).bright_green().to_string();
-            } else {
-                runtime_display = format!(
-                    "{:?} <- maximum allowed is {:?}",
-                    runtime, RUNTIME_THRESHOLD
-                )
-                .red()
-                .to_string();
-            }
+        let runtime_display: String = if self.runtime <= RUNTIME_THRESHOLD {
+            format!("{:?}", self.runtime).bright_green().to_string()
         } else {
-            runtime_display = "N/A".blue().to_string();
-        }
+            format!(
+                "{:?} <- maximum allowed is {:?}",
+                self.runtime, RUNTIME_THRESHOLD
+            )
+            .red()
+            .to_string()
+        };
 
         writeln!(f, "Runtime: {}", runtime_display)?;
 
@@ -56,52 +35,39 @@ impl fmt::Display for FunctionBenchmark {
     }
 }
 
-impl Default for FunctionBenchmark {
-    fn default() -> Self {
-        FunctionBenchmark::new()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use anyhow::anyhow;
-    use std::path::{Path, PathBuf};
+    use std::{
+        path::{Path, PathBuf},
+        time::Instant,
+    };
     use wasmtime::*;
     use wasmtime_wasi::WasiCtxBuilder;
 
     #[test]
-    fn test_benchmark_display_no_stop() {
-        let benchmark = FunctionBenchmark::new();
-        assert!(benchmark.runtime.is_none());
-    }
-
-    #[test]
     fn test_benchmark_runtime_allowed() {
-        let mut benchmark = FunctionBenchmark::new();
-        run_function(
+        let benchmark = run_function(
             Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
             Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
-            &mut benchmark,
         );
 
-        assert!(benchmark.runtime.unwrap() <= RUNTIME_THRESHOLD);
+        assert!(benchmark.runtime <= RUNTIME_THRESHOLD);
     }
 
     #[test]
     fn test_benchmark_runtime_not_allowed() {
-        let mut benchmark = FunctionBenchmark::new();
-        run_function(
+        let benchmark = run_function(
             Path::new("tests/benchmarks/sleeps.wasm").to_path_buf(),
             Path::new("tests/benchmarks/sleeps.json").to_path_buf(),
-            &mut benchmark,
         );
 
-        assert!(benchmark.runtime.unwrap() > RUNTIME_THRESHOLD);
+        assert!(benchmark.runtime > RUNTIME_THRESHOLD);
     }
 
     /// Executes a given script and runs the benchmark
-    fn run_function(script_path: PathBuf, input_path: PathBuf, benchmark: &mut FunctionBenchmark) {
+    fn run_function(script_path: PathBuf, input_path: PathBuf) -> FunctionBenchmark {
         let engine = Engine::default();
         let module = Module::from_file(&engine, &script_path)
             .map_err(|e| anyhow!("Couldn't load script {:?}: {}", &script_path, e))
@@ -120,6 +86,7 @@ mod tests {
         let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
         let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
+        let benchmark;
         {
             // Link WASI and construct the store.
             let mut linker = Linker::new(&engine);
@@ -135,7 +102,7 @@ mod tests {
 
             linker.module(&mut store, "", &module).unwrap();
 
-            benchmark.start();
+            let start = Instant::now();
 
             // Execute the module
             let result = linker
@@ -145,7 +112,9 @@ mod tests {
                 .unwrap()
                 .call(&mut store, ());
 
-            benchmark.stop();
+            let elapsed = start.elapsed();
+
+            benchmark = FunctionBenchmark::new(elapsed);
 
             match result {
                 Ok(_) => {}
@@ -170,5 +139,7 @@ mod tests {
         let _output: serde_json::Value = serde_json::from_slice(output.as_slice())
             .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))
             .unwrap();
+
+        benchmark
     }
 }
