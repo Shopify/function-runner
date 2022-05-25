@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::Parser;
-use script_runner::run_engine::run_engine;
+use script_runner::run::run;
 
 /// Simple script runner which takes JSON as a convenience.
 #[derive(Parser)]
@@ -19,7 +19,7 @@ struct Opts {
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let statistics = run_engine(opts.script, opts.input)?;
+    let statistics = run(opts.script, opts.input)?;
 
     println!("{}", statistics);
 

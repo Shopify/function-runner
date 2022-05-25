@@ -8,7 +8,7 @@ use wasmtime_wasi::sync::WasiCtxBuilder;
 
 use crate::run_statistics::RunStatistics;
 
-pub fn run_engine(script_path: PathBuf, input_path: PathBuf) -> Result<RunStatistics> {
+pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<RunStatistics> {
     let engine = Engine::default();
     let module = Module::from_file(&engine, &script_path)
         .map_err(|e| anyhow!("Couldn't load script {:?}: {}", &script_path, e))?;
@@ -85,7 +85,7 @@ mod tests {
 
     #[test]
     fn test_runtime_under_threshold() {
-        let statistics = run_engine(
+        let statistics = run(
             Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
             Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
         )
@@ -96,7 +96,7 @@ mod tests {
 
     #[test]
     fn test_runtime_over_threshold() {
-        let statistics = run_engine(
+        let statistics = run(
             Path::new("tests/benchmarks/sleeps.wasm").to_path_buf(),
             Path::new("tests/benchmarks/sleeps.json").to_path_buf(),
         )
