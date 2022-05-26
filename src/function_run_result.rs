@@ -29,8 +29,8 @@ impl fmt::Display for FunctionRunResult {
         let title = "      Benchmark Results      ".black().on_bright_green();
         write!(f, "{}\n\n", title)?;
 
+        writeln!(f, "Runtime: {:?}", self.runtime)?;
         writeln!(f, "Memory Usage: {}KB\n", self.memory_usage * 64)?;
-        writeln!(f, "Runtime: {:?}\n", self.runtime)?;
 
         writeln!(
             f,
