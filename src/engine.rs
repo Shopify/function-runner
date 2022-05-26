@@ -89,7 +89,7 @@ mod tests {
     use super::*;
     use std::path::Path;
 
-    // The thresholds used here are arbitrary and are used to verify that the runner works as expected.
+    // Arbitrary, used to verify that the runner works as expected.
     const RUNTIME_THRESHOLD: Duration = Duration::from_millis(5);
 
     #[test]
@@ -134,5 +134,15 @@ mod tests {
         .unwrap();
 
         assert_eq!(function_run_result.memory_usage, 42);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_panic() {
+        run(
+            Path::new("tests/benchmarks/stack_overflow.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/stack_overflow.json").to_path_buf(),
+        )
+        .unwrap();
     }
 }
