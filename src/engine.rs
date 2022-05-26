@@ -78,13 +78,8 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
     let output: serde_json::Value = serde_json::from_slice(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
 
-    let function_run_result = FunctionRunResult::new(
-        runtime,
-        Duration::from_millis(5),
-        memory_usage,
-        output,
-        logs.to_string(),
-    );
+    let function_run_result =
+        FunctionRunResult::new(runtime, memory_usage, output, logs.to_string());
 
     Ok(function_run_result)
 }
@@ -102,7 +97,7 @@ mod tests {
         )
         .unwrap();
 
-        assert!(function_run_result.runtime <= function_run_result.threshold);
+        assert!(function_run_result.runtime <= Duration::from_millis(5));
     }
 
     #[test]
@@ -113,6 +108,6 @@ mod tests {
         )
         .unwrap();
 
-        assert!(function_run_result.runtime > function_run_result.threshold);
+        assert!(function_run_result.runtime > Duration::from_millis(5));
     }
 }
