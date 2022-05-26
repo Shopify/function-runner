@@ -7,9 +7,9 @@ use wasmtime::{Engine, Linker, Module, Store};
 
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
-use crate::execution_result::ExecutionResult;
+use crate::function_run_result::FunctionRunResult;
 
-pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<ExecutionResult> {
+pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
     let engine = Engine::default();
     let module = Module::from_file(&engine, &script_path)
         .map_err(|e| anyhow!("Couldn't load script {:?}: {}", &script_path, e))?;
@@ -78,7 +78,7 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<ExecutionResult>
     let output: serde_json::Value = serde_json::from_slice(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
 
-    let statistics = ExecutionResult::new(
+    let function_run_result = FunctionRunResult::new(
         runtime,
         Duration::from_millis(5),
         memory_usage,
@@ -86,7 +86,7 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<ExecutionResult>
         logs.to_string(),
     );
 
-    Ok(statistics)
+    Ok(function_run_result)
 }
 
 #[cfg(test)]
@@ -96,23 +96,23 @@ mod tests {
 
     #[test]
     fn test_runtime_under_threshold() {
-        let statistics = run(
+        let function_run_result = run(
             Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
             Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
         )
         .unwrap();
 
-        assert!(statistics.runtime <= statistics.threshold);
+        assert!(function_run_result.runtime <= function_run_result.threshold);
     }
 
     #[test]
     fn test_runtime_over_threshold() {
-        let statistics = run(
+        let function_run_result = run(
             Path::new("tests/benchmarks/sleeps.wasm").to_path_buf(),
             Path::new("tests/benchmarks/sleeps.json").to_path_buf(),
         )
         .unwrap();
 
-        assert!(statistics.runtime > statistics.threshold);
+        assert!(function_run_result.runtime > function_run_result.threshold);
     }
 }
