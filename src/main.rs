@@ -19,9 +19,9 @@ struct Opts {
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let statistics = run(opts.script, opts.input)?;
+    let function_run_result = run(opts.script, opts.input)?;
 
-    println!("{}", statistics);
+    println!("{}", function_run_result);
 
     Ok(())
 }
