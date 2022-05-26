@@ -42,9 +42,9 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<RunStatistics> {
 
         let start = Instant::now();
 
-        let module_result = linker
-            .get_default(&mut store, "")?
-            .typed::<(), (), _>(&store)?
+        let instance = linker.instantiate(&mut store, &module)?;
+        let module_result = instance
+            .get_typed_func::<(), (), _>(&mut store, "_start")?
             .call(&mut store, ());
 
         runtime = start.elapsed();
