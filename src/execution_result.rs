@@ -4,6 +4,7 @@ use std::{fmt, time::Duration};
 pub struct ExecutionResult {
     pub runtime: Duration,
     pub threshold: Duration,
+    pub memory_usage: u64,
     pub logs: String,
     pub output: serde_json::Value,
 }
@@ -12,12 +13,14 @@ impl ExecutionResult {
     pub fn new(
         runtime: Duration,
         threshold: Duration,
+        memory_usage: u64,
         output: serde_json::Value,
         logs: String,
     ) -> Self {
         ExecutionResult {
             runtime,
             threshold,
+            memory_usage,
             output,
             logs,
         }
@@ -40,7 +43,8 @@ impl fmt::Display for ExecutionResult {
             .to_string()
         };
 
-        writeln!(f, "Runtime: {}\n", runtime_display)?;
+        writeln!(f, "Runtime: {}", runtime_display)?;
+        writeln!(f, "Memory Usage: {}KB\n", self.memory_usage * 64)?;
 
         writeln!(
             f,

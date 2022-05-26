@@ -26,6 +26,7 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<ExecutionResult>
     let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
     let runtime: Duration;
+    let memory_usage: u64;
 
     {
         let mut linker = Linker::new(&engine);
@@ -43,11 +44,17 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<ExecutionResult>
         let start = Instant::now();
 
         let instance = linker.instantiate(&mut store, &module)?;
+
+        let memory = instance
+            .get_memory(&mut store, "memory")
+            .ok_or(anyhow::format_err!("failed to find `memory` export"))?;
+
         let module_result = instance
             .get_typed_func::<(), (), _>(&mut store, "_start")?
             .call(&mut store, ());
 
         runtime = start.elapsed();
+        memory_usage = memory.size(&store);
 
         match module_result {
             Ok(_) => {}
@@ -71,8 +78,13 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<ExecutionResult>
     let output: serde_json::Value = serde_json::from_slice(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
 
-    let statistics =
-        ExecutionResult::new(runtime, Duration::from_millis(5), output, logs.to_string());
+    let statistics = ExecutionResult::new(
+        runtime,
+        Duration::from_millis(5),
+        memory_usage,
+        output,
+        logs.to_string(),
+    );
 
     Ok(statistics)
 }
