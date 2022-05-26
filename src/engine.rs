@@ -7,9 +7,9 @@ use wasmtime::{Engine, Linker, Module, Store};
 
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
-use crate::run_statistics::RunStatistics;
+use crate::execution_result::ExecutionResult;
 
-pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<RunStatistics> {
+pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<ExecutionResult> {
     let engine = Engine::default();
     let module = Module::from_file(&engine, &script_path)
         .map_err(|e| anyhow!("Couldn't load script {:?}: {}", &script_path, e))?;
@@ -72,7 +72,7 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<RunStatistics> {
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
 
     let statistics =
-        RunStatistics::new(runtime, Duration::from_millis(5), output, logs.to_string());
+        ExecutionResult::new(runtime, Duration::from_millis(5), output, logs.to_string());
 
     Ok(statistics)
 }

@@ -1,21 +1,21 @@
 use colored::Colorize;
 use std::{fmt, time::Duration};
 
-pub struct RunStatistics {
+pub struct ExecutionResult {
     pub runtime: Duration,
     pub threshold: Duration,
     pub logs: String,
     pub output: serde_json::Value,
 }
 
-impl RunStatistics {
+impl ExecutionResult {
     pub fn new(
         runtime: Duration,
         threshold: Duration,
         output: serde_json::Value,
         logs: String,
     ) -> Self {
-        RunStatistics {
+        ExecutionResult {
             runtime,
             threshold,
             output,
@@ -24,7 +24,7 @@ impl RunStatistics {
     }
 }
 
-impl fmt::Display for RunStatistics {
+impl fmt::Display for ExecutionResult {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let title = "      Benchmark Results      ".black().on_bright_green();
         write!(f, "{}\n\n", title)?;
