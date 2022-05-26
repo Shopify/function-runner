@@ -89,6 +89,9 @@ mod tests {
     use super::*;
     use std::path::Path;
 
+    // The thresholds used here are arbitrary and are used to verify that the runner works as expected.
+    const RUNTIME_THRESHOLD: Duration = Duration::from_millis(5);
+
     #[test]
     fn test_runtime_under_threshold() {
         let function_run_result = run(
@@ -97,7 +100,7 @@ mod tests {
         )
         .unwrap();
 
-        assert!(function_run_result.runtime <= Duration::from_millis(5));
+        assert!(function_run_result.runtime <= RUNTIME_THRESHOLD);
     }
 
     #[test]
@@ -108,6 +111,28 @@ mod tests {
         )
         .unwrap();
 
-        assert!(function_run_result.runtime > Duration::from_millis(5));
+        assert!(function_run_result.runtime > RUNTIME_THRESHOLD);
+    }
+
+    #[test]
+    fn test_memory_usage_under_threshold() {
+        let function_run_result = run(
+            Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
+        )
+        .unwrap();
+
+        assert_eq!(function_run_result.memory_usage, 17);
+    }
+
+    #[test]
+    fn test_memory_usage_over_threshold() {
+        let function_run_result = run(
+            Path::new("tests/benchmarks/hello_42_pages.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/hello_42_pages.json").to_path_buf(),
+        )
+        .unwrap();
+
+        assert_eq!(function_run_result.memory_usage, 42);
     }
 }
