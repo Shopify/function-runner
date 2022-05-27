@@ -7,5 +7,5 @@
   "configuration": {
     "message": "From Core!"
   },
-  "extension_point": "hello_world"
+  "function_api": "hello_world"
 }
