@@ -39,22 +39,35 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
             .build();
         let mut store = Store::new(&engine, wasi);
 
-        linker.module(&mut store, "", &module)?;
+        linker.module(&mut store, "Function", &module)?;
 
         let start = Instant::now();
 
         let instance = linker.instantiate(&mut store, &module)?;
 
-        let memory = instance
-            .get_memory(&mut store, "memory")
-            .ok_or(anyhow::format_err!("failed to find `memory` export"))?;
+        // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
+        // We need this mutable borrow to fall out of scope so that we can mesure memory usage.
+        // https://docs.rs/wasmtime/0.37.0/wasmtime/struct.Instance.html#why-does-get_export-take-a-mutable-context
+        let memory_names: Vec<String> = instance
+            .exports(&mut store)
+            .into_iter()
+            .filter(|export| export.clone().into_memory().is_some())
+            .map(|export| export.name().to_string())
+            .collect();
+
+        memory_usage = memory_names
+            .iter()
+            .map(|name| {
+                let memory = instance.get_memory(&mut store, name).unwrap();
+                memory.size(&store)
+            })
+            .sum();
 
         let module_result = instance
             .get_typed_func::<(), (), _>(&mut store, "_start")?
             .call(&mut store, ());
 
         runtime = start.elapsed();
-        memory_usage = memory.size(&store);
 
         match module_result {
             Ok(_) => {}
