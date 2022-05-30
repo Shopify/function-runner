@@ -5,6 +5,7 @@ use std::{fmt, time::Duration};
 #[derive(Serialize)]
 pub struct FunctionRunResult {
     pub runtime: Duration,
+    pub size: u64,
     pub memory_usage: u64,
     pub logs: String,
     pub output: serde_json::Value,
@@ -13,12 +14,14 @@ pub struct FunctionRunResult {
 impl FunctionRunResult {
     pub fn new(
         runtime: Duration,
+        size: u64,
         memory_usage: u64,
         output: serde_json::Value,
         logs: String,
     ) -> Self {
         FunctionRunResult {
             runtime,
+            size,
             memory_usage,
             output,
             logs,
@@ -36,7 +39,8 @@ impl fmt::Display for FunctionRunResult {
         write!(f, "{}\n\n", title)?;
 
         writeln!(f, "Runtime: {:?}", self.runtime)?;
-        writeln!(f, "Memory Usage: {}KB\n", self.memory_usage * 64)?;
+        writeln!(f, "Memory Usage: {}KB", self.memory_usage * 64)?;
+        writeln!(f, "Size: {}KB\n", self.size / 1024)?;
 
         writeln!(
             f,
