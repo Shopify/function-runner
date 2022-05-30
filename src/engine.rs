@@ -108,6 +108,7 @@ mod tests {
     const FUNCTION_SLEEP_DURATION: Duration = Duration::from_millis(42);
     const HELLO_WORLD_MEMORY_USAGE: u64 = 17;
     const MODIFIED_HELLO_WORLD_MEMORY_USAGE: u64 = 42;
+    const HELLO_WORLD_FILE_SIZE: u64 = 113443;
 
     #[test]
     fn test_runtime_over_threshold() {
@@ -153,5 +154,16 @@ mod tests {
         );
 
         assert!(function_run_result.is_err());
+    }
+
+    #[test]
+    fn test_file_size() {
+        let function_run_result = run(
+            Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
+        )
+        .unwrap();
+
+        assert_eq!(function_run_result.size, HELLO_WORLD_FILE_SIZE);
     }
 }
