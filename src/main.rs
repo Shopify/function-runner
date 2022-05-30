@@ -25,10 +25,8 @@ fn main() -> Result<()> {
 
     let function_run_result = run(opts.script, opts.input)?;
 
-    println!("{:#?}", opts.json);
-
     if opts.json {
-        println!("{:#?}", function_run_result);
+        println!("{}", function_run_result.to_json());
     } else {
         println!("{}", function_run_result);
     }

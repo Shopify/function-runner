@@ -24,6 +24,10 @@ impl FunctionRunResult {
             logs,
         }
     }
+
+    pub fn to_json(&self) -> String {
+        serde_json::to_string_pretty(&self).unwrap_or_else(|error| error.to_string())
+    }
 }
 
 impl fmt::Display for FunctionRunResult {
@@ -48,13 +52,5 @@ impl fmt::Display for FunctionRunResult {
         )?;
 
         Ok(())
-    }
-}
-
-impl fmt::Debug for FunctionRunResult {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let serialized =
-            serde_json::to_string_pretty(&self).unwrap_or_else(|error| error.to_string());
-        write!(f, "{}", serialized)
     }
 }
