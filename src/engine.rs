@@ -5,8 +5,6 @@ use std::{
 };
 use wasmtime::{Engine, Linker, Module, Store};
 
-use wasmtime_wasi::sync::WasiCtxBuilder;
-
 use crate::function_run_result::FunctionRunResult;
 
 pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
@@ -30,12 +28,10 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
     {
         let mut linker = Linker::new(&engine);
         wasmtime_wasi::add_to_linker(&mut linker, |s| s)?;
-        let wasi = WasiCtxBuilder::new()
-            .stdin(Box::new(input_stream))
-            .stdout(Box::new(output_stream.clone()))
-            .stderr(Box::new(error_stream.clone()))
-            .inherit_args()?
-            .build();
+        let mut wasi = deterministic_wasi_ctx::build_wasi_ctx();
+        wasi.set_stdin(Box::new(input_stream));
+        wasi.set_stdout(Box::new(output_stream.clone()));
+        wasi.set_stderr(Box::new(error_stream.clone()));
         let mut store = Store::new(&engine, wasi);
 
         linker.module(&mut store, "", &module)?;
@@ -79,27 +75,19 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
 #[cfg(test)]
 mod tests {
     use super::*;
+    use more_asserts::*;
     use std::path::Path;
 
     #[test]
-    fn test_runtime_under_threshold() {
+    fn test_runtime_duration() {
+        // This is using the https://github.com/Shopify/shopify-vm-prototype-script script
         let function_run_result = run(
             Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
             Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
         )
         .unwrap();
 
-        assert!(function_run_result.runtime <= Duration::from_millis(5));
-    }
-
-    #[test]
-    fn test_runtime_over_threshold() {
-        let function_run_result = run(
-            Path::new("tests/benchmarks/sleeps.wasm").to_path_buf(),
-            Path::new("tests/benchmarks/sleeps.json").to_path_buf(),
-        )
-        .unwrap();
-
-        assert!(function_run_result.runtime > Duration::from_millis(5));
+        assert_ge!(function_run_result.runtime, Duration::from_millis(0));
+        assert_le!(function_run_result.runtime, Duration::from_millis(5));
     }
 }
