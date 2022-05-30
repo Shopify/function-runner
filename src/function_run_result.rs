@@ -1,6 +1,8 @@
 use colored::Colorize;
+use serde::Serialize;
 use std::{fmt, time::Duration};
 
+#[derive(Serialize)]
 pub struct FunctionRunResult {
     pub runtime: Duration,
     pub memory_usage: u64,
@@ -46,5 +48,13 @@ impl fmt::Display for FunctionRunResult {
         )?;
 
         Ok(())
+    }
+}
+
+impl fmt::Debug for FunctionRunResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let serialized =
+            serde_json::to_string_pretty(&self).unwrap_or_else(|error| error.to_string());
+        write!(f, "{}", serialized)
     }
 }
