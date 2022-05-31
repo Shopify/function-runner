@@ -91,8 +91,10 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
     let output: serde_json::Value = serde_json::from_slice(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
 
+    let size = script_path.metadata()?.len();
+
     let function_run_result =
-        FunctionRunResult::new(runtime, memory_usage, output, logs.to_string());
+        FunctionRunResult::new(runtime, size, memory_usage, output, logs.to_string());
 
     Ok(function_run_result)
 }
@@ -151,5 +153,22 @@ mod tests {
         );
 
         assert!(function_run_result.is_err());
+    }
+
+    #[test]
+    fn test_file_size() {
+        let function_run_result = run(
+            Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            function_run_result.size,
+            Path::new("tests/benchmarks/hello_world.wasm")
+                .metadata()
+                .unwrap()
+                .len()
+        );
     }
 }
