@@ -1,7 +1,16 @@
+[workspace]
+members = [
+  "benchmark"
+]
+
 [package]
 name = "script-runner"
 version = "0.2.2"
 edition = "2021"
+
+[profile.release.package.benchmark]
+# lto = true doesn't work here: https://github.com/rust-lang/cargo/issues/9330
+opt-level = 's'
 
 [profile.test]
 opt-level = 3

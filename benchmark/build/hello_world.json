@@ -1,0 +1,11 @@
+{
+  "input": {
+    "context": {
+      "suffix": "From Core!"
+    }
+  },
+  "configuration": {
+    "message": "From Core!"
+  },
+  "function_api": "hello_world"
+}
