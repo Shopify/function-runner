@@ -26,6 +26,7 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
     let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
     let runtime: Duration;
+    let memory_usage: u64;
 
     {
         let mut linker = Linker::new(&engine);
@@ -38,11 +39,30 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
             .build();
         let mut store = Store::new(&engine, wasi);
 
-        linker.module(&mut store, "", &module)?;
+        linker.module(&mut store, "Function", &module)?;
 
         let start = Instant::now();
 
         let instance = linker.instantiate(&mut store, &module)?;
+
+        // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
+        // We need this mutable borrow to fall out of scope so that we can mesure memory usage.
+        // https://docs.rs/wasmtime/0.37.0/wasmtime/struct.Instance.html#why-does-get_export-take-a-mutable-context
+        let memory_names: Vec<String> = instance
+            .exports(&mut store)
+            .into_iter()
+            .filter(|export| export.clone().into_memory().is_some())
+            .map(|export| export.name().to_string())
+            .collect();
+
+        memory_usage = memory_names
+            .iter()
+            .map(|name| {
+                let memory = instance.get_memory(&mut store, name).unwrap();
+                memory.size(&store)
+            })
+            .sum();
+
         let module_result = instance
             .get_typed_func::<(), (), _>(&mut store, "_start")?
             .call(&mut store, ());
@@ -71,7 +91,8 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
     let output: serde_json::Value = serde_json::from_slice(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
 
-    let function_run_result = FunctionRunResult::new(runtime, output, logs.to_string());
+    let function_run_result =
+        FunctionRunResult::new(runtime, memory_usage, output, logs.to_string());
 
     Ok(function_run_result)
 }
@@ -81,16 +102,10 @@ mod tests {
     use super::*;
     use std::path::Path;
 
-    #[test]
-    fn test_runtime_under_threshold() {
-        let function_run_result = run(
-            Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
-            Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
-        )
-        .unwrap();
-
-        assert!(function_run_result.runtime <= Duration::from_millis(5));
-    }
+    // Arbitrary, used to verify that the runner works as expected.
+    const FUNCTION_SLEEP_DURATION: Duration = Duration::from_millis(42);
+    const HELLO_WORLD_MEMORY_USAGE: u64 = 17;
+    const MODIFIED_HELLO_WORLD_MEMORY_USAGE: u64 = 42;
 
     #[test]
     fn test_runtime_over_threshold() {
@@ -100,6 +115,41 @@ mod tests {
         )
         .unwrap();
 
-        assert!(function_run_result.runtime > Duration::from_millis(5));
+        assert!(function_run_result.runtime > FUNCTION_SLEEP_DURATION);
+    }
+
+    #[test]
+    fn test_memory_usage_under_threshold() {
+        let function_run_result = run(
+            Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
+        )
+        .unwrap();
+
+        assert_eq!(function_run_result.memory_usage, HELLO_WORLD_MEMORY_USAGE);
+    }
+
+    #[test]
+    fn test_memory_usage_over_threshold() {
+        let function_run_result = run(
+            Path::new("tests/benchmarks/hello_42_pages.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/hello_42_pages.json").to_path_buf(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            function_run_result.memory_usage,
+            MODIFIED_HELLO_WORLD_MEMORY_USAGE
+        );
+    }
+
+    #[test]
+    fn test_stack_overflow() {
+        let function_run_result = run(
+            Path::new("tests/benchmarks/stack_overflow.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/stack_overflow.json").to_path_buf(),
+        );
+
+        assert!(function_run_result.is_err());
     }
 }

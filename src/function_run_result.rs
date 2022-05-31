@@ -3,14 +3,21 @@ use std::{fmt, time::Duration};
 
 pub struct FunctionRunResult {
     pub runtime: Duration,
+    pub memory_usage: u64,
     pub logs: String,
     pub output: serde_json::Value,
 }
 
 impl FunctionRunResult {
-    pub fn new(runtime: Duration, output: serde_json::Value, logs: String) -> Self {
+    pub fn new(
+        runtime: Duration,
+        memory_usage: u64,
+        output: serde_json::Value,
+        logs: String,
+    ) -> Self {
         FunctionRunResult {
             runtime,
+            memory_usage,
             output,
             logs,
         }
@@ -22,7 +29,8 @@ impl fmt::Display for FunctionRunResult {
         let title = "      Benchmark Results      ".black().on_bright_green();
         write!(f, "{}\n\n", title)?;
 
-        writeln!(f, "Runtime: {:?}\n", self.runtime)?;
+        writeln!(f, "Runtime: {:?}", self.runtime)?;
+        writeln!(f, "Memory Usage: {}KB\n", self.memory_usage * 64)?;
 
         writeln!(
             f,
