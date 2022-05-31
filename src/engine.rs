@@ -24,6 +24,7 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
     let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
     let runtime: Duration;
+    let memory_usage: u64;
 
     {
         let mut linker = Linker::new(&engine);
@@ -34,11 +35,30 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
         wasi.set_stderr(Box::new(error_stream.clone()));
         let mut store = Store::new(&engine, wasi);
 
-        linker.module(&mut store, "", &module)?;
+        linker.module(&mut store, "Function", &module)?;
 
         let start = Instant::now();
 
         let instance = linker.instantiate(&mut store, &module)?;
+
+        // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
+        // We need this mutable borrow to fall out of scope so that we can mesure memory usage.
+        // https://docs.rs/wasmtime/0.37.0/wasmtime/struct.Instance.html#why-does-get_export-take-a-mutable-context
+        let memory_names: Vec<String> = instance
+            .exports(&mut store)
+            .into_iter()
+            .filter(|export| export.clone().into_memory().is_some())
+            .map(|export| export.name().to_string())
+            .collect();
+
+        memory_usage = memory_names
+            .iter()
+            .map(|name| {
+                let memory = instance.get_memory(&mut store, name).unwrap();
+                memory.size(&store)
+            })
+            .sum();
+
         let module_result = instance
             .get_typed_func::<(), (), _>(&mut store, "_start")?
             .call(&mut store, ());
@@ -67,7 +87,10 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
     let output: serde_json::Value = serde_json::from_slice(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
 
-    let function_run_result = FunctionRunResult::new(runtime, output, logs.to_string());
+    let size = script_path.metadata()?.len();
+
+    let function_run_result =
+        FunctionRunResult::new(runtime, size, memory_usage, output, logs.to_string());
 
     Ok(function_run_result)
 }
@@ -75,19 +98,61 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
 #[cfg(test)]
 mod tests {
     use super::*;
-    use more_asserts::*;
     use std::path::Path;
 
+    // Arbitrary, used to verify that the runner works as expected.
+    const HELLO_WORLD_MEMORY_USAGE: u64 = 17;
+    const MODIFIED_HELLO_WORLD_MEMORY_USAGE: u64 = 42;
+
     #[test]
-    fn test_runtime_duration() {
-        // This is using the https://github.com/Shopify/shopify-vm-prototype-script script
+    fn test_memory_usage_under_threshold() {
         let function_run_result = run(
             Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
             Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
         )
         .unwrap();
 
-        assert_ge!(function_run_result.runtime, Duration::from_millis(0));
-        assert_le!(function_run_result.runtime, Duration::from_millis(5));
+        assert_eq!(function_run_result.memory_usage, HELLO_WORLD_MEMORY_USAGE);
+    }
+
+    #[test]
+    fn test_memory_usage_over_threshold() {
+        let function_run_result = run(
+            Path::new("tests/benchmarks/hello_42_pages.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/hello_42_pages.json").to_path_buf(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            function_run_result.memory_usage,
+            MODIFIED_HELLO_WORLD_MEMORY_USAGE
+        );
+    }
+
+    #[test]
+    fn test_stack_overflow() {
+        let function_run_result = run(
+            Path::new("tests/benchmarks/stack_overflow.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/stack_overflow.json").to_path_buf(),
+        );
+
+        assert!(function_run_result.is_err());
+    }
+
+    #[test]
+    fn test_file_size() {
+        let function_run_result = run(
+            Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
+            Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            function_run_result.size,
+            Path::new("tests/benchmarks/hello_world.wasm")
+                .metadata()
+                .unwrap()
+                .len()
+        );
     }
 }
