@@ -1,6 +1,8 @@
 use colored::Colorize;
+use serde::Serialize;
 use std::{fmt, time::Duration};
 
+#[derive(Serialize)]
 pub struct FunctionRunResult {
     pub runtime: Duration,
     pub size: u64,
@@ -24,6 +26,10 @@ impl FunctionRunResult {
             output,
             logs,
         }
+    }
+
+    pub fn to_json(&self) -> String {
+        serde_json::to_string_pretty(&self).unwrap_or_else(|error| error.to_string())
     }
 }
 
