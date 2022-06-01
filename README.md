@@ -28,8 +28,7 @@ and add the `script-runner` command to your path.
 ### Usage
 ```
 $ script-runner --help
-script-runner 0.2.0
-
+script-runner 0.2.3
 Simple script runner which takes JSON as a convenience
 
 USAGE:
@@ -40,6 +39,7 @@ ARGS:
 
 OPTIONS:
     -h, --help               Print help information
+    -j, --json               Log the run result as a JSON object
     -s, --script <SCRIPT>    Path to wasm/wat script [default: script.wasm]
     -V, --version            Print version information
 ```
