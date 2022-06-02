@@ -3,8 +3,11 @@
 set -x
 set -e
 
-mkdir -p build
-cargo build --release --target "wasm32-wasi" 
-cp ../target/wasm32-wasi/release/*.wasm build/script.wasm 
-cd build 
-wasm-opt -Oz --strip-debug script.wasm -o script.wasm
+for d in ./*_function/
+do 
+  cd "$d"
+  CARGO_TARGET_DIR=./target cargo build --release --target "wasm32-wasi"
+  echo $d
+  cp ./target/wasm32-wasi/release/*.wasm ../build/
+  cd ..
+done

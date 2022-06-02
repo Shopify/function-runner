@@ -5,8 +5,6 @@ use std::{
 };
 use wasmtime::{Engine, Linker, Module, Store};
 
-use wasmtime_wasi::sync::WasiCtxBuilder;
-
 use crate::function_run_result::FunctionRunResult;
 
 pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
@@ -31,12 +29,10 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
     {
         let mut linker = Linker::new(&engine);
         wasmtime_wasi::add_to_linker(&mut linker, |s| s)?;
-        let wasi = WasiCtxBuilder::new()
-            .stdin(Box::new(input_stream))
-            .stdout(Box::new(output_stream.clone()))
-            .stderr(Box::new(error_stream.clone()))
-            .inherit_args()?
-            .build();
+        let mut wasi = deterministic_wasi_ctx::build_wasi_ctx();
+        wasi.set_stdin(Box::new(input_stream));
+        wasi.set_stdout(Box::new(output_stream.clone()));
+        wasi.set_stderr(Box::new(error_stream.clone()));
         let mut store = Store::new(&engine, wasi);
 
         linker.module(&mut store, "Function", &module)?;
@@ -105,20 +101,8 @@ mod tests {
     use std::path::Path;
 
     // Arbitrary, used to verify that the runner works as expected.
-    const FUNCTION_SLEEP_DURATION: Duration = Duration::from_millis(42);
     const HELLO_WORLD_MEMORY_USAGE: u64 = 17;
     const MODIFIED_HELLO_WORLD_MEMORY_USAGE: u64 = 42;
-
-    #[test]
-    fn test_runtime_over_threshold() {
-        let function_run_result = run(
-            Path::new("tests/benchmarks/sleeps.wasm").to_path_buf(),
-            Path::new("tests/benchmarks/sleeps.json").to_path_buf(),
-        )
-        .unwrap();
-
-        assert!(function_run_result.runtime > FUNCTION_SLEEP_DURATION);
-    }
 
     #[test]
     fn test_memory_usage_under_threshold() {

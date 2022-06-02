@@ -1,5 +1,5 @@
 [package]
-name = "benchmark"
+name = "linear_memory_function"
 version = "1.0.0"
 edition = "2021"
 
