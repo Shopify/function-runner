@@ -1,5 +1,4 @@
 use serde::Serialize;
-
 mod api;
 use api::*;
 
