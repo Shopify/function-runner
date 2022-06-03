@@ -87,10 +87,18 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
     let output: serde_json::Value = serde_json::from_slice(output.as_slice())
         .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
 
+    // get the script file name
+    let name = script_path.file_name().unwrap().to_str().unwrap();
     let size = script_path.metadata()?.len();
 
-    let function_run_result =
-        FunctionRunResult::new(runtime, size, memory_usage, output, logs.to_string());
+    let function_run_result = FunctionRunResult::new(
+        name.to_string(),
+        runtime,
+        size,
+        memory_usage,
+        output,
+        logs.to_string(),
+    );
 
     Ok(function_run_result)
 }
