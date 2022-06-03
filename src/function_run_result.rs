@@ -4,6 +4,7 @@ use std::{fmt, time::Duration};
 
 #[derive(Serialize)]
 pub struct FunctionRunResult {
+    pub name: String,
     pub runtime: Duration,
     pub size: u64,
     pub memory_usage: u64,
@@ -13,6 +14,7 @@ pub struct FunctionRunResult {
 
 impl FunctionRunResult {
     pub fn new(
+        name: String,
         runtime: Duration,
         size: u64,
         memory_usage: u64,
@@ -20,6 +22,7 @@ impl FunctionRunResult {
         logs: String,
     ) -> Self {
         FunctionRunResult {
+            name,
             runtime,
             size,
             memory_usage,
@@ -37,7 +40,7 @@ impl fmt::Display for FunctionRunResult {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let title = "      Benchmark Results      ".black().on_bright_green();
         write!(f, "{}\n\n", title)?;
-
+        writeln!(f, "Name: {}", self.name)?;
         writeln!(f, "Runtime: {:?}", self.runtime)?;
         writeln!(f, "Memory Usage: {}KB", self.memory_usage * 64)?;
         writeln!(f, "Size: {}KB\n", self.size / 1024)?;
