@@ -15,8 +15,14 @@ fn script(payload: Payload) -> Result<Output, Box<dyn std::error::Error>> {
     let (input, config) = (payload.input, payload.configuration);
     let message_config = config.message;
 
+    let y: [u8; 1024 * 500] = [255; 1024 * 500];
+
     eprintln!("config message is: {:?}", message_config);
     eprintln!("input message is: {:?}", input.context.suffix);
+    eprintln!(
+        "{}KB allocated on the stack",
+        std::mem::size_of_val(&y) as f64 / 1024.0
+    );
 
     return Ok(Output {
         message: "Hello World!".to_string(),

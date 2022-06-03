@@ -11,6 +11,11 @@ name = "script-runner"
 version = "0.2.3"
 edition = "2021"
 
+[profile.benchmark]
+inherits = "release"
+lto = true
+opt-level = "s"
+
 [profile.test]
 opt-level = 3
 
