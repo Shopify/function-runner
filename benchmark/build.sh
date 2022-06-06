@@ -11,6 +11,12 @@ do
   cd ..
 done
 
-for filename in ./build/*.wasm; do
+for filename in ./build/*.wasm
+do
   wasm-opt -Oz --strip-debug "$filename" -o "$filename"
+done
+
+for filename in ./build/*.wat
+do
+  wat2wasm "$filename" -o "${filename%.*}".wasm
 done
