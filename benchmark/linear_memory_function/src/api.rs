@@ -18,10 +18,10 @@ pub struct Input {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct HelloWorldContext {
-    pub suffix: String
+    pub suffix: String,
 }
 
 #[derive(Clone, Debug, Serialize)]
 pub struct Output {
-    pub message: String
+    pub message: String,
 }
