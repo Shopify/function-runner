@@ -13,4 +13,4 @@ Manual modification explanation:
 
 - linear_memory_function: modified the memory call at line 46445 of the `linear_memory_function.wasm` file to request 159 pages, each weighting 64KB. 160 pages is 10MB, but since we want to be under the limit we remove 1 from 160 which gives 159.
 
-- size_function: added a constant at the end of the file consisting of a 160KB long strin.
+- size_function: added a constant at the end of the file consisting of a 160KB long string.
