@@ -14,18 +14,18 @@ jobs:
         include:
           - name: linux
             os: ubuntu-latest
-            path: target/release/script-runner
-            asset_name: script-runner-x86_64-linux-${{ github.event.release.tag_name }}
+            path: target/release/function-runner
+            asset_name: function-runner-x86_64-linux-${{ github.event.release.tag_name }}
             shasum_cmd: sha256sum
           - name: macos
             os: macos-latest
-            path: target/release/script-runner
-            asset_name: script-runner-x86_64-macos-${{ github.event.release.tag_name }}
+            path: target/release/function-runner
+            asset_name: function-runner-x86_64-macos-${{ github.event.release.tag_name }}
             shasum_cmd: shasum -a 256
           - name: windows
             os: windows-latest
-            path: target\release\script-runner.exe
-            asset_name: script-runner-x86_64-windows-${{ github.event.release.tag_name }}
+            path: target\release\function-runner.exe
+            asset_name: function-runner-x86_64-windows-${{ github.event.release.tag_name }}
             shasum_cmd: sha256sum
 
     steps:
@@ -39,7 +39,7 @@ jobs:
           default: true
 
       - name: Build ${{ matrix.os }}
-        run: cargo build --release --package script-runner
+        run: cargo build --release --package function-runner
 
       - name: Archive assets
         run: gzip -k -f ${{ matrix.path }} && mv ${{ matrix.path }}.gz ${{ matrix.asset_name }}.gz

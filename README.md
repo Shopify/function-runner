@@ -1,45 +1,46 @@
-# script-runner
+# function-runner
 
 [About this repo](#about-this-repo) |  [Commands](#commands-optional) | [How to use this repo](#how-to-use-this-repo)
 
 ## About this repo
 **Introduction:**
 
-This is a simple CLI (`script-runner`) which allows you to run Wasm
-scripts intended for ShopifyVM. Scripts will run using
+This is a simple CLI (`function-runner`) which allows you to run Wasm
+Functions intended for the Shopify Functions infrastructure. Functions will run using
 the provided JSON input file and their output will be printed as JSON
 upon completion.
 
-By default, the script is expected to be named `script.wasm` in the
-current directory. This may be overriden using the `-s` option.
+By default, the Function is expected to be named `function.wasm` in the
+current directory. This may be overriden using the `-f` option.
 
-Example: `script-runner -s '../my-script-name.wasm' '../my-input.json'`
+Example: `function-runner -s '../my-function-name.wasm' '../my-input.json'`
 
 ## Commands (optional)
 
-* `cargo install --path .` : Build and install the `script-runner` command.
-* `script-runner` : Execute scripts.
+* `cargo install --path .` : Build and install the `function-runner` command.
+* `function-runner` : Execute Functions.
 
 ## How to use this repo
 
 Building requires a rust toolchain of at least `1.56.0` (older may work). `cargo install --path .` will build
-and add the `script-runner` command to your path.
+and add the `function-runner` command to your path.
 
 ### Usage
+
 ```
-$ script-runner --help
-script-runner 0.2.3
-Simple script runner which takes JSON as a convenience
+$ function-runner --help
+function-runner 0.2.3
+Simple function runner which takes JSON as a convenience
 
 USAGE:
-    script-runner [OPTIONS] <INPUT>
+    function-runner [OPTIONS] <INPUT>
 
 ARGS:
-    <INPUT>    Path to json file containing script input
+    <INPUT>    Path to json file containing function input
 
 OPTIONS:
     -h, --help               Print help information
     -j, --json               Log the run result as a JSON object
-    -s, --script <SCRIPT>    Path to wasm/wat script [default: script.wasm]
+    -f, --function <FUNCTION>    Path to wasm/wat function [default: function.wasm]
     -V, --version            Print version information
 ```

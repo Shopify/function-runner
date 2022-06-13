@@ -2,17 +2,17 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::Parser;
-use script_runner::engine::run;
+use function_runner::engine::run;
 
-/// Simple script runner which takes JSON as a convenience.
+/// Simple Function runner which takes JSON as a convenience.
 #[derive(Parser)]
 #[clap(version)]
 struct Opts {
-    /// Path to wasm/wat script
-    #[clap(short, long, default_value = "script.wasm")]
-    script: PathBuf,
+    /// Path to wasm/wat Function
+    #[clap(short, long, default_value = "function.wasm")]
+    function: PathBuf,
 
-    /// Path to json file containing script input
+    /// Path to json file containing Function input
     input: PathBuf,
 
     /// Log the run result as a JSON object
@@ -23,7 +23,7 @@ struct Opts {
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let function_run_result = run(opts.script, opts.input)?;
+    let function_run_result = run(opts.function, opts.input)?;
 
     if opts.json {
         println!("{}", function_run_result.to_json());
