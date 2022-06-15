@@ -43,12 +43,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn function(payload: Payload) -> Result<FunctionResult, Box<dyn std::error::Error>> {
-    // Allorcate linear memory
-    unsafe {
-        let layout = std::alloc::Layout::new::<u8>();
-        let ptr = std::alloc::alloc(layout);
-    }
-
     let (input, config) = (payload.input, payload.configuration);
     let value: f64 = config.get_value();
     let merchandise_lines = &input.merchandise_lines.unwrap_or_default();
