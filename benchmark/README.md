@@ -5,7 +5,7 @@ Each benchmark function corresponds to one of the following criteria. However, s
 | Function name          | Criteria                                                   | Manual modification (yes/no) |
 |------------------------|------------------------------------------------------------|------------------------------|
 | runtime_function       | Needs to run close to but under 2 ms.                      | No                           |
-| size_function          | The module needs to be close to but under 256 KB.          | No                           |
+| size_function          | The module needs to be close to but under 256 KB.          | Yes                           |
 | linear_memory_function | Need to allocate close to but under linear memory of 10MB. | Yes                          |
 | stack_memory_function  | Need to allocate close to but under stack memory of 512KB. | No                           |
 

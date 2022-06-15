@@ -5,5 +5,5 @@ set -e
 
 source ./build.sh
 for filename in ./build/*.wasm; do
-  cargo run --release --package "script-runner" -- "./build/hello_world.json" -s "$filename"
+  cargo run --release --package "function-runner" -- "./build/hello_world.json" -f "$filename"
 done
