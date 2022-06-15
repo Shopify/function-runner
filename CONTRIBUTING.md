@@ -3,7 +3,7 @@
 1. From the `main` branch, set an environment variable to the version number with the format `v{version_number}` (e.g. `v0.1.0`). This should match the version number in `Cargo.toml`.
 
 ```sh
-export FUNCTION_RUNNER_VERSION=v0.1.0
+export FUNCTION=v0.1.0
 ```
 
 2. Create a new tag.
