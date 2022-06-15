@@ -7,10 +7,10 @@ use wasmtime::{Engine, Linker, Module, Store};
 
 use crate::function_run_result::FunctionRunResult;
 
-pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
+pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
     let engine = Engine::default();
-    let module = Module::from_file(&engine, &script_path)
-        .map_err(|e| anyhow!("Couldn't load script {:?}: {}", &script_path, e))?;
+    let module = Module::from_file(&engine, &function_path)
+        .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
     let input: serde_json::Value = serde_json::from_reader(
         std::fs::File::open(&input_path)
@@ -78,18 +78,17 @@ pub fn run(script_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResul
         .expect("Error stream reference still exists")
         .into_inner();
     let logs =
-        std::str::from_utf8(&logs).map_err(|e| anyhow!("Couldn't print Script Logs: {}", e))?;
+        std::str::from_utf8(&logs).map_err(|e| anyhow!("Couldn't print Function Logs: {}", e))?;
 
     let output = output_stream
         .try_into_inner()
         .expect("Output stream reference still exists")
         .into_inner();
     let output: serde_json::Value = serde_json::from_slice(output.as_slice())
-        .map_err(|e| anyhow!("Couldn't decode Script Output: {}", e))?;
+        .map_err(|e| anyhow!("Couldn't decode Function Output: {}", e))?;
 
-    // get the script file name
-    let name = script_path.file_name().unwrap().to_str().unwrap();
-    let size = script_path.metadata()?.len();
+    let name = function_path.file_name().unwrap().to_str().unwrap();
+    let size = function_path.metadata()?.len();
 
     let function_run_result = FunctionRunResult::new(
         name.to_string(),
