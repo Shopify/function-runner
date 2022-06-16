@@ -29,7 +29,7 @@ and add the `function-runner` command to your path.
 
 ```
 $ function-runner --help
-function-runner 0.2.3
+function-runner 3.0.0
 Simple function runner which takes JSON as a convenience
 
 USAGE:
