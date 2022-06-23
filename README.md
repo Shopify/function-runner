@@ -23,6 +23,12 @@ contains binaries that can be run on your computer.
 
 To see the list of possible commands and arguments, run `function-runner --help`.
 
+When running this on x86 architectures (not Apple Silicon) and if you pass a Wasm file that includes debug symbols (that is, DWARF symbols), you can step debug your function with lldb by installing lldb and running:
+
+```
+lldb -- function-runner -f '../my-function-name.wasm' '../my-input.json'
+```
+
 ## Development
 
 Building requires a rust toolchain of at least `1.56.0` (older may work). `cargo install --path .` will build
