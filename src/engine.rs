@@ -25,7 +25,7 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
 
     let runtime: Duration;
     let memory_usage: u64;
-    let mut error: Option<String> = Default::default();
+    let mut error: Option<String> = None;
 
     {
         let mut linker = Linker::new(&engine);
