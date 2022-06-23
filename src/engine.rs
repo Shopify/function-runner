@@ -142,9 +142,13 @@ mod tests {
         let function_run_result = run(
             Path::new("tests/benchmarks/stack_overflow.wasm").to_path_buf(),
             Path::new("tests/benchmarks/stack_overflow.json").to_path_buf(),
-        );
+        )
+        .unwrap();
 
-        assert!(function_run_result.is_err());
+        assert!(function_run_result
+            .error
+            .unwrap()
+            .contains("out of bounds memory access"));
     }
 
     #[test]
