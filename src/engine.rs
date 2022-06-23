@@ -91,18 +91,15 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
         .expect("Output stream reference still exists")
         .into_inner();
 
-    let output: FunctionOutput;
-    match serde_json::from_slice(&raw_output) {
-        Ok(json_output) => output = JsonOutput(json_output),
-        Err(_) => {
-            output = InvalidOutput(
-                std::str::from_utf8(&raw_output)
-                    .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
-                    .unwrap()
-                    .to_owned(),
-            );
-        }
-    }
+    let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
+        Ok(json_output) => JsonOutput(json_output),
+        Err(_) => InvalidOutput(
+            std::str::from_utf8(&raw_output)
+                .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
+                .unwrap()
+                .to_owned(),
+        ),
+    };
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len();
