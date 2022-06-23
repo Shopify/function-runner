@@ -25,6 +25,7 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
 
     let runtime: Duration;
     let memory_usage: u64;
+    let mut error: Option<String> = Default::default();
 
     {
         let mut linker = Linker::new(&engine);
@@ -68,7 +69,7 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
         match module_result {
             Ok(_) => {}
             Err(e) => {
-                eprintln!("Error:\n{}", e);
+                error = Some(e.to_string());
             }
         }
     };
@@ -80,12 +81,11 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
     let logs =
         std::str::from_utf8(&logs).map_err(|e| anyhow!("Couldn't print Function Logs: {}", e))?;
 
-    let output = output_stream
+    let raw_output = output_stream
         .try_into_inner()
         .expect("Output stream reference still exists")
         .into_inner();
-    let output: serde_json::Value = serde_json::from_slice(output.as_slice())
-        .map_err(|e| anyhow!("Couldn't decode Function Output: {}", e))?;
+    let output = serde_json::from_slice(raw_output.as_slice()).unwrap_or_default();
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len();
@@ -97,6 +97,7 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
         memory_usage,
         output,
         logs.to_string(),
+        error,
     );
 
     Ok(function_run_result)

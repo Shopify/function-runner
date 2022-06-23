@@ -10,6 +10,7 @@ pub struct FunctionRunResult {
     pub memory_usage: u64,
     pub logs: String,
     pub output: serde_json::Value,
+    pub error: Option<String>,
 }
 
 impl FunctionRunResult {
@@ -20,6 +21,7 @@ impl FunctionRunResult {
         memory_usage: u64,
         output: serde_json::Value,
         logs: String,
+        error: Option<String>,
     ) -> Self {
         FunctionRunResult {
             name,
@@ -28,6 +30,7 @@ impl FunctionRunResult {
             memory_usage,
             output,
             logs,
+            error,
         }
     }
 
@@ -44,6 +47,15 @@ impl fmt::Display for FunctionRunResult {
         writeln!(f, "Runtime: {:?}", self.runtime)?;
         writeln!(f, "Memory Usage: {}KB", self.memory_usage * 64)?;
         writeln!(f, "Size: {}KB\n", self.size / 1024)?;
+
+        if let Some(error) = &self.error {
+            writeln!(
+                f,
+                "{}\n\n{}",
+                "            Error             ".black().on_bright_red(),
+                error
+            )?;
+        }
 
         writeln!(
             f,
