@@ -9,7 +9,7 @@ use crate::function_run_result::FunctionRunResult;
 
 pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
     let engine = if cfg!(target_arch = "x86_64") {
-        // enabling this on non-x86 architectures currently causes an error (as of 2022-06-23)
+        // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
         Engine::new(Config::new().debug_info(true))?
     } else {
         Engine::default()
