@@ -10,6 +10,8 @@ use crate::function_run_result::{
     FunctionRunResult, InvalidOutput,
 };
 
+const KB_PER_PAGE: u64 = 64;
+
 pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
     let engine = Engine::default();
     let module = Module::from_file(&engine, &function_path)
@@ -61,7 +63,8 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
                 let memory = instance.get_memory(&mut store, name).unwrap();
                 memory.size(&store)
             })
-            .sum();
+            .sum::<u64>()
+            * KB_PER_PAGE;
 
         let module_result = instance
             .get_typed_func::<(), (), _>(&mut store, "_start")?
@@ -123,8 +126,8 @@ mod tests {
     use std::path::Path;
 
     // Arbitrary, used to verify that the runner works as expected.
-    const HELLO_WORLD_MEMORY_USAGE: u64 = 17;
-    const MODIFIED_HELLO_WORLD_MEMORY_USAGE: u64 = 42;
+    const HELLO_WORLD_MEMORY_USAGE: u64 = 17 * KB_PER_PAGE;
+    const MODIFIED_HELLO_WORLD_MEMORY_USAGE: u64 = 42 * KB_PER_PAGE;
 
     #[test]
     fn test_memory_usage_under_threshold() {
