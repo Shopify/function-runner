@@ -7,6 +7,8 @@ use wasmtime::{Engine, Linker, Module, Store};
 
 use crate::function_run_result::FunctionRunResult;
 
+const KB_PER_PAGE: u64 = 64;
+
 pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
     let engine = Engine::default();
     let module = Module::from_file(&engine, &function_path)
@@ -57,7 +59,8 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
                 let memory = instance.get_memory(&mut store, name).unwrap();
                 memory.size(&store)
             })
-            .sum();
+            .sum::<u64>()
+            * KB_PER_PAGE;
 
         let module_result = instance
             .get_typed_func::<(), (), _>(&mut store, "_start")?
