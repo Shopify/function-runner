@@ -42,7 +42,7 @@ impl fmt::Display for FunctionRunResult {
         write!(f, "{}\n\n", title)?;
         writeln!(f, "Name: {}", self.name)?;
         writeln!(f, "Runtime: {:?}", self.runtime)?;
-        writeln!(f, "Memory Usage: {}KB", self.memory_usage * 64)?;
+        writeln!(f, "Memory Usage: {}KB", self.memory_usage)?;
         writeln!(f, "Size: {}KB\n", self.size / 1024)?;
 
         writeln!(
