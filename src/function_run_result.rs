@@ -5,13 +5,13 @@ use std::{fmt, time::Duration};
 #[derive(Serialize, Deserialize)]
 pub struct InvalidOutput {
     pub error: String,
-    pub output: String,
+    pub stdout: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub enum FunctionOutput {
     JsonOutput(serde_json::Value),
-    JsonInvalidOutput(InvalidOutput),
+    InvalidJsonOutput(InvalidOutput),
 }
 
 #[derive(Serialize)]
@@ -76,12 +76,12 @@ impl fmt::Display for FunctionRunResult {
                         .unwrap_or_else(|error| error.to_string())
                 )?;
             }
-            FunctionOutput::JsonInvalidOutput(output) => {
+            FunctionOutput::InvalidJsonOutput(output) => {
                 writeln!(
                     formatter,
                     "{}\n\n{}",
                     "        Invalid Output      ".black().on_bright_red(),
-                    output.output
+                    output.stdout
                 )?;
 
                 writeln!(

@@ -6,7 +6,7 @@ use std::{
 use wasmtime::{Engine, Linker, Module, Store};
 
 use crate::function_run_result::{
-    FunctionOutput::{self, JsonInvalidOutput, JsonOutput},
+    FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
     FunctionRunResult, InvalidOutput,
 };
 
@@ -93,8 +93,8 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
 
     let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
         Ok(json_output) => JsonOutput(json_output),
-        Err(error) => JsonInvalidOutput(InvalidOutput {
-            output: std::str::from_utf8(&raw_output)
+        Err(error) => InvalidJsonOutput(InvalidOutput {
+            stdout: std::str::from_utf8(&raw_output)
                 .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
                 .unwrap()
                 .to_owned(),
