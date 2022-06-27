@@ -43,18 +43,18 @@ impl FunctionRunResult {
 }
 
 impl fmt::Display for FunctionRunResult {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         let title = "      Benchmark Results      "
             .black()
             .on_truecolor(150, 191, 72);
-        write!(f, "{}\n\n", title)?;
-        writeln!(f, "Name: {}", self.name)?;
-        writeln!(f, "Runtime: {:?}", self.runtime)?;
-        writeln!(f, "Memory Usage: {}KB", self.memory_usage * 64)?;
-        writeln!(f, "Size: {}KB\n", self.size / 1024)?;
+        write!(formatter, "{}\n\n", title)?;
+        writeln!(formatter, "Name: {}", self.name)?;
+        writeln!(formatter, "Runtime: {:?}", self.runtime)?;
+        writeln!(formatter, "Memory Usage: {}KB", self.memory_usage * 64)?;
+        writeln!(formatter, "Size: {}KB\n", self.size / 1024)?;
 
         writeln!(
-            f,
+            formatter,
             "{}\n\n{}",
             "            Logs            ".black().on_bright_blue(),
             self.logs
@@ -63,7 +63,7 @@ impl fmt::Display for FunctionRunResult {
         match &self.output {
             FunctionOutput::JsonOutput(json_output) => {
                 writeln!(
-                    f,
+                    formatter,
                     "{}\n\n{}",
                     "           Output           ".black().on_bright_green(),
                     serde_json::to_string_pretty(&json_output)
@@ -72,7 +72,7 @@ impl fmt::Display for FunctionRunResult {
             }
             FunctionOutput::InvalidOutput(output) => {
                 writeln!(
-                    f,
+                    formatter,
                     "{}\n\n{}",
                     "        Invalid Output      ".black().on_bright_red(),
                     output
