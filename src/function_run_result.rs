@@ -3,9 +3,15 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, time::Duration};
 
 #[derive(Serialize, Deserialize)]
+pub struct InvalidOutput {
+    pub error: String,
+    pub output: String,
+}
+
+#[derive(Serialize, Deserialize)]
 pub enum FunctionOutput {
     JsonOutput(serde_json::Value),
-    InvalidOutput(String),
+    JsonInvalidOutput(InvalidOutput),
 }
 
 #[derive(Serialize)]
@@ -70,12 +76,19 @@ impl fmt::Display for FunctionRunResult {
                         .unwrap_or_else(|error| error.to_string())
                 )?;
             }
-            FunctionOutput::InvalidOutput(output) => {
+            FunctionOutput::JsonInvalidOutput(output) => {
                 writeln!(
                     formatter,
                     "{}\n\n{}",
                     "        Invalid Output      ".black().on_bright_red(),
-                    output
+                    output.output
+                )?;
+
+                writeln!(
+                    formatter,
+                    "{}\n\n{}",
+                    "         JSON Error         ".black().on_bright_red(),
+                    output.error
                 )?;
             }
         }
