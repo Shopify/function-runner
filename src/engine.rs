@@ -111,8 +111,8 @@ mod tests {
     use std::path::Path;
 
     // Arbitrary, used to verify that the runner works as expected.
-    const HELLO_WORLD_MEMORY_USAGE: u64 = 17;
-    const MODIFIED_HELLO_WORLD_MEMORY_USAGE: u64 = 42;
+    const HELLO_WORLD_MEMORY_USAGE: u64 = 17 * KB_PER_PAGE;
+    const MODIFIED_HELLO_WORLD_MEMORY_USAGE: u64 = 42 * KB_PER_PAGE;
 
     #[test]
     fn test_memory_usage_under_threshold() {
