@@ -76,19 +76,19 @@ impl fmt::Display for FunctionRunResult {
                         .unwrap_or_else(|error| error.to_string())
                 )?;
             }
-            FunctionOutput::InvalidJsonOutput(output) => {
+            FunctionOutput::InvalidJsonOutput(invalid_output) => {
                 writeln!(
                     formatter,
                     "{}\n\n{}",
                     "        Invalid Output      ".black().on_bright_red(),
-                    output.stdout
+                    invalid_output.stdout
                 )?;
 
                 writeln!(
                     formatter,
                     "{}\n\n{}",
                     "         JSON Error         ".black().on_bright_red(),
-                    output.error
+                    invalid_output.error
                 )?;
             }
         }
