@@ -3,14 +3,19 @@ use std::{
     path::PathBuf,
     time::{Duration, Instant},
 };
-use wasmtime::{Engine, Linker, Module, Store};
+use wasmtime::{Config, Engine, Linker, Module, Store};
 
 use crate::function_run_result::FunctionRunResult;
 
 const KB_PER_PAGE: u64 = 64;
 
 pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
-    let engine = Engine::default();
+    let engine = if cfg!(target_arch = "x86_64") {
+        // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
+        Engine::new(Config::new().debug_info(true))?
+    } else {
+        Engine::default()
+    };
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 

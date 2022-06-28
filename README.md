@@ -23,6 +23,14 @@ contains binaries that can be run on your computer.
 
 To see the list of possible commands and arguments, run `function-runner --help`.
 
+### Debugging
+
+Wasm files with DWARF symbols can be debugged using `lldb` on x86 architectures (not Apple Silicon). To do this, install `lldb` and run:
+
+```
+lldb -- function-runner -f '../my-function-name.wasm' '../my-input.json'
+```
+
 ## Development
 
 Building requires a rust toolchain of at least `1.56.0` (older may work). `cargo install --path .` will build
