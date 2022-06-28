@@ -44,9 +44,15 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
 
         linker.module(&mut store, "Function", &module)?;
 
+        let instance = linker.instantiate(&mut store, &module)?;
+
         let start = Instant::now();
 
-        let instance = linker.instantiate(&mut store, &module)?;
+        let module_result = instance
+            .get_typed_func::<(), (), _>(&mut store, "_start")?
+            .call(&mut store, ());
+
+        runtime = start.elapsed();
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
         // We need this mutable borrow to fall out of scope so that we can mesure memory usage.
@@ -66,12 +72,6 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
             })
             .sum::<u64>()
             * KB_PER_PAGE;
-
-        let module_result = instance
-            .get_typed_func::<(), (), _>(&mut store, "_start")?
-            .call(&mut store, ());
-
-        runtime = start.elapsed();
 
         match module_result {
             Ok(_) => {}
