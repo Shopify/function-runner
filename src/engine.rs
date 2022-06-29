@@ -3,12 +3,22 @@ use std::{
     path::PathBuf,
     time::{Duration, Instant},
 };
-use wasmtime::{Engine, Linker, Module, Store};
+use wasmtime::{Config, Engine, Linker, Module, Store};
 
-use crate::function_run_result::FunctionRunResult;
+use crate::function_run_result::{
+    FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
+    FunctionRunResult, InvalidOutput,
+};
+
+const KB_PER_PAGE: u64 = 64;
 
 pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
-    let engine = Engine::default();
+    let engine = if cfg!(target_arch = "x86_64") {
+        // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
+        Engine::new(Config::new().debug_info(true))?
+    } else {
+        Engine::default()
+    };
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
@@ -25,6 +35,7 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
 
     let runtime: Duration;
     let memory_usage: u64;
+    let mut error_logs: String = String::new();
 
     {
         let mut linker = Linker::new(&engine);
@@ -37,9 +48,15 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
 
         linker.module(&mut store, "Function", &module)?;
 
+        let instance = linker.instantiate(&mut store, &module)?;
+
         let start = Instant::now();
 
-        let instance = linker.instantiate(&mut store, &module)?;
+        let module_result = instance
+            .get_typed_func::<(), (), _>(&mut store, "_start")?
+            .call(&mut store, ());
+
+        runtime = start.elapsed();
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
         // We need this mutable borrow to fall out of scope so that we can mesure memory usage.
@@ -57,35 +74,41 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
                 let memory = instance.get_memory(&mut store, name).unwrap();
                 memory.size(&store)
             })
-            .sum();
-
-        let module_result = instance
-            .get_typed_func::<(), (), _>(&mut store, "_start")?
-            .call(&mut store, ());
-
-        runtime = start.elapsed();
+            .sum::<u64>()
+            * KB_PER_PAGE;
 
         match module_result {
             Ok(_) => {}
             Err(e) => {
-                eprintln!("Error:\n{}", e);
+                error_logs = e.to_string();
             }
         }
     };
 
-    let logs = error_stream
+    let raw_logs = error_stream
         .try_into_inner()
         .expect("Error stream reference still exists")
         .into_inner();
-    let logs =
-        std::str::from_utf8(&logs).map_err(|e| anyhow!("Couldn't print Function Logs: {}", e))?;
+    let mut logs = std::string::String::from_utf8(raw_logs)
+        .map_err(|e| anyhow!("Couldn't print Function Logs: {}", e))?;
 
-    let output = output_stream
+    logs.push_str(&error_logs);
+
+    let raw_output = output_stream
         .try_into_inner()
         .expect("Output stream reference still exists")
         .into_inner();
-    let output: serde_json::Value = serde_json::from_slice(output.as_slice())
-        .map_err(|e| anyhow!("Couldn't decode Function Output: {}", e))?;
+
+    let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
+        Ok(json_output) => JsonOutput(json_output),
+        Err(error) => InvalidJsonOutput(InvalidOutput {
+            stdout: std::str::from_utf8(&raw_output)
+                .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
+                .unwrap()
+                .to_owned(),
+            error: error.to_string(),
+        }),
+    };
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len();
@@ -95,8 +118,8 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
         runtime,
         size,
         memory_usage,
-        output,
         logs.to_string(),
+        output,
     );
 
     Ok(function_run_result)
