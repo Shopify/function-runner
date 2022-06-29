@@ -7,7 +7,7 @@ edition = "2021"
 opt-level = 3
 
 [dependencies]
-wasmtime = "0.37"
+wasmtime = "0.38"
 wasmtime-wasi = "0.37"
 wasi-common = "0.37"
 deterministic-wasi-ctx = "0.1.3"
