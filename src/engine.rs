@@ -130,7 +130,7 @@ mod tests {
     use super::*;
     use std::path::Path;
 
-    const LINEAR_MEMORY_USAGE: u64 = 159;
+    const LINEAR_MEMORY_USAGE: u64 = 159 * 64;
 
     #[test]
     fn test_linear_memory_usage() {
