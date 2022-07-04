@@ -136,7 +136,7 @@ mod tests {
     fn test_linear_memory_usage() {
         let function_run_result = run(
             Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
-            Path::new("benchmark/build/hello_world.json").to_path_buf(),
+            Path::new("benchmark/build/product_discount.json").to_path_buf(),
         )
         .unwrap();
 
@@ -147,7 +147,7 @@ mod tests {
     fn test_file_size() {
         let function_run_result = run(
             Path::new("benchmark/build/size_function.wasm").to_path_buf(),
-            Path::new("benchmark/build/hello_world.json").to_path_buf(),
+            Path::new("benchmark/build/product_discount.json").to_path_buf(),
         )
         .unwrap();
 
