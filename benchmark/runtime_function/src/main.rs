@@ -32,6 +32,7 @@ fn function(input: input::Input) -> Result<FunctionResult, Box<dyn std::error::E
         }
     }
 
+    // Increase the runtime of the function with expensive calculations.
     let mut total: f64 = 100.0;
     for _ in 0..130_000 {
         total *= 0.99284218653213;
