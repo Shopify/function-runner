@@ -33,7 +33,7 @@ fn function(input: input::Input) -> Result<FunctionResult, Box<dyn std::error::E
     }
 
     let mut total: f64 = 100.0;
-    for _ in 0..150_000 {
+    for _ in 0..130_000 {
         total *= 0.99284218653213;
     }
 
