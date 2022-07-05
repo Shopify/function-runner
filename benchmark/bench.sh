@@ -11,4 +11,4 @@ cargo run --release --package "function-runner" -- "./build/product_discount.jso
 
 cargo run --release --package "function-runner" -- "./build/product_discount.json" -f "./build/size_function.wasm"
 
-cargo run --release --package "function-runner" -- "./build/product_discount.json" -f "./build/stack_memory_function.wasm"
+cargo run --release --package "function-runner" -- "./build/volume_discount.json" -f "./build/stack_memory_function.wasm"
