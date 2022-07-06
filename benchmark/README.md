@@ -17,4 +17,4 @@ Manual modification explanation:
 
 ## The runtime Function
 
-The runtime Function is particular, because its metrics differ depending on where its ran. In production, this Function runs in around 5 ms. Ran locally, it can run much quicker or slower depending on the computing power. Thus, the runtime of the locally developed Function should have a shorter runtime than this Function.
+Functions will have different runtimes depending on whether or not they're run locally or in production due to differences in available computing power. This runtime_function benchmark is configured to take just below the 5ms timeout in production, though it may execute faster locally. You can compare a function against this benchmark to determine if it is likely to timeout in production. 
