@@ -17,4 +17,4 @@ Manual modification explanation:
 
 ## The runtime Function
 
-Functions will have different runtimes depending on whether or not they're run locally or in production due to differences in available computing power. This runtime_function benchmark is configured to take just below the 5ms timeout in production, though it may execute faster locally. You can compare a function against this benchmark to determine if it is likely to timeout in production. 
+Functions will have different runtimes depending on whether or not they're run locally or in production due to differences in available computing power. This runtime_function benchmark is configured to take just below the 5ms timeout in production, though it may execute faster locally. You can compare a function against this benchmark to determine if it is likely to timeout in production.
