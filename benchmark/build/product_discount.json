@@ -1,0 +1,14 @@
+{
+  "input": {
+    "merchandiseLines": [
+      { "variant": { "id": "gid://shopify/ProductVariant/1" } },
+      { "variant": { "id": "gid://shopify/ProductVariant/2" } }
+    ]
+  },
+  "configuration": {
+    "value": "5.55",
+    "excludedVariantIds": [
+      "gid://shopify/ProductVariant/1"
+    ]
+  }
+}

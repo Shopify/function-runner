@@ -1,7 +1,20 @@
+[workspace]
+members = [
+  "benchmark/linear_memory_function",
+  "benchmark/runtime_function",
+  "benchmark/size_function",
+  "benchmark/stack_memory_function",
+]
+
 [package]
 name = "function-runner"
 version = "3.1.0"
 edition = "2021"
+
+[profile.benchmark]
+inherits = "release"
+lto = true
+opt-level = "s"
 
 [profile.test]
 opt-level = 3

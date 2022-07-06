@@ -130,59 +130,30 @@ mod tests {
     use super::*;
     use std::path::Path;
 
-    // Arbitrary, used to verify that the runner works as expected.
-    const HELLO_WORLD_MEMORY_USAGE: u64 = 17 * KB_PER_PAGE;
-    const MODIFIED_HELLO_WORLD_MEMORY_USAGE: u64 = 42 * KB_PER_PAGE;
+    const LINEAR_MEMORY_USAGE: u64 = 159 * 64;
 
     #[test]
-    fn test_memory_usage_under_threshold() {
+    fn test_linear_memory_usage() {
         let function_run_result = run(
-            Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
-            Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
+            Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
+            Path::new("benchmark/build/product_discount.json").to_path_buf(),
         )
         .unwrap();
 
-        assert_eq!(function_run_result.memory_usage, HELLO_WORLD_MEMORY_USAGE);
-    }
-
-    #[test]
-    fn test_memory_usage_over_threshold() {
-        let function_run_result = run(
-            Path::new("tests/benchmarks/hello_42_pages.wasm").to_path_buf(),
-            Path::new("tests/benchmarks/hello_42_pages.json").to_path_buf(),
-        )
-        .unwrap();
-
-        assert_eq!(
-            function_run_result.memory_usage,
-            MODIFIED_HELLO_WORLD_MEMORY_USAGE
-        );
-    }
-
-    #[test]
-    fn test_stack_overflow() {
-        let function_run_result = run(
-            Path::new("tests/benchmarks/stack_overflow.wasm").to_path_buf(),
-            Path::new("tests/benchmarks/stack_overflow.json").to_path_buf(),
-        )
-        .unwrap();
-
-        assert!(function_run_result
-            .logs
-            .contains("out of bounds memory access"));
+        assert_eq!(function_run_result.memory_usage, LINEAR_MEMORY_USAGE);
     }
 
     #[test]
     fn test_file_size() {
         let function_run_result = run(
-            Path::new("tests/benchmarks/hello_world.wasm").to_path_buf(),
-            Path::new("tests/benchmarks/hello_world.json").to_path_buf(),
+            Path::new("benchmark/build/size_function.wasm").to_path_buf(),
+            Path::new("benchmark/build/product_discount.json").to_path_buf(),
         )
         .unwrap();
 
         assert_eq!(
             function_run_result.size,
-            Path::new("tests/benchmarks/hello_world.wasm")
+            Path::new("benchmark/build/size_function.wasm")
                 .metadata()
                 .unwrap()
                 .len()
