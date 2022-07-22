@@ -10,8 +10,6 @@ use crate::function_run_result::{
     FunctionRunResult, InvalidOutput,
 };
 
-const KB_PER_PAGE: u64 = 64;
-
 pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
     let engine = if cfg!(target_arch = "x86_64") {
         // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
@@ -72,10 +70,10 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
             .iter()
             .map(|name| {
                 let memory = instance.get_memory(&mut store, name).unwrap();
-                memory.size(&store)
+                memory.data_size(&store) as u64
             })
             .sum::<u64>()
-            * KB_PER_PAGE;
+            / 1024;
 
         match module_result {
             Ok(_) => {}
