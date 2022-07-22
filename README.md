@@ -38,5 +38,5 @@ and add the `function-runner` command to your path.
 
 ### Commands
 
-- `cargo install --path .` : Build and install the `function-runner` command.
+- `cargo install --path . --locked` : Build and install the `function-runner` command.
 - `function-runner` : Execute a Function.
