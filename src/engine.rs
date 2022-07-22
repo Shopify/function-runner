@@ -111,7 +111,7 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
     };
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
-    let size = function_path.metadata()?.len();
+    let size = function_path.metadata()?.len() / 1024;
 
     let function_run_result = FunctionRunResult::new(
         name.to_string(),
@@ -133,7 +133,7 @@ mod tests {
     const LINEAR_MEMORY_USAGE: u64 = 159 * 64;
 
     #[test]
-    fn test_linear_memory_usage() {
+    fn test_linear_memory_usage_in_kb() {
         let function_run_result = run(
             Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
             Path::new("benchmark/build/product_discount.json").to_path_buf(),
@@ -144,7 +144,7 @@ mod tests {
     }
 
     #[test]
-    fn test_file_size() {
+    fn test_file_size_in_kb() {
         let function_run_result = run(
             Path::new("benchmark/build/size_function.wasm").to_path_buf(),
             Path::new("benchmark/build/product_discount.json").to_path_buf(),
@@ -157,6 +157,7 @@ mod tests {
                 .metadata()
                 .unwrap()
                 .len()
+                / 1024
         );
     }
 }
