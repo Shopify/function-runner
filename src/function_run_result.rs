@@ -56,8 +56,8 @@ impl fmt::Display for FunctionRunResult {
         write!(formatter, "{}\n\n", title)?;
         writeln!(formatter, "Name: {}", self.name)?;
         writeln!(formatter, "Runtime: {:?}", self.runtime)?;
-        writeln!(formatter, "Memory Usage: {}KB", self.memory_usage * 64)?;
-        writeln!(formatter, "Size: {}KB\n", self.size / 1024)?;
+        writeln!(formatter, "Linear Memory Usage: {}KB", self.memory_usage)?;
+        writeln!(formatter, "Size: {}KB\n", self.size)?;
 
         writeln!(
             formatter,

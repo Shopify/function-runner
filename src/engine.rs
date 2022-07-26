@@ -10,8 +10,6 @@ use crate::function_run_result::{
     FunctionRunResult, InvalidOutput,
 };
 
-const KB_PER_PAGE: u64 = 64;
-
 pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
     let engine = if cfg!(target_arch = "x86_64") {
         // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
@@ -72,10 +70,10 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
             .iter()
             .map(|name| {
                 let memory = instance.get_memory(&mut store, name).unwrap();
-                memory.size(&store)
+                memory.data_size(&store) as u64
             })
             .sum::<u64>()
-            * KB_PER_PAGE;
+            / 1024;
 
         match module_result {
             Ok(_) => {}
@@ -111,7 +109,7 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
     };
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
-    let size = function_path.metadata()?.len();
+    let size = function_path.metadata()?.len() / 1024;
 
     let function_run_result = FunctionRunResult::new(
         name.to_string(),
@@ -133,7 +131,7 @@ mod tests {
     const LINEAR_MEMORY_USAGE: u64 = 159 * 64;
 
     #[test]
-    fn test_linear_memory_usage() {
+    fn test_linear_memory_usage_in_kb() {
         let function_run_result = run(
             Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
             Path::new("benchmark/build/product_discount.json").to_path_buf(),
@@ -144,7 +142,7 @@ mod tests {
     }
 
     #[test]
-    fn test_file_size() {
+    fn test_file_size_in_kb() {
         let function_run_result = run(
             Path::new("benchmark/build/size_function.wasm").to_path_buf(),
             Path::new("benchmark/build/product_discount.json").to_path_buf(),
@@ -157,6 +155,7 @@ mod tests {
                 .metadata()
                 .unwrap()
                 .len()
+                / 1024
         );
     }
 }
