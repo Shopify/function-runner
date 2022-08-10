@@ -33,7 +33,7 @@ lldb -- function-runner -f '../my-function-name.wasm' '../my-input.json'
 
 ## Development
 
-Building requires a rust toolchain of at least `1.56.0` (older may work). `cargo install --path .` will build
+Building requires a rust toolchain of at least `1.56.0` (older may work). `cargo install --path . --locked` will build
 and add the `function-runner` command to your path.
 
 ### Commands
