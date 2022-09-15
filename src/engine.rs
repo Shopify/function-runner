@@ -1,6 +1,11 @@
 use anyhow::{anyhow, Result};
 use std::{
+    io::Read,
     path::PathBuf,
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
     time::{Duration, Instant},
 };
 use wasmtime::{Config, Engine, Linker, Module, Store};
@@ -10,22 +15,36 @@ use crate::function_run_result::{
     FunctionRunResult, InvalidOutput,
 };
 
+// pub fn run_with_gas(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {}
+
 pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
+    let mut module_handle = std::fs::File::open(&function_path)
+        .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
+    let mut module: Vec<u8> = Vec::new();
+    module_handle.read_to_end(&mut module)?;
+    let input: serde_json::Value = serde_json::from_reader(
+        std::fs::File::open(&input_path)
+            .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?,
+    )
+    .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?;
+
+    let input = serde_json::to_vec(&input)?;
+    let mut result = run_module(module, input)?;
+    let name = function_path.file_name().unwrap().to_str().unwrap();
+    result.name = name.to_string();
+    Ok(result)
+}
+
+pub fn run_module(module_binary: Vec<u8>, input: Vec<u8>) -> Result<FunctionRunResult> {
     let engine = if cfg!(target_arch = "x86_64") {
         // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
         Engine::new(Config::new().debug_info(true))?
     } else {
         Engine::default()
     };
-    let module = Module::from_file(&engine, &function_path)
-        .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let input: serde_json::Value = serde_json::from_reader(
-        std::fs::File::open(&input_path)
-            .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?,
-    )
-    .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?;
-    let input = serde_json::to_vec(&input)?;
+    let module = Module::from_binary(&engine, &module_binary)
+        .map_err(|e| anyhow!("Couldn't compile the Function: {}", e))?;
 
     let input_stream = wasi_common::pipe::ReadPipe::new(std::io::Cursor::new(input));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
@@ -33,6 +52,7 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
 
     let runtime: Duration;
     let memory_usage: u64;
+    let gas_cost = Arc::new(AtomicU64::new(0));
     let mut error_logs: String = String::new();
 
     {
@@ -42,6 +62,12 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
         wasi.set_stdin(Box::new(input_stream));
         wasi.set_stdout(Box::new(output_stream.clone()));
         wasi.set_stderr(Box::new(error_stream.clone()));
+
+        let gas_cost_copy = gas_cost.clone();
+        linker.func_wrap("env", "consume_gas", move |param: i32| {
+            gas_cost_copy.fetch_add(param.try_into().unwrap(), Ordering::SeqCst);
+        })?;
+
         let mut store = Store::new(&engine, wasi);
 
         linker.module(&mut store, "Function", &module)?;
@@ -83,6 +109,8 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
         }
     };
 
+    println!("GAS COST: {}", gas_cost.load(Ordering::SeqCst));
+
     let raw_logs = error_stream
         .try_into_inner()
         .expect("Error stream reference still exists")
@@ -108,11 +136,10 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
         }),
     };
 
-    let name = function_path.file_name().unwrap().to_str().unwrap();
-    let size = function_path.metadata()?.len() / 1024;
+    let size: u64 = (module_binary.len() / 1024) as u64;
 
     let function_run_result = FunctionRunResult::new(
-        name.to_string(),
+        "<anonymous>".to_string(),
         runtime,
         size,
         memory_usage,
