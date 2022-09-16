@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::Parser;
-use function_runner::engine::run;
+use function_runner::engine::{run, run_with_gas};
 
 /// Simple Function runner which takes JSON as a convenience.
 #[derive(Parser)]
@@ -23,7 +23,7 @@ struct Opts {
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let function_run_result = run(opts.function, opts.input)?;
+    let function_run_result = run_with_gas(opts.function, opts.input)?;
 
     if opts.json {
         println!("{}", function_run_result.to_json());

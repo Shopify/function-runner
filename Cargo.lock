@@ -587,6 +587,7 @@ dependencies = [
  "clap",
  "colored",
  "deterministic-wasi-ctx",
+ "parity-wasm",
  "serde",
  "serde_derive",
  "serde_json",
@@ -920,6 +921,12 @@ checksum = "8e22443d1643a904602595ba1cd8f7d896afe56d26712531c5ff73a15b2fbf64"
 dependencies = [
  "memchr",
 ]
+
+[[package]]
+name = "parity-wasm"
+version = "0.45.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1ad0aff30c1da14b1254fcb2af73e1fa9a28670e584a626f53a369d0e157304"
 
 [[package]]
 name = "paste"

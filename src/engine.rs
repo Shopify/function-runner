@@ -14,8 +14,28 @@ use crate::function_run_result::{
     FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
     FunctionRunResult, InvalidOutput,
 };
+use crate::metering::meterize;
 
-// pub fn run_with_gas(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {}
+pub fn run_with_gas(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
+    let mut module_handle = std::fs::File::open(&function_path)
+        .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
+    let mut module: Vec<u8> = Vec::new();
+    module_handle.read_to_end(&mut module)?;
+
+    let module = meterize(&module)?;
+
+    let input: serde_json::Value = serde_json::from_reader(
+        std::fs::File::open(&input_path)
+            .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?,
+    )
+    .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?;
+
+    let input = serde_json::to_vec(&input)?;
+    let mut result = run_module(module, input)?;
+    let name = function_path.file_name().unwrap().to_str().unwrap();
+    result.name = name.to_string();
+    Ok(result)
+}
 
 pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
     let mut module_handle = std::fs::File::open(&function_path)
