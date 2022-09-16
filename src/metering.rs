@@ -7,8 +7,8 @@ use parity_wasm::{
     },
 };
 
+// TODO: Make me better
 fn cost_function(instr: &Instruction) -> i32 {
-    // TODO: Make me better
     match instr {
         Instruction::Nop => 0,
         Instruction::Block(_) => 0,
@@ -21,6 +21,14 @@ fn cost_function(instr: &Instruction) -> i32 {
     }
 }
 
+// This function does two things:
+// 1. It injects `(import "env" "consume_gas" (func (param i32)))`
+//    into the import section
+// 2. It prependes a call to that imported function to each other instruction,
+//    invoking it with the cost of the following instruction, as determined
+//    by `cost_function`.
+//
+// TODO: Allow to use a custom cost function.
 pub fn meterize(binary: &[u8]) -> Result<Vec<u8>> {
     let mut module: Module = parity_wasm::deserialize_buffer(binary)
         .map_err(|err| anyhow!("Could not deserialize wasm module: {}", err))?;
@@ -83,6 +91,13 @@ fn inject_metering_func(module: &mut Module) -> Result<()> {
         }
     });
 
+    module.elements_section_mut().map(|element_section| {
+        for entry in element_section.entries_mut() {
+            for member in entry.members_mut() {
+                *member += 1
+            }
+        }
+    });
     // TODO: Handle elem section and other function references
 
     Ok(())
@@ -102,6 +117,7 @@ where
         *instr = instr
             .iter()
             .flat_map(|item| match item {
+                // TODO: Do any instruction need special handling?
                 _ => [
                     Instruction::I32Const(meter_func(item)),
                     Instruction::Call(0),
