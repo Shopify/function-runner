@@ -587,6 +587,7 @@ dependencies = [
  "clap",
  "colored",
  "deterministic-wasi-ctx",
+ "lazy_static",
  "parity-wasm",
  "serde",
  "serde_derive",

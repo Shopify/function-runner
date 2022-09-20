@@ -1,28 +1,31 @@
 use anyhow::{anyhow, Result};
 use std::{
+    collections::HashMap,
     io::Read,
     path::PathBuf,
-    sync::{
-        atomic::{AtomicU64, Ordering},
-        Arc,
-    },
+    sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
+use wasi_common::WasiCtx;
 use wasmtime::{Config, Engine, Linker, Module, Store};
 
 use crate::function_run_result::{
     FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
     FunctionRunResult, InvalidOutput,
 };
-use crate::metering::meterize;
+use crate::metering::InstrCounter;
 
-pub fn run_with_gas(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
+pub fn run_with_count(
+    function_path: PathBuf,
+    input_path: PathBuf,
+) -> Result<(FunctionRunResult, HashMap<String, u64>)> {
     let mut module_handle = std::fs::File::open(&function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
     let mut module: Vec<u8> = Vec::new();
     module_handle.read_to_end(&mut module)?;
 
-    let module = meterize(&module)?;
+    let instr_counter = Arc::new(Mutex::new(InstrCounter::new()));
+    let module = { instr_counter.lock().unwrap().counterize(&module)? };
 
     let input: serde_json::Value = serde_json::from_reader(
         std::fs::File::open(&input_path)
@@ -31,10 +34,21 @@ pub fn run_with_gas(function_path: PathBuf, input_path: PathBuf) -> Result<Funct
     .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?;
 
     let input = serde_json::to_vec(&input)?;
-    let mut result = run_module(module, input)?;
+    let instr_counter_copy = instr_counter.clone();
+    let mut result = run_module(module, input, move |linker| {
+        // IDK, Rust is being weird without this
+        let instr_counter_copy = instr_counter_copy.clone();
+        linker.func_wrap("instruction_counter", "inc", move |param: i32| {
+            instr_counter_copy.lock().unwrap().inc(param);
+        })?;
+        Ok(())
+    })?;
+
     let name = function_path.file_name().unwrap().to_str().unwrap();
     result.name = name.to_string();
-    Ok(result)
+
+    let map = instr_counter.lock().unwrap();
+    Ok((result, map.total_count().collect()))
 }
 
 pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
@@ -49,13 +63,20 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
     .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?;
 
     let input = serde_json::to_vec(&input)?;
-    let mut result = run_module(module, input)?;
+    let mut result = run_module(module, input, |_| Ok(()))?;
     let name = function_path.file_name().unwrap().to_str().unwrap();
     result.name = name.to_string();
     Ok(result)
 }
 
-pub fn run_module(module_binary: Vec<u8>, input: Vec<u8>) -> Result<FunctionRunResult> {
+pub fn run_module<F>(
+    module_binary: Vec<u8>,
+    input: Vec<u8>,
+    mangle_func: F,
+) -> Result<FunctionRunResult>
+where
+    F: Fn(&mut Linker<WasiCtx>) -> Result<()>,
+{
     let engine = if cfg!(target_arch = "x86_64") {
         // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
         Engine::new(Config::new().debug_info(true))?
@@ -72,7 +93,6 @@ pub fn run_module(module_binary: Vec<u8>, input: Vec<u8>) -> Result<FunctionRunR
 
     let runtime: Duration;
     let memory_usage: u64;
-    let gas_cost = Arc::new(AtomicU64::new(0));
     let mut error_logs: String = String::new();
 
     {
@@ -83,12 +103,9 @@ pub fn run_module(module_binary: Vec<u8>, input: Vec<u8>) -> Result<FunctionRunR
         wasi.set_stdout(Box::new(output_stream.clone()));
         wasi.set_stderr(Box::new(error_stream.clone()));
 
-        let gas_cost_copy = gas_cost.clone();
-        linker.func_wrap("env", "consume_gas", move |param: i32| {
-            gas_cost_copy.fetch_add(param.try_into().unwrap(), Ordering::SeqCst);
-        })?;
-
         let mut store = Store::new(&engine, wasi);
+
+        mangle_func(&mut linker)?;
 
         linker.module(&mut store, "Function", &module)?;
 
@@ -128,8 +145,6 @@ pub fn run_module(module_binary: Vec<u8>, input: Vec<u8>) -> Result<FunctionRunR
             }
         }
     };
-
-    println!("GAS COST: {}", gas_cost.load(Ordering::SeqCst));
 
     let raw_logs = error_stream
         .try_into_inner()
