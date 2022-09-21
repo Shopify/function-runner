@@ -27,18 +27,18 @@ struct Opts {
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let function_run_result = if opts.instruction_count {
+    if opts.instruction_count {
         let (result, count) = run_with_count(opts.function, opts.input)?;
         let list = count
             .into_iter()
-            .map(|(instr, count)| format!("{} = {}", instr, count))
+            .map(|(instr, count)| format!("{}={}", instr, count))
             .collect::<Vec<String>>()
-            .join("\n");
+            .join(",");
         println!("{}", list);
-        result
-    } else {
-        run(opts.function, opts.input)?
-    };
+        std::process::exit(0);
+    }
+
+    let function_run_result = run(opts.function, opts.input)?;
 
     if opts.json {
         println!("{}", function_run_result.to_json());
