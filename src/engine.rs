@@ -2,7 +2,6 @@ use anyhow::{anyhow, Result};
 use std::{
     collections::HashMap,
     io::Read,
-    path::PathBuf,
     sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
@@ -16,22 +15,18 @@ use crate::function_run_result::{
 use crate::metering::InstrCounter;
 
 pub fn run_with_count(
-    function_path: PathBuf,
-    input_path: PathBuf,
+    name: &str,
+    mut function: impl Read,
+    input: impl Read,
 ) -> Result<(FunctionRunResult, HashMap<String, u64>)> {
-    let mut module_handle = std::fs::File::open(&function_path)
-        .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
     let mut module: Vec<u8> = Vec::new();
-    module_handle.read_to_end(&mut module)?;
+    function.read_to_end(&mut module)?;
 
     let instr_counter = Arc::new(Mutex::new(InstrCounter::new()));
     let module = { instr_counter.lock().unwrap().counterize(&module)? };
 
-    let input: serde_json::Value = serde_json::from_reader(
-        std::fs::File::open(&input_path)
-            .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?,
-    )
-    .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?;
+    let input: serde_json::Value =
+        serde_json::from_reader(input).map_err(|e| anyhow!("Couldn't load input: {}", e))?;
 
     let input = serde_json::to_vec(&input)?;
     let instr_counter_copy = instr_counter.clone();
@@ -44,27 +39,20 @@ pub fn run_with_count(
         Ok(())
     })?;
 
-    let name = function_path.file_name().unwrap().to_str().unwrap();
     result.name = name.to_string();
 
     let map = instr_counter.lock().unwrap();
     Ok((result, map.total_count().collect()))
 }
 
-pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
-    let mut module_handle = std::fs::File::open(&function_path)
-        .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
+pub fn run(name: &str, mut function: impl Read, input: impl Read) -> Result<FunctionRunResult> {
     let mut module: Vec<u8> = Vec::new();
-    module_handle.read_to_end(&mut module)?;
-    let input: serde_json::Value = serde_json::from_reader(
-        std::fs::File::open(&input_path)
-            .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?,
-    )
-    .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?;
+    function.read_to_end(&mut module)?;
+    let input: serde_json::Value =
+        serde_json::from_reader(input).map_err(|e| anyhow!("Couldn't load input: {}", e))?;
 
     let input = serde_json::to_vec(&input)?;
     let mut result = run_module(module, input, |_| Ok(()))?;
-    let name = function_path.file_name().unwrap().to_str().unwrap();
     result.name = name.to_string();
     Ok(result)
 }
@@ -195,8 +183,13 @@ mod tests {
     #[test]
     fn test_linear_memory_usage_in_kb() {
         let function_run_result = run(
-            Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
-            Path::new("benchmark/build/product_discount.json").to_path_buf(),
+            "lol",
+            std::fs::File::open(
+                Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
+            )
+            .unwrap(),
+            std::fs::File::open(Path::new("benchmark/build/product_discount.json").to_path_buf())
+                .unwrap(),
         )
         .unwrap();
 
@@ -206,8 +199,11 @@ mod tests {
     #[test]
     fn test_file_size_in_kb() {
         let function_run_result = run(
-            Path::new("benchmark/build/size_function.wasm").to_path_buf(),
-            Path::new("benchmark/build/product_discount.json").to_path_buf(),
+            "lol",
+            std::fs::File::open(Path::new("benchmark/build/size_function.wasm").to_path_buf())
+                .unwrap(),
+            std::fs::File::open(Path::new("benchmark/build/product_discount.json").to_path_buf())
+                .unwrap(),
         )
         .unwrap();
 

@@ -28,7 +28,11 @@ fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
     if opts.instruction_count {
-        let (result, count) = run_with_count(opts.function, opts.input)?;
+        let (result, count) = run_with_count(
+            opts.function.to_str().unwrap(),
+            std::fs::File::open(&opts.function)?,
+            std::fs::File::open(&opts.input)?,
+        )?;
         let list = count
             .into_iter()
             .map(|(instr, count)| format!("{}={}", instr, count))
@@ -38,7 +42,11 @@ fn main() -> Result<()> {
         std::process::exit(0);
     }
 
-    let function_run_result = run(opts.function, opts.input)?;
+    let function_run_result = run(
+        opts.function.to_str().unwrap(),
+        std::fs::File::open(&opts.function)?,
+        std::fs::File::open(&opts.input)?,
+    )?;
 
     if opts.json {
         println!("{}", function_run_result.to_json());
