@@ -1,4 +1,8 @@
-use std::path::PathBuf;
+use std::{
+    fs::File,
+    io::{stdin, BufReader, Read},
+    path::PathBuf,
+};
 
 use anyhow::Result;
 use clap::Parser;
@@ -13,17 +17,22 @@ struct Opts {
     function: PathBuf,
 
     /// Path to json file containing Function input
-    input: PathBuf,
+    input: Option<PathBuf>,
 
     /// Log the run result as a JSON object
-    #[clap(short, long, parse(from_flag))]
+    #[clap(short, long)]
     json: bool,
 }
 
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let function_run_result = run(opts.function, opts.input)?;
+    let input: Box<dyn Read + Sync + Send + 'static> = match opts.input {
+        Some(input) => Box::new(BufReader::new(File::open(input)?)),
+        None => Box::new(stdin()),
+    };
+
+    let function_run_result = run(opts.function, input)?;
 
     if opts.json {
         println!("{}", function_run_result.to_json());
