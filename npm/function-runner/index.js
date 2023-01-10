@@ -136,7 +136,7 @@ async function buildFr() {
 		console.error("");
 		console.error("BUILDING FUNCTION-RUNNER FAILED");
 		console.error("Please make sure you have Rust installed");
-		console.error("See the javy README for more details.");
+                console.error("See the function-runner README for more details.");
 	}
 	await fs.promises.rename(
 		path.join(repoDir, "target", "release", "function-runner"),
