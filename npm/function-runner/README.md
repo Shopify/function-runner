@@ -14,7 +14,7 @@ $ npm install -g function-runner
 $ npx function-runner
 ```
 
-## Updating function-=runner
+## Updating function-runner
 
 The npm package won't download function-runner again once its downloaded. If a
 new version of the function-runner npm package has been published, you can use
