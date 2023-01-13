@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use std::{
-    io::Read,
+    io::{Cursor, Read},
     path::PathBuf,
     time::{Duration, Instant},
 };
@@ -13,7 +13,7 @@ use crate::function_run_result::{
 
 pub fn run(
     function_path: PathBuf,
-    input: impl Read + Sync + Send + 'static,
+    mut input: impl Read + Sync + Send + 'static,
 ) -> Result<FunctionRunResult> {
     let engine = if cfg!(target_arch = "x86_64") {
         // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
@@ -24,7 +24,10 @@ pub fn run(
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let input_stream = wasi_common::pipe::ReadPipe::new(input);
+    let mut buffer = Vec::new();
+    input.read_to_end(&mut buffer)?;
+
+    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(buffer));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
     let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
@@ -48,13 +51,13 @@ pub fn run(
         let start = Instant::now();
 
         let module_result = instance
-            .get_typed_func::<(), (), _>(&mut store, "_start")?
+            .get_typed_func::<(), ()>(&mut store, "_start")?
             .call(&mut store, ());
 
         runtime = start.elapsed();
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
-        // We need this mutable borrow to fall out of scope so that we can mesure memory usage.
+        // We need this mutable borrow to fall out of scope so that we can measure memory usage.
         // https://docs.rs/wasmtime/0.37.0/wasmtime/struct.Instance.html#why-does-get_export-take-a-mutable-context
         let memory_names: Vec<String> = instance
             .exports(&mut store)
