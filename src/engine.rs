@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use std::{
-    io::{Cursor, Read},
+    io::Cursor,
     path::PathBuf,
     time::{Duration, Instant},
 };
@@ -11,10 +11,7 @@ use crate::function_run_result::{
     FunctionRunResult, InvalidOutput,
 };
 
-pub fn run(
-    function_path: PathBuf,
-    mut input: impl Read + Sync + Send + 'static,
-) -> Result<FunctionRunResult> {
+pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> {
     let engine = if cfg!(target_arch = "x86_64") {
         // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
         Engine::new(Config::new().debug_info(true))?
@@ -24,10 +21,7 @@ pub fn run(
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let mut buffer = Vec::new();
-    input.read_to_end(&mut buffer)?;
-
-    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(buffer));
+    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
     let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
@@ -126,15 +120,24 @@ pub fn run(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::File, io::BufReader, path::Path};
+    use std::{
+        fs::File,
+        io::{BufReader, Read},
+        path::Path,
+    };
 
     const LINEAR_MEMORY_USAGE: u64 = 159 * 64;
 
     #[test]
     fn test_linear_memory_usage_in_kb() {
+        let mut input = vec![];
+        let mut reader =
+            BufReader::new(File::open("benchmark/build/product_discount.json").unwrap());
+        reader.read_to_end(&mut input).expect("Should not fail");
+
         let function_run_result = run(
             Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
-            BufReader::new(File::open("benchmark/build/product_discount.json").unwrap()),
+            input,
         )
         .unwrap();
 
@@ -143,9 +146,14 @@ mod tests {
 
     #[test]
     fn test_file_size_in_kb() {
+        let mut input = vec![];
+        let mut reader =
+            BufReader::new(File::open("benchmark/build/product_discount.json").unwrap());
+        reader.read_to_end(&mut input).expect("Should not fail");
+
         let function_run_result = run(
             Path::new("benchmark/build/size_function.wasm").to_path_buf(),
-            BufReader::new(File::open("benchmark/build/product_discount.json").unwrap()),
+            input,
         )
         .unwrap();
 

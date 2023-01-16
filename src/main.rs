@@ -16,7 +16,7 @@ struct Opts {
     #[clap(short, long, default_value = "function.wasm")]
     function: PathBuf,
 
-    /// Path to json file containing Function input
+    /// Path to json file containing Function input or piped input
     input: Option<PathBuf>,
 
     /// Log the run result as a JSON object
@@ -27,7 +27,7 @@ struct Opts {
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let input: Box<dyn Read + Sync + Send + 'static> = if let Some(ref input) = opts.input {
+    let mut input: Box<dyn Read + Sync + Send + 'static> = if let Some(ref input) = opts.input {
         Box::new(BufReader::new(File::open(input).map_err(|e| {
             anyhow!("Couldn't load input {:?}: {}", input, e)
         })?))
@@ -35,7 +35,12 @@ fn main() -> Result<()> {
         Box::new(BufReader::new(stdin()))
     };
 
-    let function_run_result = run(opts.function, input);
+    let mut buffer = Vec::new();
+    input.read_to_end(&mut buffer)?;
+    let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
+        .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
+
+    let function_run_result = run(opts.function, buffer);
 
     if opts.json {
         println!("{}", function_run_result.as_ref().unwrap().to_json());
@@ -70,18 +75,35 @@ mod tests {
     }
 
     #[test]
+    fn invalid_json_input() -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+
+        cmd.arg("--function")
+            .arg("benchmark/build/runtime_function.wasm")
+            .arg("--json")
+            .arg("benchmark/build/invalid_volume_discount.json");
+        cmd.assert()
+            .failure()
+            .stderr("Error: Invalid input JSON: EOF while parsing an object at line 2 column 0\n");
+
+        Ok(())
+    }
+
+    #[test]
     fn run_stdin() -> Result<(), Box<dyn std::error::Error>> {
         let file = File::open("benchmark/build/volume_discount.json")?;
         let mut cmd = Command::cargo_bin("function-runner")?;
-        let _child = cmd
+        let output = cmd
             .arg("--function")
             .arg("benchmark/build/runtime_function.wasm")
             .arg("--json")
             .stdin(Stdio::from(file))
+            .stdout(Stdio::piped())
             .spawn()
-            .expect("Failed to spawn child process");
-        cmd.assert().success();
-        let output = cmd.output().expect("wasn't able to get output");
+            .expect("Failed to spawn child process")
+            .wait_with_output()
+            .expect("Failed waiting for output");
+
         let _ = serde_json::from_slice::<FunctionRunResult>(&output.stdout)
             .expect("This shouldn't fail");
 
