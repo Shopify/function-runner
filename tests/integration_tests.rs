@@ -3,7 +3,7 @@ mod tests {
 
     use assert_cmd::prelude::*;
     use function_runner::function_run_result::FunctionRunResult;
-    use predicates::{prelude::*, str::contains};
+    use predicates::str::contains;
     use std::{
         fs::File,
         process::{Command, Stdio},
@@ -82,7 +82,7 @@ mod tests {
             .arg("benchmark/build/volume_discount.json");
         cmd.assert()
             .failure()
-            .stderr(predicate::str::contains("Couldn't load the Function"));
+            .stderr("Error: Couldn\'t load the Function \"test/file/doesnt/exist\": failed to read input file\n");
 
         Ok(())
     }

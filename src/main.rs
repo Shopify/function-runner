@@ -16,7 +16,7 @@ struct Opts {
     #[clap(short, long, default_value = "function.wasm")]
     function: PathBuf,
 
-    /// Path to json file containing Function input or piped input
+    /// Path to json file containing Function input; if omitted, stdin is used
     input: Option<PathBuf>,
 
     /// Log the run result as a JSON object
@@ -40,12 +40,12 @@ fn main() -> Result<()> {
     let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
         .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
 
-    let function_run_result = run(opts.function, buffer);
+    let function_run_result = run(opts.function, buffer)?;
 
     if opts.json {
-        println!("{}", function_run_result.as_ref().unwrap().to_json());
+        println!("{}", function_run_result.to_json());
     } else {
-        println!("{}", function_run_result.as_ref().unwrap());
+        println!("{}", function_run_result);
     }
 
     Ok(())
