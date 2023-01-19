@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use std::{
+    io::Cursor,
     path::PathBuf,
     time::{Duration, Instant},
 };
@@ -10,7 +11,7 @@ use crate::function_run_result::{
     FunctionRunResult, InvalidOutput,
 };
 
-pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunResult> {
+pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> {
     let engine = if cfg!(target_arch = "x86_64") {
         // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
         Engine::new(Config::new().debug_info(true))?
@@ -20,14 +21,7 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let input: serde_json::Value = serde_json::from_reader(
-        std::fs::File::open(&input_path)
-            .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?,
-    )
-    .map_err(|e| anyhow!("Couldn't load input {:?}: {}", &input_path, e))?;
-    let input = serde_json::to_vec(&input)?;
-
-    let input_stream = wasi_common::pipe::ReadPipe::new(std::io::Cursor::new(input));
+    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
     let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
@@ -51,13 +45,13 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
         let start = Instant::now();
 
         let module_result = instance
-            .get_typed_func::<(), (), _>(&mut store, "_start")?
+            .get_typed_func::<(), ()>(&mut store, "_start")?
             .call(&mut store, ());
 
         runtime = start.elapsed();
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
-        // We need this mutable borrow to fall out of scope so that we can mesure memory usage.
+        // We need this mutable borrow to fall out of scope so that we can measure memory usage.
         // https://docs.rs/wasmtime/0.37.0/wasmtime/struct.Instance.html#why-does-get_export-take-a-mutable-context
         let memory_names: Vec<String> = instance
             .exports(&mut store)
@@ -126,15 +120,24 @@ pub fn run(function_path: PathBuf, input_path: PathBuf) -> Result<FunctionRunRes
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::Path;
+    use std::{
+        fs::File,
+        io::{BufReader, Read},
+        path::Path,
+    };
 
     const LINEAR_MEMORY_USAGE: u64 = 159 * 64;
 
     #[test]
     fn test_linear_memory_usage_in_kb() {
+        let mut input = vec![];
+        let mut reader =
+            BufReader::new(File::open("benchmark/build/product_discount.json").unwrap());
+        reader.read_to_end(&mut input).expect("Should not fail");
+
         let function_run_result = run(
             Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
-            Path::new("benchmark/build/product_discount.json").to_path_buf(),
+            input,
         )
         .unwrap();
 
@@ -143,9 +146,14 @@ mod tests {
 
     #[test]
     fn test_file_size_in_kb() {
+        let mut input = vec![];
+        let mut reader =
+            BufReader::new(File::open("benchmark/build/product_discount.json").unwrap());
+        reader.read_to_end(&mut input).expect("Should not fail");
+
         let function_run_result = run(
             Path::new("benchmark/build/size_function.wasm").to_path_buf(),
-            Path::new("benchmark/build/product_discount.json").to_path_buf(),
+            input,
         )
         .unwrap();
 

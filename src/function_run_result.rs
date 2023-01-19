@@ -2,19 +2,19 @@ use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::{fmt, time::Duration};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct InvalidOutput {
     pub error: String,
     pub stdout: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum FunctionOutput {
     JsonOutput(serde_json::Value),
     InvalidJsonOutput(InvalidOutput),
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FunctionRunResult {
     pub name: String,
     pub runtime: Duration,
