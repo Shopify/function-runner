@@ -9,7 +9,7 @@ import * as stream from "stream";
 import fetch from "node-fetch";
 
 const FR_URL = "https://github.com/Shopify/function-runner/releases/";
-const FR_VERSION = "3.1.0";
+const FR_VERSION = "3.2.0";
 
 async function main() {
 	if (!(await isFrAvailable()) || process.env.REFRESH_FR) {
