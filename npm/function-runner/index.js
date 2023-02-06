@@ -1,32 +1,34 @@
 #!/usr/bin/env node
 
-import * as os from "os";
 import * as path from "path";
 import * as fs from "fs";
 import * as childProcess from "child_process";
 import * as gzip from "zlib";
 import * as stream from "stream";
 import fetch from "node-fetch";
+import cachedir from "cachedir";
 
-const FR_URL = "https://github.com/Shopify/function-runner/releases/";
-const FR_VERSION = "3.2.0";
+const REPO = "Shopify/function-runner";
+const NAME = "function-runner";
 
 async function main() {
-	if (!(await isFrAvailable()) || process.env.REFRESH_FR) {
-		console.error("function-runner is not available locally.");
-		await fs.promises.unlink(frBinaryPath()).catch(() => {});
-		if (process.env.BUILD_FR) {
-			console.error("Building function-runner from source...");
-			await buildFr();
-			console.error("Done.");
+	const version = await getDesiredVersionNumber();
+	if (!(await isBinaryDownloaded(version))) {
+		console.error(`${NAME} ${version} is not available locally.`);
+		if (process.env.FORCE_FROM_SOURCE) {
+			console.error(`Building ${NAME} from source...`);
+			await buildBinary();
+			console.error(`Done.`);
 		} else {
-			console.error("Downloading function-runner ...");
-			await downloadFr();
-			console.error("Done.");
+			console.error(`${NAME} needs to be downloaded...`);
+			await downloadBinary(version);
+			console.error(`Done.`);
 		}
 	}
 	try {
-		childProcess.execFileSync(frBinaryPath(), getArgs());
+		childProcess.spawnSync(binaryPath(version), getArgs(), {
+			stdio: "inherit",
+		});
 	} catch (e) {
 		if (typeof e?.status === "number") return;
 		console.error(e);
@@ -35,29 +37,32 @@ async function main() {
 main();
 
 function cacheDir(...suffixes) {
-	const cacheDir = path.join(os.homedir(), ".fr_cache", ...suffixes);
+	const cacheDir = path.join(cachedir("binarycache"), ...suffixes);
 	fs.mkdirSync(cacheDir, { recursive: true });
 	return cacheDir;
 }
 
-function frBinaryPath() {
-	return path.join(cacheDir(), "function-runner");
+function binaryPath(version) {
+	return path.join(cacheDir(), `${NAME}-${version}`);
 }
 
-async function isFrAvailable() {
+async function isBinaryDownloaded(version) {
 	return fs.promises
-		.stat(frBinaryPath())
+		.stat(binaryPath(version))
 		.then(() => true)
 		.catch(() => false);
 }
 
-async function downloadFr() {
+async function downloadBinary(version) {
+	const targetPath = binaryPath(version);
 	const compressedStream = await new Promise(async (resolve) => {
-		const resp = await fetch(binaryUrl());
+		const url = binaryUrl(version);
+		console.log(`Downloading ${NAME} ${version} to ${targetPath}...`);
+		const resp = await fetch(url);
 		resolve(resp.body);
 	});
 	const gunzip = gzip.createGunzip();
-	const output = fs.createWriteStream(frBinaryPath());
+	const output = fs.createWriteStream(targetPath);
 
 	await new Promise((resolve, reject) => {
 		stream.pipeline(compressedStream, gunzip, output, (err, val) => {
@@ -66,12 +71,39 @@ async function downloadFr() {
 		});
 	});
 
-	await fs.promises.chmod(frBinaryPath(), 0o775);
+	await fs.promises.chmod(binaryPath(version), 0o775);
 }
 
-function binaryUrl() {
-	// https://github.com/Shopify/function-runner/releases/download/v3.1.0/function-runner-x86_64-linux-v3.1.0.gz
-	return `${FR_URL}/download/v${FR_VERSION}/function-runner-${platarch()}-v${FR_VERSION}.gz`;
+/**
+ * getDesiredVersionNumber returns the version number of the release that
+ * should be downloaded and launched. If the FORCE_RELEASE env variable is set,
+ * that will be used as the desired version number, if not, we determine the
+ * latest release available on GitHub.
+ *
+ * GitHub has a public Release API, but  rate limits it per IP, so that the
+ * CLI can end up breaking. Instead, we use a little trick. You can download
+ * artifacts from the latest release by using `latest` as your version number.
+ * The server will respond with a 302 redirect to the artifact's URL. That URL
+ * contains the actual release version number, which we can extract.
+ */
+async function getDesiredVersionNumber() {
+	if (process.env.FORCE_RELEASE) return process.env.FORCE_RELEASE;
+	const resp = await fetch(
+		`https://github.com/${REPO}/releases/latest/download/lol`,
+		{ redirect: "manual" }
+	);
+	if (resp.status != 302) {
+		throw Error(
+			`Could not determine latest release using the GitHub (Status code ${
+				resp.status
+			}): ${await resp.text().catch(() => "<No error message>")}`
+		);
+	}
+	return resp.headers.get("location").split("/").at(-2);
+}
+
+function binaryUrl(version) {
+	return `https://github.com/${REPO}/releases/download/${version}/${NAME}-${platarch()}-${version}.gz`;
 }
 
 const SUPPORTED_TARGETS = [
@@ -118,28 +150,29 @@ function platarch() {
 
 function getArgs() {
 	const args = process.argv.slice(2);
-	// TODO: Check if this needs to be changed when javy is installed via `npm install`.
 	return args;
 }
 
-async function buildFr() {
-	const repoDir = cacheDir("build", "fr");
+async function buildBinary() {
+	const repoDir = cacheDir("build", NAME);
 	try {
-		console.log("Downloading function-runners's source code...");
+		console.log(`Downloading ${NAME}'s source code...`);
 		childProcess.execSync(
-			`git clone https://github.com/shopify/function-runner ${repoDir}`
+			`git clone https://github.com/${REPO} ${repoDir}`
 		);
-		console.log("Building function-runner...");
+		console.log(`Building ${NAME}...`);
 		childProcess.execSync("cargo build --release", { cwd: repoDir });
 	} catch (e) {
 		console.error(e);
 		console.error("");
-		console.error("BUILDING FUNCTION-RUNNER FAILED");
-		console.error("Please make sure you have Rust installed");
-                console.error("See the function-runner README for more details.");
+		console.error(`BUILDING ${NAME} FAILED`);
+		console.error(
+			"Please make sure you have Rust installed"
+		);
+		console.error("See the README for more details.");
 	}
 	await fs.promises.rename(
-		path.join(repoDir, "target", "release", "function-runner"),
-		frBinaryPath()
+		path.join(repoDir, "target", "release", NAME),
+		binaryPath()
 	);
 }
