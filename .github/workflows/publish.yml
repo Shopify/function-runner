@@ -14,22 +14,35 @@ jobs:
         include:
           - name: linux
             os: ubuntu-latest
-            path: target/release/function-runner
+            path: target/x86_64-unknown-linux-gnu/release/function-runner
             asset_name: function-runner-x86_64-linux-${{ github.event.release.tag_name }}
             shasum_cmd: sha256sum
+            target: x86_64-unknown-linux-gnu
           - name: macos
             os: macos-latest
-            path: target/release/function-runner
+            path: target/x86_64-apple-darwin/release/function-runner
             asset_name: function-runner-x86_64-macos-${{ github.event.release.tag_name }}
             shasum_cmd: shasum -a 256
+            target: x86_64-apple-darwin
+          - name: arm64-macos
+            os: macos-latest
+            path: target/aarch64-apple-darwin/release/function-runner
+            asset_name: function-runner-arm-macos-${{ github.event.release.tag_name }}
+            shasum_cmd: shasum -a 256
+            target: aarch64-apple-darwin
           - name: windows
             os: windows-latest
-            path: target\release\function-runner.exe
+            path: target\x86_64-pc-windows-msvc\release\function-runner.exe
             asset_name: function-runner-x86_64-windows-${{ github.event.release.tag_name }}
             shasum_cmd: sha256sum
+            target: x86_64-pc-windows-msvc
 
     steps:
       - uses: actions/checkout@v1
+
+      # Should no-op except for macos-arm case where that target won't be installed
+      - name: Install target
+        run: rustup target add ${{ matrix.target }}
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -39,7 +52,7 @@ jobs:
           default: true
 
       - name: Build ${{ matrix.os }}
-        run: cargo build --release --package function-runner
+        run: cargo build --release --target ${{ matrix.target }} --package function-runner
 
       - name: Archive assets
         run: gzip -k -f ${{ matrix.path }} && mv ${{ matrix.path }}.gz ${{ matrix.asset_name }}.gz
