@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
     time::{Duration, Instant},
 };
-use wasmtime::{Config, Engine, Linker, Module, Store};
+use wasmtime::{Engine, Linker, Module, Store};
 
 use crate::function_run_result::{
     FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
@@ -12,12 +12,7 @@ use crate::function_run_result::{
 };
 
 pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> {
-    let engine = if cfg!(target_arch = "x86_64") {
-        // enabling this on non-x86 architectures currently causes an error (as of wasmtime 0.37.0)
-        Engine::new(Config::new().debug_info(true))?
-    } else {
-        Engine::default()
-    };
+    let engine = Engine::default();
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
