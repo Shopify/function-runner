@@ -53,7 +53,7 @@ impl fmt::Display for FunctionRunResult {
         let title = "      Benchmark Results      "
             .black()
             .on_truecolor(150, 191, 72);
-        write!(formatter, "{}\n\n", title)?;
+        write!(formatter, "{title}\n\n")?;
         writeln!(formatter, "Name: {}", self.name)?;
         writeln!(formatter, "Runtime: {:?}", self.runtime)?;
         writeln!(formatter, "Linear Memory Usage: {}KB", self.memory_usage)?;

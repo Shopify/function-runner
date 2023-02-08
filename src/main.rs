@@ -45,7 +45,7 @@ fn main() -> Result<()> {
     if opts.json {
         println!("{}", function_run_result.to_json());
     } else {
-        println!("{}", function_run_result);
+        println!("{function_run_result}");
     }
 
     Ok(())
