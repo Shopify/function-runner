@@ -1,0 +1,24 @@
+version: 2
+registries:
+  github-com:
+    type: git
+    url: https://github.com
+    username: ${{secrets.DEPENDENCIES_GITHUB_USER}}
+    password: ${{secrets.DEPENDENCIES_GITHUB_TOKEN}}
+  npm-registry-npm-shopify-io-node:
+    type: npm-registry
+    url: https://npm.shopify.io/node
+    token: ${{secrets.NPM_REGISTRY_NPM_SHOPIFY_IO_NODE_TOKEN}}
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 20
+  - package-ecosystem: npm
+    directory: "/npm/function-runner"
+    schedule:
+      interval: monthly
+    # Set open-pull-requests-limit to a value > 0 to enable Dependabot
+    open-pull-requests-limit: 20
+    registries: "*"
