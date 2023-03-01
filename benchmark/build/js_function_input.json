@@ -1,0 +1,17 @@
+{
+  "cart": {
+    "lines": [
+      {
+        "quantity": 2,
+        "merchandise": {
+          "id": "gid:\/\/shopify\/ProductVariant\/1"
+        }
+      }
+    ]
+  },
+  "discountNode": {
+    "metafield": {
+      "value": "{\"quantity\":1,\"percentage\":20}"
+    }
+  }
+}
