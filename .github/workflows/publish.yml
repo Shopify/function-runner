@@ -38,7 +38,7 @@ jobs:
             target: x86_64-pc-windows-msvc
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       # Should no-op except for macos-arm case where that target won't be installed
       - name: Install target
