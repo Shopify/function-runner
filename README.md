@@ -32,3 +32,8 @@ and add the `function-runner` command to your path.
 
 - `cargo install --path . --locked` : Build and install the `function-runner` command.
 - `function-runner` : Execute a Function.
+
+## Releasing
+
+1. Create and merge a PR incrementing the version in [Cargo.toml](https://github.com/Shopify/function-runner/blob/main/Cargo.toml#L11) in accordance with [SemVer](https://semver.org/) based on changes from the previous release
+1. Create a new release in [Github](https://github.com/Shopify/function-runner/releases/new) with a name like `v3.2.3` where the version matches the Cargo.toml version
