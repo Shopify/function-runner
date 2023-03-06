@@ -20,7 +20,7 @@ pub struct FunctionRunResult {
     pub runtime: Duration,
     pub size: u64,
     pub memory_usage: u64,
-    pub fuel_consumed: u64,
+    pub instructions: u64,
     pub logs: String,
     pub output: FunctionOutput,
 }
@@ -31,7 +31,7 @@ impl FunctionRunResult {
         runtime: Duration,
         size: u64,
         memory_usage: u64,
-        fuel_consumed: u64,
+        instructions: u64,
         logs: String,
         output: FunctionOutput,
     ) -> Self {
@@ -40,7 +40,7 @@ impl FunctionRunResult {
             runtime,
             size,
             memory_usage,
-            fuel_consumed,
+            instructions,
             output,
             logs,
         }
@@ -57,10 +57,10 @@ impl fmt::Display for FunctionRunResult {
             .black()
             .on_truecolor(150, 191, 72);
 
-        let fuel_message: String = if self.fuel_consumed >= 1000 {
-            format!("Instructions: {}K", self.fuel_consumed as f64 / 1000.0)
+        let fuel_message: String = if self.instructions >= 1000 {
+            format!("Instructions: {}K", self.instructions as f64 / 1000.0)
         } else {
-            format!("Instructions: {}", self.fuel_consumed)
+            format!("Instructions: {}", self.instructions)
         };
         write!(formatter, "{title}\n\n")?;
         writeln!(formatter, "Name: {}", self.name)?;
@@ -122,7 +122,7 @@ mod tests {
             runtime: Duration::from_millis(100),
             size: 100,
             memory_usage: 1000,
-            fuel_consumed: 1001,
+            instructions: 1001,
             logs: "test".to_string(),
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
@@ -141,7 +141,7 @@ mod tests {
             runtime: Duration::from_millis(100),
             size: 100,
             memory_usage: 1000,
-            fuel_consumed: 1000,
+            instructions: 1000,
             logs: "test".to_string(),
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
@@ -160,7 +160,7 @@ mod tests {
             runtime: Duration::from_millis(100),
             size: 100,
             memory_usage: 1000,
-            fuel_consumed: 999,
+            instructions: 999,
             logs: "test".to_string(),
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"

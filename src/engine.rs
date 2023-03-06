@@ -27,17 +27,11 @@ fn import_modules(
     let imported_modules: HashSet<String> =
         module.imports().map(|i| i.module().to_string()).collect();
     imported_modules.iter().for_each(|imported_module| {
-        let mut imported_module = imported_module.to_owned();
-        imported_module.push_str(".wasm");
-
-        let imported_module_bytes = StandardProviders::get(&imported_module);
+        let imported_module_bytes = StandardProviders::get(&format!("{imported_module}.wasm"));
 
         if let Some(bytes) = imported_module_bytes {
             let imported_module = Module::from_binary(&engine, &bytes.data)
-                .map_err(|e| anyhow!("Couldn't load the javy module: {e}"))
-                .unwrap_or_else(|_| {
-                    panic!("Couldn't deserialize imported modules: {imported_module}")
-                });
+                .unwrap_or_else(|_| panic!("Failed to load module {imported_module}"));
 
             let imported_module_instance = linker
                 .instantiate(&mut store, &imported_module)
@@ -64,7 +58,7 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
 
     let runtime: Duration;
     let memory_usage: u64;
-    let fuel_consumed: u64;
+    let instructions: u64;
     let mut error_logs: String = String::new();
 
     {
@@ -108,7 +102,7 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
             })
             .sum::<u64>()
             / 1024;
-        fuel_consumed = store.fuel_consumed().unwrap_or_default();
+        instructions = store.fuel_consumed().unwrap_or_default();
 
         match module_result {
             Ok(_) => {}
@@ -151,7 +145,7 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
         runtime,
         size,
         memory_usage,
-        fuel_consumed,
+        instructions,
         logs.to_string(),
         output,
     );
@@ -162,22 +156,13 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{
-        fs::File,
-        io::{BufReader, Read},
-        path::Path,
-    };
+    use std::path::Path;
 
     const LINEAR_MEMORY_USAGE: u64 = 159 * 64;
 
     #[test]
     fn test_js_function() {
-        let mut input = vec![];
-
-        let mut reader =
-            BufReader::new(File::open("benchmark/build/js_function_input.json").unwrap());
-        reader.read_to_end(&mut input).expect("Should not fail");
-
+        let input = include_bytes!("../benchmark/build/js_function_input.json").to_vec();
         let function_run_result = run(
             Path::new("benchmark/build/js_function.wasm").to_path_buf(),
             input,
@@ -188,11 +173,7 @@ mod tests {
 
     #[test]
     fn test_linear_memory_usage_in_kb() {
-        let mut input = vec![];
-        let mut reader =
-            BufReader::new(File::open("benchmark/build/product_discount.json").unwrap());
-        reader.read_to_end(&mut input).expect("Should not fail");
-
+        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
         let function_run_result = run(
             Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
             input,
@@ -204,11 +185,7 @@ mod tests {
 
     #[test]
     fn test_file_size_in_kb() {
-        let mut input = vec![];
-        let mut reader =
-            BufReader::new(File::open("benchmark/build/product_discount.json").unwrap());
-        reader.read_to_end(&mut input).expect("Should not fail");
-
+        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
         let function_run_result = run(
             Path::new("benchmark/build/size_function.wasm").to_path_buf(),
             input,
