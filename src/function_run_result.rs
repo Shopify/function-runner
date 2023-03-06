@@ -51,24 +51,33 @@ impl FunctionRunResult {
     }
 }
 
+fn humanize_instructions(instructions: u64) -> String {
+    let instructions_humanized = match instructions {
+        0..=999 => instructions.to_string(),
+        1000..=999_999 => format!("{}K", instructions as f64 / 1000.0),
+        1_000_000..=999_999_999 => format!("{}M", instructions as f64 / 1_000_000.0),
+        1_000_000_000..=u64::MAX => format!("{}B", instructions as f64 / 1_000_000_000.0),
+    };
+
+    match instructions {
+        0..=10_000_000 => format!("Instructions: {instructions_humanized}"),
+        10_000_001..=u64::MAX => format!("Instructions: {instructions_humanized}")
+            .red()
+            .to_string(),
+    }
+}
+
 impl fmt::Display for FunctionRunResult {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         let title = "      Benchmark Results      "
             .black()
             .on_truecolor(150, 191, 72);
 
-        let fuel_message: String = if self.instructions >= 1000 {
-            format!("Instructions: {}K", self.instructions as f64 / 1000.0)
-        } else {
-            format!("Instructions: {}", self.instructions)
-        };
         write!(formatter, "{title}\n\n")?;
         writeln!(formatter, "Name: {}", self.name)?;
         writeln!(formatter, "Runtime: {:?}", self.runtime)?;
         writeln!(formatter, "Linear Memory Usage: {}KB", self.memory_usage)?;
-
-        writeln!(formatter, "{fuel_message}")?;
-
+        writeln!(formatter, "{}", humanize_instructions(self.instructions))?;
         writeln!(formatter, "Size: {}KB\n", self.size)?;
 
         writeln!(
