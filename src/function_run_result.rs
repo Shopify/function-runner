@@ -60,8 +60,8 @@ fn humanize_instructions(instructions: u64) -> String {
     };
 
     match instructions {
-        0..=10_000_000 => format!("Instructions: {instructions_humanized}"),
-        10_000_001..=u64::MAX => format!("Instructions: {instructions_humanized}")
+        0..=11_000_000 => format!("Instructions: {instructions_humanized}"),
+        11_000_001..=u64::MAX => format!("Instructions: {instructions_humanized}")
             .red()
             .to_string(),
     }

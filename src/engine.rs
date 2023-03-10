@@ -89,7 +89,6 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
         // https://docs.rs/wasmtime/0.37.0/wasmtime/struct.Instance.html#why-does-get_export-take-a-mutable-context
         let memory_names: Vec<String> = instance
             .exports(&mut store)
-            .into_iter()
             .filter(|export| export.clone().into_memory().is_some())
             .map(|export| export.name().to_string())
             .collect();
