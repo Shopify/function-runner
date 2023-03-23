@@ -4,6 +4,8 @@ members = [
   "benchmark/runtime_function",
   "benchmark/size_function",
   "benchmark/stack_memory_function",
+  "benchmark/exit_code_function_zero",
+  "benchmark/exit_code_function_one"
 ]
 
 [package]
