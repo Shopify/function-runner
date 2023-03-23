@@ -6,7 +6,7 @@ use std::{
     path::PathBuf,
     time::{Duration, Instant},
 };
-use wasi_common::WasiCtx;
+use wasi_common::{I32Exit, WasiCtx};
 use wasmtime::{Config, Engine, Linker, Module, Store};
 
 use crate::function_run_result::{
@@ -81,6 +81,16 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
         let module_result = instance
             .get_typed_func::<(), ()>(&mut store, "_start")?
             .call(&mut store, ());
+
+        // modules may exit with a specific exit code, an exit code of 0 is considered success but is reported as
+        // a GuestFault by wasmtime, so we need to map it to a success result. Any other exit code is considered
+        // a failure.
+        let module_result =
+            module_result.or_else(|error| match error.downcast_ref::<wasi_common::I32Exit>() {
+                Some(I32Exit(0)) => Ok(()),
+                Some(I32Exit(code)) => Err(anyhow!("module exited with code: {}", code)),
+                None => Err(error),
+            });
 
         runtime = start.elapsed();
 
@@ -168,6 +178,30 @@ mod tests {
         );
 
         assert!(function_run_result.is_ok());
+    }
+
+    #[test]
+    fn test_exit_code_zero() {
+        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
+        let function_run_result = run(
+            Path::new("benchmark/build/exit_code_function_zero.wasm").to_path_buf(),
+            input,
+        )
+        .unwrap();
+
+        assert_eq!(function_run_result.logs, "");
+    }
+
+    #[test]
+    fn test_exit_code_one() {
+        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
+        let function_run_result = run(
+            Path::new("benchmark/build/exit_code_function_one.wasm").to_path_buf(),
+            input,
+        )
+        .unwrap();
+
+        assert_eq!(function_run_result.logs, "module exited with code: 1");
     }
 
     #[test]
