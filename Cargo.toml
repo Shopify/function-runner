@@ -25,7 +25,7 @@ opt-level = 3
 wasmtime = "6.0.0"
 wasmtime-wasi = "6.0.0"
 wasi-common = "6.0.0"
-deterministic-wasi-ctx = "0.1.9"
+deterministic-wasi-ctx = "0.1.12"
 anyhow = "1.0"
 clap = { version = "4.1", features = ["derive"] }
 serde_json = "1.0"
