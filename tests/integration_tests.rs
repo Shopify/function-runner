@@ -3,7 +3,8 @@ mod tests {
 
     use assert_cmd::prelude::*;
     use function_runner::function_run_result::FunctionRunResult;
-    use predicates::str::contains;
+    use predicates::prelude::*;
+    use predicates::{prelude::predicate, str::contains};
     use std::{
         fs::File,
         process::{Command, Stdio},
@@ -53,6 +54,52 @@ mod tests {
 
         let _ = serde_json::from_slice::<FunctionRunResult>(&output.stdout)
             .expect("This shouldn't fail");
+
+        Ok(())
+    }
+
+    #[test]
+    fn run_no_opts() -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let output = cmd
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("Failed to spawn child process")
+            .wait_with_output()
+            .expect("Failed waiting for output");
+
+        let actual = String::from_utf8(output.stderr).unwrap();
+        let predicate = predicate::str::contains(
+            "Simple Function runner which takes JSON as a convenience\n\nUsage: function-runner",
+        )
+        .count(1);
+
+        assert!(predicate.eval(&actual));
+
+        Ok(())
+    }
+
+    #[test]
+    #[ignore = "This test hangs on CI but runs locally, is_terminal is likely returning false in CI"]
+    fn run_function_no_input() -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let output = cmd
+            .arg("--function")
+            .arg("benchmark/build/runtime_function.wasm")
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Failed to spawn child process")
+            .wait_with_output()
+            .expect("Failed waiting for output");
+
+        let actual = String::from_utf8(output.stdout).unwrap();
+        let predicate = predicate::str::contains(
+            "Simple Function runner which takes JSON as a convenience\n\nUsage: function-runner",
+        )
+        .count(1);
+
+        assert!(predicate.eval(&actual));
 
         Ok(())
     }

@@ -5,12 +5,15 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use function_runner::engine::run;
 
+use is_terminal::IsTerminal;
+
 /// Simple Function runner which takes JSON as a convenience.
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 #[clap(version)]
+#[command(arg_required_else_help = true)]
 struct Opts {
     /// Path to wasm/wat Function
     #[clap(short, long, default_value = "function.wasm")]
@@ -31,8 +34,13 @@ fn main() -> Result<()> {
         Box::new(BufReader::new(File::open(input).map_err(|e| {
             anyhow!("Couldn't load input {:?}: {}", input, e)
         })?))
-    } else {
+    } else if !std::io::stdin().is_terminal() {
         Box::new(BufReader::new(stdin()))
+    } else {
+        Opts::command()
+            .print_help()
+            .expect("Printing help should not fail");
+        return Ok(());
     };
 
     let mut buffer = Vec::new();
