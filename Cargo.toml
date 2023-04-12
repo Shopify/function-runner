@@ -10,7 +10,7 @@ members = [
 
 [package]
 name = "function-runner"
-version = "3.3.0"
+version = "0.0.1"
 edition = "2021"
 
 [profile.benchmark]
