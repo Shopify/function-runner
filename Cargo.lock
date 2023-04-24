@@ -691,6 +691,7 @@ dependencies = [
  "serde",
  "serde_json",
  "wasi-common",
+ "wasmprof",
  "wasmtime",
  "wasmtime-wasi",
 ]
@@ -996,6 +997,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d61c719bcfbcf5d62b3a09efa6088de8c54bc0bfcd3ea7ae39fcc186108b8de1"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "nix"
+version = "0.26.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfdda3d196821d6af13126e40375cdf7da646a96114af134d5f417a9a1dc8e1a"
+dependencies = [
+ "bitflags",
+ "cfg-if",
+ "libc",
+ "static_assertions",
 ]
 
 [[package]]
@@ -1495,6 +1508,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
 name = "strsim"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1777,6 +1796,18 @@ checksum = "48134de3d7598219ab9eaf6b91b15d8e50d31da76b8519fe4ecfcec2cf35104b"
 dependencies = [
  "indexmap",
  "url",
+]
+
+[[package]]
+name = "wasmprof"
+version = "0.1.0"
+source = "git+https://github.com/Shopify/wasmprof.git?branch=jb/return-fn-val#ba0a72a8ada2f2c6de7a94155e90640f9e419ba4"
+dependencies = [
+ "libc",
+ "nix",
+ "serde",
+ "serde_json",
+ "wasmtime",
 ]
 
 [[package]]

@@ -7,12 +7,19 @@ use std::{
     time::{Duration, Instant},
 };
 use wasi_common::{I32Exit, WasiCtx};
-use wasmtime::{Config, Engine, Linker, Module, Store};
+use wasmtime::{AsContextMut, Config, Engine, Linker, Module, Store};
 
 use crate::function_run_result::{
     FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
     FunctionRunResult, InvalidOutput,
 };
+use wasmprof::wasmprof;
+
+#[derive(Clone)]
+pub struct ProfileOpts {
+    pub interval: u32,
+    pub out: PathBuf,
+}
 
 #[derive(RustEmbed)]
 #[folder = "providers/"]
@@ -20,7 +27,7 @@ struct StandardProviders;
 
 fn import_modules(
     module: &Module,
-    engine: Engine,
+    engine: &Engine,
     linker: &mut Linker<WasiCtx>,
     mut store: &mut Store<WasiCtx>,
 ) {
@@ -47,8 +54,17 @@ fn import_modules(
     });
 }
 
-pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> {
-    let engine = Engine::new(Config::new().wasm_multi_memory(true).consume_fuel(true))?;
+pub fn run(
+    function_path: PathBuf,
+    input: Vec<u8>,
+    profile_opts: Option<&ProfileOpts>,
+) -> Result<FunctionRunResult> {
+    let engine = Engine::new(
+        Config::new()
+            .wasm_multi_memory(true)
+            .consume_fuel(true)
+            .epoch_interruption(true),
+    )?;
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
@@ -60,27 +76,46 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
     let memory_usage: u64;
     let instructions: u64;
     let mut error_logs: String = String::new();
+    let profile_data: Option<String>;
 
     {
         let mut linker = Linker::new(&engine);
         wasmtime_wasi::add_to_linker(&mut linker, |s| s)?;
-        let mut wasi = deterministic_wasi_ctx::build_wasi_ctx();
+        let wasi = deterministic_wasi_ctx::build_wasi_ctx();
         wasi.set_stdin(Box::new(input_stream));
         wasi.set_stdout(Box::new(output_stream.clone()));
         wasi.set_stderr(Box::new(error_stream.clone()));
         let mut store = Store::new(&engine, wasi);
         store.add_fuel(u64::MAX)?;
+        store.set_epoch_deadline(1);
 
-        import_modules(&module, engine, &mut linker, &mut store);
+        import_modules(&module, &engine, &mut linker, &mut store);
 
         linker.module(&mut store, "Function", &module)?;
         let instance = linker.instantiate(&mut store, &module)?;
 
         let start = Instant::now();
+        let func = instance
+            .get_typed_func::<(), ()>(store.as_context_mut(), "_start")
+            .unwrap();
 
-        let module_result = instance
-            .get_typed_func::<(), ()>(&mut store, "_start")?
-            .call(&mut store, ());
+        let module_result;
+        (profile_data, module_result) = if let Some(profile_opts) = profile_opts {
+            let (_, profile_data, result) = wasmprof(
+                profile_opts.interval as i32,
+                engine,
+                &mut store,
+                wasmprof::WeightUnit::Fuel,
+                |store| func.call(store.as_context_mut(), ()),
+            );
+
+            (
+                Some(profile_data.into_collapsed_stacks().to_string()),
+                result,
+            )
+        } else {
+            (None, func.call(store.as_context_mut(), ()))
+        };
 
         // modules may exit with a specific exit code, an exit code of 0 is considered success but is reported as
         // a GuestFault by wasmtime, so we need to map it to a success result. Any other exit code is considered
@@ -157,6 +192,7 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
         instructions,
         logs.to_string(),
         output,
+        profile_data,
     );
 
     Ok(function_run_result)
@@ -175,6 +211,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/js_function.wasm").to_path_buf(),
             input,
+            None,
         );
 
         assert!(function_run_result.is_ok());
@@ -186,6 +223,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/exit_code_function_zero.wasm").to_path_buf(),
             input,
+            None,
         )
         .unwrap();
 
@@ -198,6 +236,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/exit_code_function_one.wasm").to_path_buf(),
             input,
+            None,
         )
         .unwrap();
 
@@ -210,6 +249,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
             input,
+            None,
         )
         .unwrap();
 
@@ -222,6 +262,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/size_function.wasm").to_path_buf(),
             input,
+            None,
         )
         .unwrap();
 
