@@ -22,6 +22,8 @@ pub struct FunctionRunResult {
     pub instructions: u64,
     pub logs: String,
     pub output: FunctionOutput,
+    #[serde(skip)]
+    pub profile: Option<String>,
 }
 
 impl FunctionRunResult {
@@ -32,6 +34,7 @@ impl FunctionRunResult {
         instructions: u64,
         logs: String,
         output: FunctionOutput,
+        profile: Option<String>,
     ) -> Self {
         FunctionRunResult {
             name,
@@ -40,6 +43,7 @@ impl FunctionRunResult {
             instructions,
             output,
             logs,
+            profile,
         }
     }
 
@@ -131,6 +135,7 @@ mod tests {
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
+            profile: None,
         };
 
         let predicate = predicates::str::contains("Instructions: 1.001K")
@@ -149,6 +154,7 @@ mod tests {
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
+            profile: None,
         };
 
         let predicate = predicates::str::contains("Instructions: 1")
@@ -167,6 +173,7 @@ mod tests {
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
+            profile: None,
         };
 
         let predicate = predicates::str::contains("Instructions: 999")
