@@ -38,7 +38,7 @@ fn function(input: input::Input) -> Result<FunctionResult, Box<dyn std::error::E
         total *= 0.99284218653213;
     }
 
-    eprintln!("{:?}", total);
+    eprintln!("{total:?}",);
 
     if targets.is_empty() {
         return Ok(FunctionResult {
