@@ -276,6 +276,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cpp_demangle"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c76f98bdfc7f66172e6c7065f981ebb576ffc903fe4c0561d9f0c2509226dc6"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
 name = "cpufeatures"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -482,7 +491,7 @@ dependencies = [
 [[package]]
 name = "deterministic-wasi-ctx"
 version = "0.1.12"
-source = "git+https://github.com/Shopify/deterministic-wasi-ctx.git?branch=jb/wasmtime-8#498f8c3650e185bdd105397c5e55a7b0c1007065"
+source = "git+https://github.com/Shopify/deterministic-wasi-ctx.git#700e480db4a2ec0d9ce394ff43e6e1d35d984502"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1146,9 +1155,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.49"
+version = "1.0.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57a8eca9f9c4ffde41714334dee777596264c7825420f521abc92b5b5deb63a5"
+checksum = "2b63bdb0cd06f1f4dedf69b254734f9b45af66e4a031e42a7480257d9898b435"
 dependencies = [
  "unicode-ident",
 ]
@@ -1175,9 +1184,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.23"
+version = "1.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8856d8364d252a14d474036ea1358d63c9e6965c8e5c1885c18f73d70bff9c7b"
+checksum = "4424af4bf778aae2051a77b60283332f386554255d722233d09fbfc7e30da2fc"
 dependencies = [
  "proc-macro2",
 ]
@@ -1343,9 +1352,9 @@ dependencies = [
 
 [[package]]
 name = "rustc-demangle"
-version = "0.1.21"
+version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ef03e0a2b150c7a90d01faf6254c9c48a41e95fb2a8c2ac1c6f0d2b9aefc342"
+checksum = "d626bb9dae77e28219937af045c257c28bfd3f69333c512553507f5f9798cb76"
 
 [[package]]
 name = "rustix"
@@ -1801,10 +1810,12 @@ dependencies = [
 [[package]]
 name = "wasmprof"
 version = "0.1.0"
-source = "git+https://github.com/Shopify/wasmprof.git?branch=jb/return-fn-val#ba0a72a8ada2f2c6de7a94155e90640f9e419ba4"
+source = "git+https://github.com/Shopify/wasmprof.git#0fab428550e9596a90d7bba8ff6b0f33cf182725"
 dependencies = [
+ "cpp_demangle 0.4.1",
  "libc",
  "nix",
+ "rustc-demangle",
  "serde",
  "serde_json",
  "wasmtime",
@@ -1971,7 +1982,7 @@ dependencies = [
  "anyhow",
  "bincode",
  "cfg-if",
- "cpp_demangle",
+ "cpp_demangle 0.3.5",
  "gimli",
  "ittapi",
  "log",

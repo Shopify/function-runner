@@ -13,7 +13,6 @@ use crate::function_run_result::{
     FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
     FunctionRunResult, InvalidOutput,
 };
-use wasmprof::wasmprof;
 
 #[derive(Clone)]
 pub struct ProfileOpts {
@@ -100,21 +99,18 @@ pub fn run(
             .unwrap();
 
         let module_result;
-        (profile_data, module_result) = if let Some(profile_opts) = profile_opts {
-            let (_, profile_data, result) = wasmprof(
-                profile_opts.interval as i32,
-                engine,
-                &mut store,
-                wasmprof::WeightUnit::Fuel,
-                |store| func.call(store.as_context_mut(), ()),
-            );
+        (module_result, profile_data) = if let Some(profile_opts) = profile_opts {
+            let (result, profile_data) = wasmprof::ProfilerBuilder::new(&mut store)
+                .frequency(profile_opts.interval)
+                .weight_unit(wasmprof::WeightUnit::Fuel)
+                .profile(|store| func.call(store.as_context_mut(), ()));
 
             (
-                Some(profile_data.into_collapsed_stacks().to_string()),
                 result,
+                Some(profile_data.into_collapsed_stacks().to_string()),
             )
         } else {
-            (None, func.call(store.as_context_mut(), ()))
+            (func.call(store.as_context_mut(), ()), None)
         };
 
         // modules may exit with a specific exit code, an exit code of 0 is considered success but is reported as
