@@ -1,6 +1,6 @@
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
-use std::{fmt, time::Duration};
+use std::fmt;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct InvalidOutput {
@@ -17,7 +17,6 @@ pub enum FunctionOutput {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FunctionRunResult {
     pub name: String,
-    pub runtime: Duration,
     pub size: u64,
     pub memory_usage: u64,
     pub instructions: u64,
@@ -28,7 +27,6 @@ pub struct FunctionRunResult {
 impl FunctionRunResult {
     pub fn new(
         name: String,
-        runtime: Duration,
         size: u64,
         memory_usage: u64,
         instructions: u64,
@@ -37,7 +35,6 @@ impl FunctionRunResult {
     ) -> Self {
         FunctionRunResult {
             name,
-            runtime,
             size,
             memory_usage,
             instructions,
@@ -75,7 +72,6 @@ impl fmt::Display for FunctionRunResult {
 
         write!(formatter, "{title}\n\n")?;
         writeln!(formatter, "Name: {}", self.name)?;
-        writeln!(formatter, "Runtime: {:?}", self.runtime)?;
         writeln!(formatter, "Linear Memory Usage: {}KB", self.memory_usage)?;
         writeln!(formatter, "{}", humanize_instructions(self.instructions))?;
         writeln!(formatter, "Size: {}KB\n", self.size)?;
@@ -128,7 +124,6 @@ mod tests {
     fn test_js_output() {
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
-            runtime: Duration::from_millis(100),
             size: 100,
             memory_usage: 1000,
             instructions: 1001,
@@ -147,7 +142,6 @@ mod tests {
     fn test_js_output_1000() {
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
-            runtime: Duration::from_millis(100),
             size: 100,
             memory_usage: 1000,
             instructions: 1000,
@@ -166,7 +160,6 @@ mod tests {
     fn test_instructions_less_than_1000() {
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
-            runtime: Duration::from_millis(100),
             size: 100,
             memory_usage: 1000,
             instructions: 999,
