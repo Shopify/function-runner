@@ -33,6 +33,11 @@ colored = "2.0"
 serde = "1.0"
 rust-embed = "6.4.2"
 is-terminal = "0.4.6"
+bluejay-parser = { git = "https://github.com/adampetro/bluejay", rev = "774dfde37cdcbce94529502090888a8ddd36c9a4" }
+bluejay-core = { git = "https://github.com/adampetro/bluejay", rev = "774dfde37cdcbce94529502090888a8ddd36c9a4", features = ["serde_json"] }
+bluejay-validator = { git = "https://github.com/adampetro/bluejay", rev = "774dfde37cdcbce94529502090888a8ddd36c9a4" }
+itertools = "0.10"
+regex = "1.8"
 
 [dev-dependencies]
 assert_cmd = "2.0"

@@ -22,6 +22,10 @@ struct Opts {
     /// Path to json file containing Function input; if omitted, stdin is used
     input: Option<PathBuf>,
 
+    /// Path to GraphQL file containing Function API schema; if omitted, output is not validated
+    #[clap(short, long)]
+    schema: Option<PathBuf>,
+
     /// Log the run result as a JSON object
     #[clap(short, long)]
     json: bool,
@@ -48,7 +52,7 @@ fn main() -> Result<()> {
     let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
         .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
 
-    let function_run_result = run(opts.function, buffer)?;
+    let function_run_result = run(opts.function, buffer, opts.schema)?;
 
     if opts.json {
         println!("{}", function_run_result.to_json());

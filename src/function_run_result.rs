@@ -1,3 +1,4 @@
+use crate::output_validation::OutputValidationError;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::{fmt, time::Duration};
@@ -12,6 +13,7 @@ pub struct InvalidOutput {
 pub enum FunctionOutput {
     JsonOutput(serde_json::Value),
     InvalidJsonOutput(InvalidOutput),
+    InvalidOutput(Vec<OutputValidationError>),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -110,6 +112,14 @@ impl fmt::Display for FunctionRunResult {
                     "{}\n\n{}",
                     "         JSON Error         ".black().on_bright_red(),
                     invalid_output.error
+                )?;
+            }
+            FunctionOutput::InvalidOutput(errors) => {
+                writeln!(
+                    formatter,
+                    "{}\n\n{}",
+                    "       Invalid Output       ".black().on_bright_red(),
+                    serde_json::to_string_pretty(&errors).unwrap_or_else(|error| error.to_string())
                 )?;
             }
         }

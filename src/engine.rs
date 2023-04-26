@@ -9,10 +9,8 @@ use std::{
 use wasi_common::{I32Exit, WasiCtx};
 use wasmtime::{Config, Engine, Linker, Module, Store};
 
-use crate::function_run_result::{
-    FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
-    FunctionRunResult, InvalidOutput,
-};
+use crate::function_run_result::{FunctionOutput, FunctionRunResult, InvalidOutput};
+use crate::output_validation::validate_output;
 
 #[derive(RustEmbed)]
 #[folder = "providers/"]
@@ -47,7 +45,11 @@ fn import_modules(
     });
 }
 
-pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> {
+pub fn run(
+    function_path: PathBuf,
+    input: Vec<u8>,
+    schema_path: Option<PathBuf>,
+) -> Result<FunctionRunResult> {
     let engine = Engine::new(Config::new().wasm_multi_memory(true).consume_fuel(true))?;
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
@@ -136,8 +138,17 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
         .into_inner();
 
     let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
-        Ok(json_output) => JsonOutput(json_output),
-        Err(error) => InvalidJsonOutput(InvalidOutput {
+        Ok(json_output) => {
+            if let Some(schema_path) = schema_path {
+                match validate_output(&json_output, &schema_path)? {
+                    Ok(_) => FunctionOutput::JsonOutput(json_output),
+                    Err(errors) => FunctionOutput::InvalidOutput(errors),
+                }
+            } else {
+                FunctionOutput::JsonOutput(json_output)
+            }
+        }
+        Err(error) => FunctionOutput::InvalidJsonOutput(InvalidOutput {
             stdout: std::str::from_utf8(&raw_output)
                 .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
                 .unwrap()
@@ -175,6 +186,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/js_function.wasm").to_path_buf(),
             input,
+            None,
         );
 
         assert!(function_run_result.is_ok());
@@ -186,6 +198,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/exit_code_function_zero.wasm").to_path_buf(),
             input,
+            None,
         )
         .unwrap();
 
@@ -198,6 +211,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/exit_code_function_one.wasm").to_path_buf(),
             input,
+            None,
         )
         .unwrap();
 
@@ -210,6 +224,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
             input,
+            None,
         )
         .unwrap();
 
@@ -222,6 +237,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/size_function.wasm").to_path_buf(),
             input,
+            None,
         )
         .unwrap();
 
