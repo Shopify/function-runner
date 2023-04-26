@@ -2,9 +2,12 @@ use serde::Serialize;
 
 mod api;
 use api::*;
+use std::io::Read;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let input: input::Input = serde_json::from_reader(std::io::BufReader::new(std::io::stdin()))?;
+    let mut string = String::new();
+    std::io::stdin().read_to_string(&mut string)?;
+    let input: input::Input = serde_json::from_str(&string)?;
     let mut out = std::io::stdout();
     let mut serializer = serde_json::Serializer::new(&mut out);
     function(input)?.serialize(&mut serializer)?;
@@ -31,14 +34,6 @@ fn function(input: input::Input) -> Result<FunctionResult, Box<dyn std::error::E
             });
         }
     }
-
-    // Increase the runtime of the function with expensive calculations.
-    let mut total: f64 = 100.0;
-    for _ in 0..130_000 {
-        total *= 0.99284218653213;
-    }
-
-    eprintln!("{total:?}",);
 
     if targets.is_empty() {
         return Ok(FunctionResult {
