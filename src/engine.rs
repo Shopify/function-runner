@@ -1,11 +1,6 @@
 use anyhow::{anyhow, Result};
 use rust_embed::RustEmbed;
-use std::{
-    collections::HashSet,
-    io::Cursor,
-    path::PathBuf,
-    time::{Duration, Instant},
-};
+use std::{collections::HashSet, io::Cursor, path::PathBuf};
 use wasi_common::{I32Exit, WasiCtx};
 use wasmtime::{Config, Engine, Linker, Module, Store};
 
@@ -56,7 +51,6 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
     let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
-    let runtime: Duration;
     let memory_usage: u64;
     let instructions: u64;
     let mut error_logs: String = String::new();
@@ -76,8 +70,6 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
         linker.module(&mut store, "Function", &module)?;
         let instance = linker.instantiate(&mut store, &module)?;
 
-        let start = Instant::now();
-
         let module_result = instance
             .get_typed_func::<(), ()>(&mut store, "_start")?
             .call(&mut store, ());
@@ -91,8 +83,6 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
                 Some(I32Exit(code)) => Err(anyhow!("module exited with code: {}", code)),
                 None => Err(error),
             });
-
-        runtime = start.elapsed();
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
         // We need this mutable borrow to fall out of scope so that we can measure memory usage.
@@ -151,7 +141,6 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
 
     let function_run_result = FunctionRunResult::new(
         name.to_string(),
-        runtime,
         size,
         memory_usage,
         instructions,

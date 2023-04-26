@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "benchmark/linear_memory_function",
-  "benchmark/runtime_function",
+  "benchmark/rust_function",
   "benchmark/size_function",
   "benchmark/stack_memory_function",
   "benchmark/exit_code_function_zero",
