@@ -55,10 +55,13 @@ async function isBinaryDownloaded(version) {
 
 async function downloadBinary(version) {
 	const targetPath = binaryPath(version);
-	const compressedStream = await new Promise(async (resolve) => {
+	const compressedStream = await new Promise(async (resolve, reject) => {
 		const url = binaryUrl(version);
 		console.log(`Downloading ${NAME} ${version} to ${targetPath}...`);
 		const resp = await fetch(url);
+		if (!resp.ok) {
+			return reject(new Error(`Failed to download ${NAME} ${version} for ${platarch()}.`))
+		}
 		resolve(resp.body);
 	});
 	const gunzip = gzip.createGunzip();
