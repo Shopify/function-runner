@@ -44,7 +44,7 @@ jobs:
             target: x86_64-pc-windows-msvc
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - name: Install cross compiler
         if:  ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
