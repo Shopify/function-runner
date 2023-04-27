@@ -108,6 +108,7 @@ function binaryUrl(version) {
 
 const SUPPORTED_TARGETS = [
 	"arm-macos",
+	"arm-linux",
 	"x86_64-macos",
 	"x86_64-windows",
 	"x86_64-linux",
