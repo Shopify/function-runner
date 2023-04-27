@@ -13,11 +13,17 @@ jobs:
       matrix:
         include:
           - name: linux
-            os: ubuntu-latest
+            os: ubuntu-20.04 # Use oldest supported non-deprecated version so we link against older glibc version which allows running binary on a wider set of Linux systems
             path: target/x86_64-unknown-linux-gnu/release/function-runner
             asset_name: function-runner-x86_64-linux-${{ github.event.release.tag_name }}
             shasum_cmd: sha256sum
             target: x86_64-unknown-linux-gnu
+          - name: linux-arm64
+            os: ubuntu-20.04 # Use oldest supported non-deprecated version so we link against older glibc version which allows running binary on a wider set of Linux systems
+            path: target/aarch64-unknown-linux-gnu/release/function-runner
+            asset_name: function-runner-arm-linux-${{ github.event.release.tag_name }}
+            shasum_cmd: sha256sum
+            target: aarch64-unknown-linux-gnu
           - name: macos
             os: macos-latest
             path: target/x86_64-apple-darwin/release/function-runner
@@ -40,6 +46,19 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
+      - name: Install cross compiler
+        if:  ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Set up cross compiler env variables
+        if:  ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
+        run: |
+          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          echo "CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          echo "CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++" >> $GITHUB_ENV
+
       # Should no-op except for macos-arm case where that target won't be installed
       - name: Install target
         run: rustup target add ${{ matrix.target }}
@@ -51,7 +70,7 @@ jobs:
           toolchain: stable
           default: true
 
-      - name: Build ${{ matrix.os }}
+      - name: Build ${{ matrix.target }}
         run: cargo build --release --target ${{ matrix.target }} --package function-runner
 
       - name: Archive assets
