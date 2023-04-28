@@ -58,7 +58,7 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
     {
         let mut linker = Linker::new(&engine);
         wasmtime_wasi::add_to_linker(&mut linker, |s| s)?;
-        let mut wasi = deterministic_wasi_ctx::build_wasi_ctx();
+        let wasi = deterministic_wasi_ctx::build_wasi_ctx();
         wasi.set_stdin(Box::new(input_stream));
         wasi.set_stdout(Box::new(output_stream.clone()));
         wasi.set_stderr(Box::new(error_stream.clone()));
