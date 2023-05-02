@@ -32,7 +32,7 @@ serde_json = "1.0"
 colored = "2.0"
 serde = "1.0"
 rust-embed = "6.6.1"
-is-terminal = "0.4.6"
+is-terminal = "0.4.7"
 
 [dev-dependencies]
 assert_cmd = "2.0"
