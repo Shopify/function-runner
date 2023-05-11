@@ -217,8 +217,6 @@ mod tests {
         )
         .unwrap();
 
-        println!("{}", function_run_result.logs);
-
         assert!(function_run_result
             .logs
             .contains(&"...[TRUNCATED]".red().to_string()));
