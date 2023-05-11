@@ -78,7 +78,7 @@ impl fmt::Display for FunctionRunResult {
 
         writeln!(
             formatter,
-            "{}\n\n{}",
+            "{}\n\n{}\n",
             "            Logs            ".black().on_bright_blue(),
             self.logs
         )?;
