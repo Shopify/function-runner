@@ -1,13 +1,15 @@
 use anyhow::{anyhow, Result};
-use colored::Colorize;
 use rust_embed::RustEmbed;
 use std::{collections::HashSet, io::Cursor, path::PathBuf};
 use wasi_common::{I32Exit, WasiCtx};
 use wasmtime::{Config, Engine, Linker, Module, Store};
 
-use crate::function_run_result::{
-    FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
-    FunctionRunResult, InvalidOutput,
+use crate::{
+    function_run_result::{
+        FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
+        FunctionRunResult, InvalidOutput,
+    },
+    logs::LogStream,
 };
 
 #[derive(RustEmbed)]
@@ -50,7 +52,7 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
 
     let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
-    let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
+    let error_stream = wasi_common::pipe::WritePipe::new(LogStream::default());
 
     let memory_usage: u64;
     let instructions: u64;
@@ -112,25 +114,12 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
         }
     };
 
-    let raw_logs = error_stream
+    let mut logs = error_stream
         .try_into_inner()
-        .expect("Error stream reference still exists")
-        .into_inner();
-    let mut logs = std::string::String::from_utf8(raw_logs)
-        .map_err(|e| anyhow!("Couldn't print Function Logs: {}", e))?;
+        .expect("Log stream reference still exists");
 
-    if logs.bytes().len() > 1000 {
-        let char_index = logs
-            .char_indices()
-            .nth(1000)
-            .map(|(i, _)| i)
-            .unwrap_or(logs.len());
-
-        logs.truncate(char_index);
-        logs = format!("{}{}", logs, "...[TRUNCATED]".red());
-    }
-
-    logs.push_str(&error_logs);
+    logs.append(error_logs.as_bytes())
+        .expect("Couldn't append error logs");
 
     let raw_output = output_stream
         .try_into_inner()
@@ -165,6 +154,8 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
 
 #[cfg(test)]
 mod tests {
+    use colored::Colorize;
+
     use super::*;
     use std::path::Path;
 
