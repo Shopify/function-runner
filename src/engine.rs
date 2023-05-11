@@ -218,6 +218,20 @@ mod tests {
     }
 
     #[test]
+    fn test_logs_truncation() {
+        let input = "{}".as_bytes().to_vec();
+        let function_run_result = run(
+            Path::new("benchmark/build/log_truncation_function.wasm").to_path_buf(),
+            input,
+        )
+        .unwrap();
+
+        assert!(function_run_result
+            .logs
+            .contains(&"...[TRUNCATED]".red().to_string()));
+    }
+
+    #[test]
     fn test_file_size_in_kb() {
         let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
         let function_run_result = run(
