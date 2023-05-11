@@ -1,4 +1,3 @@
-use colored::Colorize;
 use core::fmt;
 use std::io;
 
@@ -52,11 +51,12 @@ impl LogStream {
         }
     }
 
-    /// Append a buffer to the log stream and truncates when hitting the capcity
+    /// Append a buffer to the log stream and truncates when hitting the capacity.
+    /// We return the input buffer size regardless of whether we truncated or not to avoid a panic.
     /// # Arguments
     /// * `buf` - the buffer to append
     /// # Returns
-    /// * `Ok(usize)` - the number of bytes written
+    /// * `Ok(usize)` - the number of bytes in the buffer that was passed in
     /// * `Err(io::Error)` - if the buffer is empty
     /// # Errors
     /// * `io::Error` - if the buffer is empty
@@ -74,7 +74,7 @@ impl LogStream {
             truncate_to_char_boundary(&log, self.capacity - self.current_bytesize);
         let mut log = log.to_string();
         if truncated {
-            log.push_str("...[TRUNCATED]".red().to_string().as_str());
+            log.push_str("...[TRUNCATED]");
         }
 
         let size = log.len();
@@ -126,22 +126,14 @@ mod tests {
         let mut bounded_log = LogStream::with_capacity(10);
         let log = b"hello world";
         bounded_log.append(log).unwrap();
-        let truncation_message = "...[TRUNCATED]".red().to_string();
-        assert_eq!(
-            Some(format!("hello worl{}", truncation_message).as_str()),
-            bounded_log.last_message()
-        );
+        assert_eq!(Some("hello worl...[TRUNCATED]"), bounded_log.last_message());
     }
 
     #[test]
     fn test_bounded_log_when_truncated_nearest_valid_utf8() {
         let mut bounded_log = LogStream::with_capacity(15);
         bounded_log.append("✌️✌️✌️".as_bytes()).unwrap(); // ✌️ is 6 bytes, ✌ is 3;
-        let truncation_message = "...[TRUNCATED]".red().to_string();
-        assert_eq!(
-            Some(format!("✌\u{fe0f}✌\u{fe0f}✌{}", truncation_message).as_str()),
-            bounded_log.last_message()
-        );
+        assert_eq!(Some("✌️✌️✌...[TRUNCATED]"), bounded_log.last_message());
     }
 
     #[test]
