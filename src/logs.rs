@@ -74,7 +74,7 @@ impl LogStream {
             truncate_to_char_boundary(&log, self.capacity - self.current_bytesize);
         let mut log = log.to_string();
         if truncated {
-            log.push_str(&"...[TRUNCATED]".red().to_string());
+            log.push_str("...[TRUNCATED]".red().to_string().as_str());
         }
 
         let size = log.len();
@@ -126,8 +126,9 @@ mod tests {
         let mut bounded_log = LogStream::with_capacity(10);
         let log = b"hello world";
         bounded_log.append(log).unwrap();
+        let truncation_message = "...[TRUNCATED]".red().to_string();
         assert_eq!(
-            Some("hello worl\u{1b}[31m...[TRUNCATED]\u{1b}[0m"),
+            Some(format!("hello worl{}", truncation_message).as_str()),
             bounded_log.last_message()
         );
     }
@@ -136,8 +137,9 @@ mod tests {
     fn test_bounded_log_when_truncated_nearest_valid_utf8() {
         let mut bounded_log = LogStream::with_capacity(15);
         bounded_log.append("✌️✌️✌️".as_bytes()).unwrap(); // ✌️ is 6 bytes, ✌ is 3;
+        let truncation_message = "...[TRUNCATED]".red().to_string();
         assert_eq!(
-            Some("✌\u{fe0f}✌\u{fe0f}✌\u{1b}[31m...[TRUNCATED]\u{1b}[0m"),
+            Some(format!("✌\u{fe0f}✌\u{fe0f}✌{}", truncation_message).as_str()),
             bounded_log.last_message()
         );
     }
