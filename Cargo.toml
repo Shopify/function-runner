@@ -5,7 +5,8 @@ members = [
   "benchmark/size_function",
   "benchmark/stack_memory_function",
   "benchmark/exit_code_function_zero",
-  "benchmark/exit_code_function_one"
+  "benchmark/exit_code_function_one",
+  "benchmark/log_truncation_function",
 ]
 
 [package]

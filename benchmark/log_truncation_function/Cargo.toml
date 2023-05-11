@@ -1,0 +1,8 @@
+[package]
+name = "log_truncation_function"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde_json = "*"
+serde = { version = "1.0.13", features = ["derive"] }

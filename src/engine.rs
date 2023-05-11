@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use colored::Colorize;
 use rust_embed::RustEmbed;
 use std::{collections::HashSet, io::Cursor, path::PathBuf};
 use wasi_common::{I32Exit, WasiCtx};
@@ -117,6 +118,17 @@ pub fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> 
         .into_inner();
     let mut logs = std::string::String::from_utf8(raw_logs)
         .map_err(|e| anyhow!("Couldn't print Function Logs: {}", e))?;
+
+    if logs.bytes().len() > 1000 {
+        let char_index = logs
+            .char_indices()
+            .nth(1000)
+            .map(|(i, _)| i)
+            .unwrap_or(logs.len());
+
+        logs.truncate(char_index);
+        logs = format!("{}{}", logs, "...[TRUNCATED]".red());
+    }
 
     logs.push_str(&error_logs);
 
