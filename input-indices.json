@@ -1,0 +1,41 @@
+{
+  "locationRule": {
+      "functionConfiguration1": {
+        "value": "{\"groups\":[{\"name\":\"default\",\"priority\":0,\"locations\":[\"gid:\\/\\/shopify\\/Location\\/3\"]},{\"name\":\"retail\",\"priority\":1,\"locations\":[\"gid:\\/\\/shopify\\/Location\\/2\"]},{\"name\":\"online\",\"priority\":1,\"locations\":[\"gid:\\/\\/shopify\\/Location\\/1\"]},{\"name\":\"fallback\",\"priority\":2,\"locations\":[\"gid:\\/\\/shopify\\/Location\\/4\",\"gid:\\/\\/shopify\\/Location\\/5\"]}]}"
+      }
+  },
+  "fulfillmentGroups": [
+    {
+      "id": "gid://shopify/FulfillmentGroup/123",
+      "inventoryLocationIndices": [
+        0, 1, 2, 5
+      ]
+    },
+    {
+      "id": "gid://shopify/FulfillmentGroup/444",
+      "inventoryLocationIndices": [
+        1, 2, 3, 4
+      ]
+    }
+  ],
+  "locations": [
+    {
+      "id": "gid://shipify/Location/1"
+    },
+    {
+      "id": "gid://shipify/Location/2"
+    },
+    {
+      "id": "gid://shipify/Location/3"
+    },
+    {
+      "id": "gid://shipify/Location/4"
+    },
+    {
+      "id": "gid://shipify/Location/5"
+    },
+    {
+      "id": "gid://shipify/Location/6"
+    }
+  ]
+}

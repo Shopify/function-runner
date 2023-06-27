@@ -1,0 +1,6958 @@
+{
+  "locationRule": {
+    "functionConfiguration1": {
+      "value": "{\"groups\":[{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/3259350495976403000\",\"gid://shopify/Location/14898039512053650000\"],\"priority\":0},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/12646451796330938000\",\"gid://shopify/Location/16749589245875577000\"],\"priority\":1},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/11771622012012597000\",\"gid://shopify/Location/14948869062044828000\"],\"priority\":2},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/11841557809345962000\",\"gid://shopify/Location/16006263888668050000\"],\"priority\":3},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/2265807352765841400\",\"gid://shopify/Location/11235629236170580000\"],\"priority\":4}]}"
+    },
+    "functionConfiguration2": {
+      "value": "{\"groups\":[{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/1893973298359840800\",\"gid://shopify/Location/17436831143587250000\"],\"priority\":5},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/8236579909714956000\",\"gid://shopify/Location/1343161525057204200\"],\"priority\":6},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/4979115968622256000\",\"gid://shopify/Location/10040538902284694000\"],\"priority\":7},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/13830038797261201000\",\"gid://shopify/Location/9051293337245381000\"],\"priority\":8},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/9072160740769108000\",\"gid://shopify/Location/8340871276896051000\"],\"priority\":9}]}"
+    },
+    "functionConfiguration3": {
+      "value": "{\"groups\":[{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/9914016370874937000\",\"gid://shopify/Location/12124026682226864000\"],\"priority\":10},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/16330338943092773000\",\"gid://shopify/Location/13406515986471035000\"],\"priority\":11},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/9302668132024795000\",\"gid://shopify/Location/4066207948813877000\"],\"priority\":12},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/16667819184569630000\",\"gid://shopify/Location/241356534745608200\"],\"priority\":13},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/6175617669485310000\",\"gid://shopify/Location/17872937689622028000\"],\"priority\":14}]}"
+    },
+    "functionConfiguration4": {
+      "value": "{\"groups\":[{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/14607827021572248000\",\"gid://shopify/Location/297072803436105700\"],\"priority\":15},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/18203884424133485000\",\"gid://shopify/Location/15594202385478894000\"],\"priority\":16},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/2818318003213349000\",\"gid://shopify/Location/200364106438873100\"],\"priority\":17},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/1758208141912281000\",\"gid://shopify/Location/2562215620444066000\"],\"priority\":18},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/15967827936111133000\",\"gid://shopify/Location/5424064159866790000\"],\"priority\":19}]}"
+    },
+    "functionConfiguration5": {
+      "value": "{\"groups\":[{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/17599367186060780000\",\"gid://shopify/Location/9556987414626996000\"],\"priority\":20},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/17857593936492306000\",\"gid://shopify/Location/5755052162258190000\"],\"priority\":21},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/10985895013438657000\",\"gid://shopify/Location/6709938605980688000\"],\"priority\":22},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/6095534697915412000\",\"gid://shopify/Location/8336512943133258000\"],\"priority\":23},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/11411251928697704000\",\"gid://shopify/Location/1707498124871692300\"],\"priority\":24}]}"
+    },
+    "functionConfiguration6": {
+      "value": "{\"groups\":[{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/10296168450925760000\",\"gid://shopify/Location/10332183943433556000\"],\"priority\":25},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/13600991384058814000\",\"gid://shopify/Location/3599799423069905000\"],\"priority\":26},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/16976553468722622000\",\"gid://shopify/Location/6609777393564664000\"],\"priority\":27},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/4175772004279738400\",\"gid://shopify/Location/16770621445923803000\"],\"priority\":28},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/4338578605535375400\",\"gid://shopify/Location/14086672500631007000\"],\"priority\":29}]}"
+    },
+    "functionConfiguration7": {
+      "value": "{\"groups\":[{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/13938823512671330000\",\"gid://shopify/Location/11160265897340576000\"],\"priority\":30},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/14873191879215300000\",\"gid://shopify/Location/14275822800420151000\"],\"priority\":31},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/8346625456736035000\",\"gid://shopify/Location/14450284138207097000\"],\"priority\":32},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/4146393577750171600\",\"gid://shopify/Location/1403492788869603300\"],\"priority\":33},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/5875646078679360000\",\"gid://shopify/Location/10856989818808750000\"],\"priority\":34}]}"
+    },
+    "functionConfiguration8": {
+      "value": "{\"groups\":[{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/2899978002456162300\",\"gid://shopify/Location/7437216985395917000\"],\"priority\":35},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/6519802916269068000\",\"gid://shopify/Location/6888458970374676000\"],\"priority\":36},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/5097179595677983000\",\"gid://shopify/Location/2868834581341167600\"],\"priority\":37},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/962253612077502500\",\"gid://shopify/Location/18065205911865922000\"],\"priority\":38},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/12608218473393860000\",\"gid://shopify/Location/15670249871918436000\"],\"priority\":39}]}"
+    },
+    "functionConfiguration9": {
+      "value": "{\"groups\":[{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/7950265645881676000\",\"gid://shopify/Location/175283891821568000\"],\"priority\":40},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/10603471683510034000\",\"gid://shopify/Location/14378512570814566000\"],\"priority\":41},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/1084093688539758600\",\"gid://shopify/Location/17041732269787820000\"],\"priority\":42},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/15898431062420238000\",\"gid://shopify/Location/8022599387812364000\"],\"priority\":43},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/10081220670502588000\",\"gid://shopify/Location/10002441215728000000\"],\"priority\":44}]}"
+    },
+    "functionConfiguration10": {
+      "value": "{\"groups\":[{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/11757880530841600000\",\"gid://shopify/Location/11311006455380722000\"],\"priority\":45},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/9584259236547465000\",\"gid://shopify/Location/14630011869473178000\"],\"priority\":46},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/6706749274410168000\",\"gid://shopify/Location/10348834303547690000\"],\"priority\":47},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/7459998495571100000\",\"gid://shopify/Location/17799941747992883000\"],\"priority\":48},{\"name\":\"Location Group\",\"locations\":[\"gid://shopify/Location/6554338887617524000\",\"gid://shopify/Location/938508927825768400\"],\"priority\":49}]}"
+    }
+  },
+  "fulfillmentGroups": [
+    {
+      "id": "gid://shopify/FulfillmentGroup/fba52c7b-2a9e-4e08-ae2d-d7a24a98cc17",
+      "inventoryLocations": [
+        {
+          "location": {
+            "id": "gid://shopify/Location/365627359645507600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2779029397317308400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1893973298359840800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8340871276896051000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3259350495976403000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6888458970374676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2221959286785360000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13600991384058814000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12961025367719727000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15452113717585084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12961025367719727000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16006263888668050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16441576344599667000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11007783278366904000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16565802278657163000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/938508927825768400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13606514670145323000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11647524532750864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8346625456736035000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6260347043941151000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10068796863191785000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13110926591910998000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14374901934220173000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6609777393564664000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16330338943092773000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5755052162258190000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/200364106438873100"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17714334993816609000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14873191879215300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8374862659414389000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17394942634627280000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9051293337245381000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12124026682226864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11771622012012597000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15967827936111133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14898039512053650000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16667819184569630000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11160265897340576000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12608218473393860000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4337562774072770600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8263684420663325000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17394942634627280000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1758208141912281000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15898431062420238000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15308247273289105000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2597222808599765000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2265807352765841400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11670858876364296000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13185040436965200000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7624617408537932000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8336512943133258000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10002441215728000000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6706749274410168000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13687230839921672000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1758208141912281000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/700325578449915900"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9914016370874937000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16408357627041133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7851720318354452000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12917847948867748000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14533236256447620000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1418426314291708000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3107390432410558500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5734209101136355000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14547158686041047000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17394942634627280000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6183444895817589000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9072160740769108000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/175283891821568000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15898431062420238000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4066207948813877000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11916345291153887000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11165106555788743000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2221959286785360000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14630011869473178000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/907396104956985300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10817932194229604000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8236579909714956000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12180771134082773000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8374862659414389000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6609777393564664000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14927562958165230000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/143370407842148350"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4290695243695751000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14533236256447620000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7459998495571100000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13406515986471035000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/700325578449915900"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7838024220885066000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7838024220885066000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17436831143587250000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1415240482416590800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12312380748289012000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7838024220885066000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13121052053826105000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13606514670145323000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10856989818808750000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15614402339032183000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589152724719559000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10209104583103255000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10081220670502588000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4029715955272335400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8290253663485084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1472054761515331600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/143370407842148350"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14492097776621400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11161940935991288000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11751436888856953000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10002441215728000000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2879369292525625300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4928012759990161000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1084093688539758600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10332183943433556000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6609777393564664000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7437216985395917000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11730285740842275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16667819184569630000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3113032080091885600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15308247273289105000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/65941169943822340"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13110926591910998000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5734209101136355000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15092135873830138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6095534697915412000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14948869062044828000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9914016370874937000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12099553358923289000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8374862659414389000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4066207948813877000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14378512570814566000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17872937689622028000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14086672500631007000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11916345291153887000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9584259236547465000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4146996239032074000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1525972052946854000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6706749274410168000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8453354131546399000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1403492788869603300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4066207948813877000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4337562774072770600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14378512570814566000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14086672500631007000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8340871276896051000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11256665471953793000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14003595594399400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1141336801235112000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11771622012012597000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7437216985395917000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15215594641319166000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961917289396138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13693246939233612000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4146393577750171600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3113032080091885600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17872937689622028000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16441576344599667000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11647524532750864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14378512570814566000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8290253663485084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11670858876364296000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9302668132024795000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5842805084827242000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14275822800420151000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961097842123317000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15594202385478894000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2868834581341167600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2089003036125520000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1525972052946854000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14898039512053650000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16711823771481710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13606514670145323000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16711823771481710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3113032080091885600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3429648110791971000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15594202385478894000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3663458034955710500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9914016370874937000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16565802278657163000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10348834303547690000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7838024220885066000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4337562774072770600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5755052162258190000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13388567999603090000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7437216985395917000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11160722767966376000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11256665471953793000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1343161525057204200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11311006455380722000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/907396104956985300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1379412987548049400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9584259236547465000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9556987414626996000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18222775184968856000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2221959286785360000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14816285312915436000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10332183943433556000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15967827936111133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3663458034955710500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11161940935991288000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8425950461082477000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10909270048217440000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9302668132024795000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8391284870509367000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16408357627041133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11537336163479974000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10909270048217440000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3429648110791971000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589661961618710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2278022580167319600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15594202385478894000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2278022580167319600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1415240482416590800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6709938605980688000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/962253612077502500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1418426314291708000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13196914320382628000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16711823771481710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14873191879215300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8743318820082577000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6709938605980688000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17394942634627280000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18444596744179692000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4245658536496017400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11647524532750864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12099553358923289000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6095534697915412000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15594202385478894000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4793267832721351000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/FulfillmentGroup/cf046bf9-9f68-4081-a2da-a31d7dc961e1",
+      "inventoryLocations": [
+        {
+          "location": {
+            "id": "gid://shopify/Location/17744527414130070000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7950265645881676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1343161525057204200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15614402339032183000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4146996239032074000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18444596744179692000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13320193267701560000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18030380742178243000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10255529806749123000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/451417705542504450"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9584259236547465000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14927562958165230000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6183444895817589000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11160265897340576000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9584259236547465000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7940307984953811000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13406515986471035000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16711823771481710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1403492788869603300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9051293337245381000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15967827936111133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10288601747046474000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7940307984953811000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2415951874454548500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8391284870509367000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/962253612077502500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12099553358923289000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10856989818808750000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15614402339032183000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2415951874454548500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3259350495976403000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2899978002456162300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11762497083445010000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14275822800420151000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16692889808405815000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2899978002456162300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6706749274410168000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11161940935991288000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1084093688539758600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589152724719559000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2597222808599765000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2278022580167319600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12038510000223568000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16976553468722622000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13830038797261201000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4066207948813877000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14873191879215300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961097842123317000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12961025367719727000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7624617408537932000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2089003036125520000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12646451796330938000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11206618052637065000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16976553468722622000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10856989818808750000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1343161525057204200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18065205911865922000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9051293337245381000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11206618052637065000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14275822800420151000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14630011869473178000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10856989818808750000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/FulfillmentGroup/534343af-9830-4515-b612-076a47369dbb",
+      "inventoryLocations": [
+        {
+          "location": {
+            "id": "gid://shopify/Location/12917847948867748000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13490801483779040000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9469978451231654000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13693246939233612000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6541023176677634000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11165106555788743000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6706749274410168000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16006263888668050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10192106833119506000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8336512943133258000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14547158686041047000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12775229371492480000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4979115968622256000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/721237261809643500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8022599387812364000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11235629236170580000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7459998495571100000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9302668132024795000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2265807352765841400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17714334993816609000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15927499149057958000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17468820249602089000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12038510000223568000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13600991384058814000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13320193267701560000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589661961618710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/700325578449915900"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6260347043941151000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17872937689622028000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8185127714851889000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/FulfillmentGroup/59018468-4078-4399-9406-364813ad170a",
+      "inventoryLocations": [
+        {
+          "location": {
+            "id": "gid://shopify/Location/1415240482416590800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14374901934220173000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2265807352765841400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17744527414130070000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15927499149057958000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1141336801235112000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10068796863191785000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/200364106438873100"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7961906074111623000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7855345630100537000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13045081007200030000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1418426314291708000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4979115968622256000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6048363581321495000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1472054761515331600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11757880530841600000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2597222808599765000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12095691812143300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6183444895817589000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16667819184569630000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16565802278657163000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13490801483779040000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8290253663485084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1084093688539758600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16725969633861382000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13045081007200030000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8425950461082477000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4338578605535375400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2899978002456162300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4066207948813877000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14873191879215300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14378512570814566000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1472054761515331600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17799941747992883000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1379412987548049400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10817932194229604000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12961025367719727000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15898431062420238000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14450284138207097000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18203884424133485000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9556987414626996000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5097179595677983000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12124026682226864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8263684420663325000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15594202385478894000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6870384397110608000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17468820249602089000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2500997456387223600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961097842123317000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12124026682226864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3641217621284270000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/700325578449915900"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1084093688539758600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15092135873830138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/377114025142095900"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15308247273289105000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1472054761515331600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15092135873830138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17872937689622028000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6888458970374676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/962253612077502500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12099553358923289000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8391284870509367000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15215594641319166000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6609777393564664000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17714334993816609000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14630011869473178000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3663458034955710500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5734209101136355000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6609777393564664000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5047650533596275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6048363581321495000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961097842123317000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3641217621284270000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10255529806749123000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6080063013690192000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2597222808599765000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10040538902284694000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589661961618710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5424064159866790000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10553883105497117000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17872937689622028000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8743318820082577000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6175617669485310000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14547158686041047000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7940307984953811000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12099553358923289000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10002441215728000000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17041732269787820000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/FulfillmentGroup/47d9704d-8e06-483a-ae80-801f2fc13cfd",
+      "inventoryLocations": [
+        {
+          "location": {
+            "id": "gid://shopify/Location/1418426314291708000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3107390432410558500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6888458970374676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8453354131546399000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16667819184569630000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11235629236170580000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11841557809345962000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/92425787937030140"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6183444895817589000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10296168450925760000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8346625456736035000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17714334993816609000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15927499149057958000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7437216985395917000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/65941169943822340"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15215594641319166000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1418426314291708000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15092135873830138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10909270048217440000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/241356534745608200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16006263888668050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7838024220885066000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12608218473393860000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17872937689622028000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12961025367719727000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14547158686041047000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7940307984953811000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8185127714851889000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9051293337245381000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2562215620444066000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961917289396138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15092135873830138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11007783278366904000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7838024220885066000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14003595594399400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1893973298359840800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2500997456387223600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10255529806749123000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14086672500631007000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11165106555788743000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5097179595677983000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1707498124871692300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18444596744179692000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13687230839921672000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/451417705542504450"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2597222808599765000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17744527414130070000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2779029397317308400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14450284138207097000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8263684420663325000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11841557809345962000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1343161525057204200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1141336801235112000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5424064159866790000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2278022580167319600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15967827936111133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/297072803436105700"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11670858876364296000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1877263708177555500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18065205911865922000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4979115968622256000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7851720318354452000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14275822800420151000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8453354131546399000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8022599387812364000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11670858876364296000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4928012759990161000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5755052162258190000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6048363581321495000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9302668132024795000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5047650533596275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14948869062044828000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9584259236547465000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10332183943433556000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8340871276896051000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8263684420663325000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10332183943433556000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10192106833119506000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7950265645881676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1141336801235112000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8391284870509367000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13600991384058814000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3259350495976403000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12180771134082773000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/241356534745608200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6830222598845907000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8336512943133258000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9051293337245381000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1893973298359840800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8346625456736035000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2879369292525625300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1379412987548049400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14533236256447620000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/938508927825768400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15215594641319166000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1141336801235112000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11841557809345962000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589152724719559000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5755052162258190000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13600991384058814000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12099553358923289000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1893973298359840800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14450284138207097000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10553883105497117000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8290253663485084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16667819184569630000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12038510000223568000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10817932194229604000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18222775184968856000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17041732269787820000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6554338887617524000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2265807352765841400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5842805084827242000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11007783278366904000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3641217621284270000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11235629236170580000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4793267832721351000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14607827021572248000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589661961618710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15594202385478894000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17436831143587250000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5047650533596275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6888458970374676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1472054761515331600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11311006455380722000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13830038797261201000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17179193317124063000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/143370407842148350"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11670858876364296000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10296168450925760000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10856989818808750000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16976553468722622000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15898431062420238000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4377015544332992500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1379412987548049400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8374862659414389000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/65941169943822340"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11160265897340576000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8453354131546399000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2500997456387223600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17857593936492306000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16441576344599667000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8290253663485084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11757880530841600000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15308247273289105000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8022599387812364000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4066207948813877000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10068796863191785000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16725969633861382000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589661961618710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16711823771481710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6706749274410168000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4029715955272335400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10817932194229604000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14873191879215300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13600991384058814000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13600991384058814000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11311006455380722000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/143370407842148350"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14450284138207097000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8263684420663325000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11206618052637065000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12646451796330938000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16725969633861382000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11647524532750864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/907396104956985300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13281674345441600000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4377015544332992500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13938823512671330000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11165106555788743000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12180771134082773000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/FulfillmentGroup/8b1df0c5-fec4-49ad-975c-7c6848fc154f",
+      "inventoryLocations": [
+        {
+          "location": {
+            "id": "gid://shopify/Location/17394942634627280000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13834108076608050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14873191879215300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1532857879388917800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13045081007200030000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10909270048217440000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1893973298359840800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/962253612077502500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2089003036125520000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6519802916269068000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17179193317124063000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2221959286785360000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8290253663485084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15898431062420238000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/241356534745608200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10553883105497117000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15614402339032183000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12917847948867748000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16006263888668050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15967827936111133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12961025367719727000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15967827936111133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13388567999603090000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9914016370874937000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10332183943433556000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11670858876364296000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11311006455380722000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2818318003213349000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6376955135119389000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8290253663485084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11160722767966376000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16749589245875577000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6870384397110608000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9584259236547465000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9469978451231654000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961097842123317000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13196914320382628000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9469978451231654000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8185127714851889000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16976553468722622000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10081220670502588000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18030380742178243000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12961025367719727000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/297072803436105700"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961097842123317000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17491833671406359000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11007783278366904000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10296168450925760000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6080063013690192000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17491833671406359000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7961906074111623000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4175772004279738400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1472054761515331600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10985895013438657000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13196914320382628000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2415951874454548500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2597222808599765000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13185040436965200000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11916345291153887000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12917847948867748000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11235629236170580000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1758208141912281000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2779029397317308400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17394942634627280000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14547158686041047000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6888458970374676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15614402339032183000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12961025367719727000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14607827021572248000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6095534697915412000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/377114025142095900"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12961025367719727000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18203884424133485000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17744527414130070000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17436831143587250000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15594202385478894000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5047650533596275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9556987414626996000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13320193267701560000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16725969633861382000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11670858876364296000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16408357627041133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2818318003213349000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17799941747992883000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2868834581341167600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7950265645881676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7950265645881676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14003595594399400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5097179595677983000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11256665471953793000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/297072803436105700"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5340698741255930000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14492097776621400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11161940935991288000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10192106833119506000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7624617408537932000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8346625456736035000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4245658536496017400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16623972964039868000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1141336801235112000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/200364106438873100"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5424064159866790000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14492097776621400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1415240482416590800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14816285312915436000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2562215620444066000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11311006455380722000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13045081007200030000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7437216985395917000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4290695243695751000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17394942634627280000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12124026682226864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1084093688539758600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17872937689622028000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16330338943092773000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16623972964039868000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/700325578449915900"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9051293337245381000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14086672500631007000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13281674345441600000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16441576344599667000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10081220670502588000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13320193267701560000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13834108076608050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10909270048217440000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14533236256447620000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16976553468722622000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13388567999603090000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1084093688539758600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15452113717585084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4029715955272335400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2278022580167319600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9072160740769108000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14086672500631007000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14003595594399400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1893973298359840800"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/FulfillmentGroup/5243b766-013a-49a0-95d7-55f7edfe120f",
+      "inventoryLocations": [
+        {
+          "location": {
+            "id": "gid://shopify/Location/6706749274410168000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1343161525057204200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17394942634627280000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11730285740842275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11311006455380722000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1379412987548049400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10909270048217440000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6870384397110608000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1532857879388917800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13606514670145323000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11007783278366904000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18030380742178243000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3641217621284270000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12961025367719727000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13834108076608050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8374862659414389000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11160722767966376000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13406515986471035000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3107390432410558500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7624617408537932000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14378512570814566000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15308247273289105000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2265807352765841400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7950265645881676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6376955135119389000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14378512570814566000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7961906074111623000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12180771134082773000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589661961618710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12775229371492480000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4928012759990161000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/721237261809643500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13490801483779040000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10068796863191785000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14948869062044828000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12180771134082773000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2868834581341167600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11916345291153887000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14630011869473178000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14927562958165230000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2265807352765841400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15927499149057958000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17857593936492306000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2879369292525625300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15594202385478894000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6706749274410168000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2818318003213349000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16623972964039868000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13687230839921672000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9072160740769108000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6260347043941151000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15215594641319166000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3113032080091885600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12124026682226864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10332183943433556000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12124026682226864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15927499149057958000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4146393577750171600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8346625456736035000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12124026682226864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13834108076608050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16976553468722622000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4290695243695751000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8453354131546399000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4029715955272335400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3107390432410558500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14378512570814566000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6830222598845907000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14607827021572248000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17491833671406359000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4337562774072770600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13110926591910998000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6888458970374676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4928012759990161000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6609777393564664000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14275822800420151000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17041732269787820000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9302668132024795000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15926806311373680000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11311006455380722000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4245658536496017400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7961906074111623000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11165106555788743000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4175772004279738400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589152724719559000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14086672500631007000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11670858876364296000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6706749274410168000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13830038797261201000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12124026682226864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961917289396138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16623972964039868000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7437216985395917000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2500997456387223600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5424064159866790000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14003595594399400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1472054761515331600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5734209101136355000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11007783278366904000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6175617669485310000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961097842123317000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16006263888668050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10856989818808750000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/200364106438873100"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13490801483779040000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14948869062044828000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6709938605980688000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7624617408537932000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11206618052637065000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1343161525057204200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13121052053826105000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17468820249602089000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10482644216903590000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4793267832721351000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6080063013690192000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7855345630100537000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3429648110791971000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6830222598845907000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11916345291153887000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13185040436965200000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12095691812143300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5300355114444444000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5424064159866790000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11411251928697704000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12038510000223568000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2899978002456162300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13185040436965200000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9469978451231654000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/92425787937030140"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/297072803436105700"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17179193317124063000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14607827021572248000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6554338887617524000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13830038797261201000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/65941169943822340"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7899261454765982000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5300355114444444000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4338578605535375400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11256665471953793000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16711823771481710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10909270048217440000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14275822800420151000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14492097776621400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8336512943133258000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15092135873830138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14378512570814566000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1472054761515331600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9556987414626996000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18065205911865922000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1379412987548049400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/962253612077502500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1415240482416590800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15215594641319166000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4337562774072770600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15927499149057958000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/65941169943822340"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13045081007200030000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10348834303547690000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1877263708177555500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589661961618710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13320193267701560000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14533236256447620000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5755052162258190000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15215594641319166000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/92425787937030140"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/451417705542504450"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14086672500631007000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8340871276896051000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589152724719559000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2278022580167319600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11916345291153887000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4377015544332992500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1525972052946854000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18203884424133485000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4337562774072770600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6830222598845907000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6048363581321495000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16441576344599667000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14374901934220173000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16006263888668050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13185040436965200000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1418426314291708000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6870384397110608000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12095691812143300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16667819184569630000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/FulfillmentGroup/7cced08f-20cc-414b-99cc-cea0c54316cf",
+      "inventoryLocations": [
+        {
+          "location": {
+            "id": "gid://shopify/Location/6048363581321495000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16711823771481710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14927562958165230000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14450284138207097000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12917847948867748000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2879369292525625300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13110926591910998000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1415240482416590800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1084093688539758600"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/FulfillmentGroup/3154f8c5-75bc-46aa-b262-f60b2e5ec439",
+      "inventoryLocations": [
+        {
+          "location": {
+            "id": "gid://shopify/Location/7851720318354452000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2562215620444066000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12312380748289012000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1415240482416590800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12917847948867748000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/297072803436105700"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11206618052637065000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13490801483779040000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13045081007200030000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6095534697915412000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14533236256447620000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7855345630100537000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12180771134082773000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10332183943433556000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12095691812143300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13830038797261201000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10081220670502588000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14450284138207097000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7437216985395917000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11916345291153887000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11762497083445010000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14898039512053650000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11256665471953793000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12124026682226864000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10002441215728000000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10553883105497117000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1893973298359840800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2089003036125520000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3113032080091885600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2089003036125520000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15670249871918436000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18222775184968856000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9966760783620960000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6870384397110608000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3429648110791971000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13938823512671330000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12099553358923289000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10553883105497117000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11161940935991288000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17491833671406359000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5755052162258190000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8743318820082577000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11311006455380722000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6709938605980688000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7899261454765982000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16565802278657163000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10985895013438657000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6048363581321495000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5842805084827242000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10817932194229604000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9469978451231654000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6048363581321495000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2278022580167319600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11762497083445010000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18030380742178243000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2089003036125520000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5097179595677983000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10856989818808750000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2868834581341167600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16623972964039868000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8743318820082577000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11161940935991288000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18030380742178243000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13938823512671330000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9469978451231654000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/451417705542504450"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16441576344599667000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6183444895817589000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14607827021572248000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14275822800420151000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/FulfillmentGroup/33b67df7-0882-4d02-b4d9-d3a59ef8be29",
+      "inventoryLocations": [
+        {
+          "location": {
+            "id": "gid://shopify/Location/17041732269787820000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4290695243695751000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7838024220885066000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1525972052946854000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8453354131546399000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13687230839921672000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11841557809345962000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5340698741255930000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8336512943133258000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2597222808599765000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16408357627041133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14086672500631007000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7855345630100537000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10296168450925760000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10068796863191785000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7459998495571100000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11916345291153887000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2221959286785360000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2415951874454548500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11730285740842275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14533236256447620000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16330338943092773000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6609777393564664000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1343161525057204200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14492097776621400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5047650533596275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14927562958165230000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13955393237208556000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4175772004279738400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11311006455380722000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5300355114444444000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13121052053826105000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3107390432410558500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8022599387812364000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8425950461082477000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13490801483779040000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12095691812143300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4245658536496017400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14927562958165230000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10192106833119506000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961917289396138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8374862659414389000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12775229371492480000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17491833671406359000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8290253663485084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17041732269787820000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7855345630100537000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7624617408537932000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/143370407842148350"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/451417705542504450"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8236579909714956000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13955393237208556000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15589661961618710000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11235629236170580000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961917289396138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13600991384058814000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5842805084827242000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10081220670502588000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/721237261809643500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6870384397110608000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15967827936111133000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11160722767966376000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/451417705542504450"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11537336163479974000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6830222598845907000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12095691812143300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6830222598845907000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14547158686041047000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14927562958165230000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11841557809345962000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3641217621284270000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8185127714851889000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6888458970374676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/938508927825768400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6709938605980688000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10856989818808750000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9914016370874937000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13406515986471035000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13490801483779040000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4175772004279738400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/241356534745608200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2879369292525625300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11161940935991288000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13110926591910998000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9966760783620960000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16623972964039868000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6706749274410168000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8263684420663325000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4793267832721351000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10068796863191785000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1084093688539758600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1379412987548049400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2500997456387223600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5047650533596275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10909270048217440000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7437216985395917000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15927499149057958000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9469978451231654000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14898039512053650000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11730285740842275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1472054761515331600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14450284138207097000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2818318003213349000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10856989818808750000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14533236256447620000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12180771134082773000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14533236256447620000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7950265645881676000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11206618052637065000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11730285740842275000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6519802916269068000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16441576344599667000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4175772004279738400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2500997456387223600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14086672500631007000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3429648110791971000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/241356534745608200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6376955135119389000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11007783278366904000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17468820249602089000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16667819184569630000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2868834581341167600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4066207948813877000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10296168450925760000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12646451796330938000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14816285312915436000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15927499149057958000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8236579909714956000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7899261454765982000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16770621445923803000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9914016370874937000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11165106555788743000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4066207948813877000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11994608740743360000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13121052053826105000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8453354131546399000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14492097776621400000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13834108076608050000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11841557809345962000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4337562774072770600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/9469978451231654000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11161940935991288000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3641217621284270000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13687230839921672000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2879369292525625300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8340871276896051000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2265807352765841400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/65941169943822340"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16749589245875577000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12095691812143300000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4146996239032074000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/17179193317124063000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/721237261809643500"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11751436888856953000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10898312733248975000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12775229371492480000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14630011869473178000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4175772004279738400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/8290253663485084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10255529806749123000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6376955135119389000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11411251928697704000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15092135873830138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12038510000223568000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/16441576344599667000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1893973298359840800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10482644216903590000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11670858876364296000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5755052162258190000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13320193267701560000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13406515986471035000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7437216985395917000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/2879369292525625300"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/14450284138207097000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15092135873830138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10040538902284694000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13121052053826105000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/4175772004279738400"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6961917289396138000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1084093688539758600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6048363581321495000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11160265897340576000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1792017975068639200"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/10985895013438657000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/5300355114444444000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/7851720318354452000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/12099553358923289000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11841557809345962000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/700325578449915900"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15594202385478894000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/18030380742178243000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3599799423069905000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11841557809345962000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1084093688539758600"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/1893973298359840800"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11256665471953793000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/15452113717585084000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/11537336163479974000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13938823512671330000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/3429648110791971000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/6080063013690192000"
+          }
+        },
+        {
+          "location": {
+            "id": "gid://shopify/Location/13687230839921672000"
+          }
+        }
+      ]
+    }
+  ],
+  "locations": [
+    {
+      "id": "gid://shopify/Location/15308247273289105000"
+    },
+    {
+      "id": "gid://shopify/Location/3107390432410558500"
+    },
+    {
+      "id": "gid://shopify/Location/11730285740842275000"
+    },
+    {
+      "id": "gid://shopify/Location/16725969633861382000"
+    },
+    {
+      "id": "gid://shopify/Location/13687230839921672000"
+    },
+    {
+      "id": "gid://shopify/Location/7899261454765982000"
+    },
+    {
+      "id": "gid://shopify/Location/13938823512671330000"
+    },
+    {
+      "id": "gid://shopify/Location/7838024220885066000"
+    },
+    {
+      "id": "gid://shopify/Location/5097179595677983000"
+    },
+    {
+      "id": "gid://shopify/Location/5734209101136355000"
+    },
+    {
+      "id": "gid://shopify/Location/200364106438873100"
+    },
+    {
+      "id": "gid://shopify/Location/11647524532750864000"
+    },
+    {
+      "id": "gid://shopify/Location/8346625456736035000"
+    },
+    {
+      "id": "gid://shopify/Location/8425950461082477000"
+    },
+    {
+      "id": "gid://shopify/Location/451417705542504450"
+    },
+    {
+      "id": "gid://shopify/Location/18065205911865922000"
+    },
+    {
+      "id": "gid://shopify/Location/10040538902284694000"
+    },
+    {
+      "id": "gid://shopify/Location/13600991384058814000"
+    },
+    {
+      "id": "gid://shopify/Location/1343161525057204200"
+    },
+    {
+      "id": "gid://shopify/Location/11537336163479974000"
+    },
+    {
+      "id": "gid://shopify/Location/13045081007200030000"
+    },
+    {
+      "id": "gid://shopify/Location/2597222808599765000"
+    },
+    {
+      "id": "gid://shopify/Location/12917847948867748000"
+    },
+    {
+      "id": "gid://shopify/Location/8290253663485084000"
+    },
+    {
+      "id": "gid://shopify/Location/11762497083445010000"
+    },
+    {
+      "id": "gid://shopify/Location/11007783278366904000"
+    },
+    {
+      "id": "gid://shopify/Location/5300355114444444000"
+    },
+    {
+      "id": "gid://shopify/Location/11916345291153887000"
+    },
+    {
+      "id": "gid://shopify/Location/1141336801235112000"
+    },
+    {
+      "id": "gid://shopify/Location/1525972052946854000"
+    },
+    {
+      "id": "gid://shopify/Location/18030380742178243000"
+    },
+    {
+      "id": "gid://shopify/Location/14630011869473178000"
+    },
+    {
+      "id": "gid://shopify/Location/9556987414626996000"
+    },
+    {
+      "id": "gid://shopify/Location/11771622012012597000"
+    },
+    {
+      "id": "gid://shopify/Location/9914016370874937000"
+    },
+    {
+      "id": "gid://shopify/Location/11994608740743360000"
+    },
+    {
+      "id": "gid://shopify/Location/10002441215728000000"
+    },
+    {
+      "id": "gid://shopify/Location/5875646078679360000"
+    },
+    {
+      "id": "gid://shopify/Location/13955393237208556000"
+    },
+    {
+      "id": "gid://shopify/Location/4029715955272335400"
+    },
+    {
+      "id": "gid://shopify/Location/5755052162258190000"
+    },
+    {
+      "id": "gid://shopify/Location/4175772004279738400"
+    },
+    {
+      "id": "gid://shopify/Location/17041732269787820000"
+    },
+    {
+      "id": "gid://shopify/Location/2500997456387223600"
+    },
+    {
+      "id": "gid://shopify/Location/10209104583103255000"
+    },
+    {
+      "id": "gid://shopify/Location/11841557809345962000"
+    },
+    {
+      "id": "gid://shopify/Location/14547158686041047000"
+    },
+    {
+      "id": "gid://shopify/Location/13388567999603090000"
+    },
+    {
+      "id": "gid://shopify/Location/4290695243695751000"
+    },
+    {
+      "id": "gid://shopify/Location/2818318003213349000"
+    },
+    {
+      "id": "gid://shopify/Location/4338578605535375400"
+    },
+    {
+      "id": "gid://shopify/Location/13406515986471035000"
+    },
+    {
+      "id": "gid://shopify/Location/11160722767966376000"
+    },
+    {
+      "id": "gid://shopify/Location/12038510000223568000"
+    },
+    {
+      "id": "gid://shopify/Location/241356534745608200"
+    },
+    {
+      "id": "gid://shopify/Location/11311006455380722000"
+    },
+    {
+      "id": "gid://shopify/Location/377114025142095900"
+    },
+    {
+      "id": "gid://shopify/Location/6609777393564664000"
+    },
+    {
+      "id": "gid://shopify/Location/8336512943133258000"
+    },
+    {
+      "id": "gid://shopify/Location/1707498124871692300"
+    },
+    {
+      "id": "gid://shopify/Location/6554338887617524000"
+    },
+    {
+      "id": "gid://shopify/Location/1893973298359840800"
+    },
+    {
+      "id": "gid://shopify/Location/12961025367719727000"
+    },
+    {
+      "id": "gid://shopify/Location/15967827936111133000"
+    },
+    {
+      "id": "gid://shopify/Location/11411251928697704000"
+    },
+    {
+      "id": "gid://shopify/Location/16976553468722622000"
+    },
+    {
+      "id": "gid://shopify/Location/1379412987548049400"
+    },
+    {
+      "id": "gid://shopify/Location/7624617408537932000"
+    },
+    {
+      "id": "gid://shopify/Location/14927562958165230000"
+    },
+    {
+      "id": "gid://shopify/Location/14450284138207097000"
+    },
+    {
+      "id": "gid://shopify/Location/2221959286785360000"
+    },
+    {
+      "id": "gid://shopify/Location/15927499149057958000"
+    },
+    {
+      "id": "gid://shopify/Location/14086672500631007000"
+    },
+    {
+      "id": "gid://shopify/Location/9469978451231654000"
+    },
+    {
+      "id": "gid://shopify/Location/13834108076608050000"
+    },
+    {
+      "id": "gid://shopify/Location/13606514670145323000"
+    },
+    {
+      "id": "gid://shopify/Location/6048363581321495000"
+    },
+    {
+      "id": "gid://shopify/Location/10081220670502588000"
+    },
+    {
+      "id": "gid://shopify/Location/6080063013690192000"
+    },
+    {
+      "id": "gid://shopify/Location/7961906074111623000"
+    },
+    {
+      "id": "gid://shopify/Location/11165106555788743000"
+    },
+    {
+      "id": "gid://shopify/Location/17491833671406359000"
+    },
+    {
+      "id": "gid://shopify/Location/11751436888856953000"
+    },
+    {
+      "id": "gid://shopify/Location/11256665471953793000"
+    },
+    {
+      "id": "gid://shopify/Location/15589152724719559000"
+    },
+    {
+      "id": "gid://shopify/Location/16770621445923803000"
+    },
+    {
+      "id": "gid://shopify/Location/10909270048217440000"
+    },
+    {
+      "id": "gid://shopify/Location/938508927825768400"
+    },
+    {
+      "id": "gid://shopify/Location/9966760783620960000"
+    },
+    {
+      "id": "gid://shopify/Location/13490801483779040000"
+    },
+    {
+      "id": "gid://shopify/Location/9302668132024795000"
+    },
+    {
+      "id": "gid://shopify/Location/700325578449915900"
+    },
+    {
+      "id": "gid://shopify/Location/11161940935991288000"
+    },
+    {
+      "id": "gid://shopify/Location/6709938605980688000"
+    },
+    {
+      "id": "gid://shopify/Location/16006263888668050000"
+    },
+    {
+      "id": "gid://shopify/Location/13185040436965200000"
+    },
+    {
+      "id": "gid://shopify/Location/12095691812143300000"
+    },
+    {
+      "id": "gid://shopify/Location/15452113717585084000"
+    },
+    {
+      "id": "gid://shopify/Location/3599799423069905000"
+    },
+    {
+      "id": "gid://shopify/Location/2562215620444066000"
+    },
+    {
+      "id": "gid://shopify/Location/4337562774072770600"
+    },
+    {
+      "id": "gid://shopify/Location/15092135873830138000"
+    },
+    {
+      "id": "gid://shopify/Location/10288601747046474000"
+    },
+    {
+      "id": "gid://shopify/Location/14275822800420151000"
+    },
+    {
+      "id": "gid://shopify/Location/17179193317124063000"
+    },
+    {
+      "id": "gid://shopify/Location/6888458970374676000"
+    },
+    {
+      "id": "gid://shopify/Location/721237261809643500"
+    },
+    {
+      "id": "gid://shopify/Location/14374901934220173000"
+    },
+    {
+      "id": "gid://shopify/Location/10856989818808750000"
+    },
+    {
+      "id": "gid://shopify/Location/143370407842148350"
+    },
+    {
+      "id": "gid://shopify/Location/13110926591910998000"
+    },
+    {
+      "id": "gid://shopify/Location/15898431062420238000"
+    },
+    {
+      "id": "gid://shopify/Location/14607827021572248000"
+    },
+    {
+      "id": "gid://shopify/Location/297072803436105700"
+    },
+    {
+      "id": "gid://shopify/Location/12180771134082773000"
+    },
+    {
+      "id": "gid://shopify/Location/6961097842123317000"
+    },
+    {
+      "id": "gid://shopify/Location/10332183943433556000"
+    },
+    {
+      "id": "gid://shopify/Location/8374862659414389000"
+    },
+    {
+      "id": "gid://shopify/Location/2265807352765841400"
+    },
+    {
+      "id": "gid://shopify/Location/7940307984953811000"
+    },
+    {
+      "id": "gid://shopify/Location/16711823771481710000"
+    },
+    {
+      "id": "gid://shopify/Location/15215594641319166000"
+    },
+    {
+      "id": "gid://shopify/Location/17436831143587250000"
+    },
+    {
+      "id": "gid://shopify/Location/13320193267701560000"
+    },
+    {
+      "id": "gid://shopify/Location/17468820249602089000"
+    },
+    {
+      "id": "gid://shopify/Location/962253612077502500"
+    },
+    {
+      "id": "gid://shopify/Location/6830222598845907000"
+    },
+    {
+      "id": "gid://shopify/Location/7950265645881676000"
+    },
+    {
+      "id": "gid://shopify/Location/1403492788869603300"
+    },
+    {
+      "id": "gid://shopify/Location/16749589245875577000"
+    },
+    {
+      "id": "gid://shopify/Location/4928012759990161000"
+    },
+    {
+      "id": "gid://shopify/Location/17799941747992883000"
+    },
+    {
+      "id": "gid://shopify/Location/14816285312915436000"
+    },
+    {
+      "id": "gid://shopify/Location/11235629236170580000"
+    },
+    {
+      "id": "gid://shopify/Location/16565802278657163000"
+    },
+    {
+      "id": "gid://shopify/Location/18444596744179692000"
+    },
+    {
+      "id": "gid://shopify/Location/1532857879388917800"
+    },
+    {
+      "id": "gid://shopify/Location/6795731081893663000"
+    },
+    {
+      "id": "gid://shopify/Location/3429648110791971000"
+    },
+    {
+      "id": "gid://shopify/Location/12099553358923289000"
+    },
+    {
+      "id": "gid://shopify/Location/1418426314291708000"
+    },
+    {
+      "id": "gid://shopify/Location/4146996239032074000"
+    },
+    {
+      "id": "gid://shopify/Location/6706749274410168000"
+    },
+    {
+      "id": "gid://shopify/Location/13196914320382628000"
+    },
+    {
+      "id": "gid://shopify/Location/7459998495571100000"
+    },
+    {
+      "id": "gid://shopify/Location/5340698741255930000"
+    },
+    {
+      "id": "gid://shopify/Location/12312380748289012000"
+    },
+    {
+      "id": "gid://shopify/Location/175283891821568000"
+    },
+    {
+      "id": "gid://shopify/Location/1877263708177555500"
+    },
+    {
+      "id": "gid://shopify/Location/10192106833119506000"
+    },
+    {
+      "id": "gid://shopify/Location/2415951874454548500"
+    },
+    {
+      "id": "gid://shopify/Location/6541023176677634000"
+    },
+    {
+      "id": "gid://shopify/Location/13693246939233612000"
+    },
+    {
+      "id": "gid://shopify/Location/8391284870509367000"
+    },
+    {
+      "id": "gid://shopify/Location/16408357627041133000"
+    },
+    {
+      "id": "gid://shopify/Location/10817932194229604000"
+    },
+    {
+      "id": "gid://shopify/Location/1792017975068639200"
+    },
+    {
+      "id": "gid://shopify/Location/4979115968622256000"
+    },
+    {
+      "id": "gid://shopify/Location/12608218473393860000"
+    },
+    {
+      "id": "gid://shopify/Location/8263684420663325000"
+    },
+    {
+      "id": "gid://shopify/Location/12646451796330938000"
+    },
+    {
+      "id": "gid://shopify/Location/10296168450925760000"
+    },
+    {
+      "id": "gid://shopify/Location/10482644216903590000"
+    },
+    {
+      "id": "gid://shopify/Location/13121052053826105000"
+    },
+    {
+      "id": "gid://shopify/Location/15926806311373680000"
+    },
+    {
+      "id": "gid://shopify/Location/8743318820082577000"
+    },
+    {
+      "id": "gid://shopify/Location/2278022580167319600"
+    },
+    {
+      "id": "gid://shopify/Location/1758208141912281000"
+    },
+    {
+      "id": "gid://shopify/Location/12775229371492480000"
+    },
+    {
+      "id": "gid://shopify/Location/2879369292525625300"
+    },
+    {
+      "id": "gid://shopify/Location/8236579909714956000"
+    },
+    {
+      "id": "gid://shopify/Location/14948869062044828000"
+    },
+    {
+      "id": "gid://shopify/Location/16330338943092773000"
+    },
+    {
+      "id": "gid://shopify/Location/3259350495976403000"
+    },
+    {
+      "id": "gid://shopify/Location/1415240482416590800"
+    },
+    {
+      "id": "gid://shopify/Location/13830038797261201000"
+    },
+    {
+      "id": "gid://shopify/Location/12124026682226864000"
+    },
+    {
+      "id": "gid://shopify/Location/365627359645507600"
+    },
+    {
+      "id": "gid://shopify/Location/16441576344599667000"
+    },
+    {
+      "id": "gid://shopify/Location/15594202385478894000"
+    },
+    {
+      "id": "gid://shopify/Location/3113032080091885600"
+    },
+    {
+      "id": "gid://shopify/Location/5047650533596275000"
+    },
+    {
+      "id": "gid://shopify/Location/6260347043941151000"
+    },
+    {
+      "id": "gid://shopify/Location/8453354131546399000"
+    },
+    {
+      "id": "gid://shopify/Location/3641217621284270000"
+    },
+    {
+      "id": "gid://shopify/Location/14378512570814566000"
+    },
+    {
+      "id": "gid://shopify/Location/907396104956985300"
+    },
+    {
+      "id": "gid://shopify/Location/18203884424133485000"
+    },
+    {
+      "id": "gid://shopify/Location/10553883105497117000"
+    },
+    {
+      "id": "gid://shopify/Location/17599367186060780000"
+    },
+    {
+      "id": "gid://shopify/Location/14533236256447620000"
+    },
+    {
+      "id": "gid://shopify/Location/14003595594399400000"
+    },
+    {
+      "id": "gid://shopify/Location/1472054761515331600"
+    },
+    {
+      "id": "gid://shopify/Location/6376955135119389000"
+    },
+    {
+      "id": "gid://shopify/Location/16623972964039868000"
+    },
+    {
+      "id": "gid://shopify/Location/8022599387812364000"
+    },
+    {
+      "id": "gid://shopify/Location/11670858876364296000"
+    },
+    {
+      "id": "gid://shopify/Location/14898039512053650000"
+    },
+    {
+      "id": "gid://shopify/Location/7851720318354452000"
+    },
+    {
+      "id": "gid://shopify/Location/15589661961618710000"
+    },
+    {
+      "id": "gid://shopify/Location/1084093688539758600"
+    },
+    {
+      "id": "gid://shopify/Location/9051293337245381000"
+    },
+    {
+      "id": "gid://shopify/Location/4066207948813877000"
+    },
+    {
+      "id": "gid://shopify/Location/6870384397110608000"
+    },
+    {
+      "id": "gid://shopify/Location/2779029397317308400"
+    },
+    {
+      "id": "gid://shopify/Location/16667819184569630000"
+    },
+    {
+      "id": "gid://shopify/Location/15614402339032183000"
+    },
+    {
+      "id": "gid://shopify/Location/10985895013438657000"
+    },
+    {
+      "id": "gid://shopify/Location/6519802916269068000"
+    },
+    {
+      "id": "gid://shopify/Location/4245658536496017400"
+    },
+    {
+      "id": "gid://shopify/Location/92425787937030140"
+    },
+    {
+      "id": "gid://shopify/Location/10603471683510034000"
+    },
+    {
+      "id": "gid://shopify/Location/65941169943822340"
+    },
+    {
+      "id": "gid://shopify/Location/6175617669485310000"
+    },
+    {
+      "id": "gid://shopify/Location/14873191879215300000"
+    },
+    {
+      "id": "gid://shopify/Location/4793267832721351000"
+    },
+    {
+      "id": "gid://shopify/Location/16692889808405815000"
+    },
+    {
+      "id": "gid://shopify/Location/11757880530841600000"
+    },
+    {
+      "id": "gid://shopify/Location/15670249871918436000"
+    },
+    {
+      "id": "gid://shopify/Location/6183444895817589000"
+    },
+    {
+      "id": "gid://shopify/Location/10255529806749123000"
+    },
+    {
+      "id": "gid://shopify/Location/14492097776621400000"
+    },
+    {
+      "id": "gid://shopify/Location/4146393577750171600"
+    },
+    {
+      "id": "gid://shopify/Location/7855345630100537000"
+    },
+    {
+      "id": "gid://shopify/Location/8185127714851889000"
+    },
+    {
+      "id": "gid://shopify/Location/17714334993816609000"
+    },
+    {
+      "id": "gid://shopify/Location/2089003036125520000"
+    },
+    {
+      "id": "gid://shopify/Location/17872937689622028000"
+    },
+    {
+      "id": "gid://shopify/Location/3663458034955710500"
+    },
+    {
+      "id": "gid://shopify/Location/2868834581341167600"
+    },
+    {
+      "id": "gid://shopify/Location/6095534697915412000"
+    },
+    {
+      "id": "gid://shopify/Location/5842805084827242000"
+    },
+    {
+      "id": "gid://shopify/Location/4377015544332992500"
+    },
+    {
+      "id": "gid://shopify/Location/9072160740769108000"
+    },
+    {
+      "id": "gid://shopify/Location/18222775184968856000"
+    },
+    {
+      "id": "gid://shopify/Location/13281674345441600000"
+    },
+    {
+      "id": "gid://shopify/Location/11206618052637065000"
+    },
+    {
+      "id": "gid://shopify/Location/17744527414130070000"
+    },
+    {
+      "id": "gid://shopify/Location/8340871276896051000"
+    },
+    {
+      "id": "gid://shopify/Location/5424064159866790000"
+    },
+    {
+      "id": "gid://shopify/Location/10068796863191785000"
+    },
+    {
+      "id": "gid://shopify/Location/11160265897340576000"
+    },
+    {
+      "id": "gid://shopify/Location/6961917289396138000"
+    },
+    {
+      "id": "gid://shopify/Location/9584259236547465000"
+    },
+    {
+      "id": "gid://shopify/Location/17394942634627280000"
+    },
+    {
+      "id": "gid://shopify/Location/10348834303547690000"
+    },
+    {
+      "id": "gid://shopify/Location/17857593936492306000"
+    },
+    {
+      "id": "gid://shopify/Location/2899978002456162300"
+    },
+    {
+      "id": "gid://shopify/Location/7437216985395917000"
+    },
+    {
+      "id": "gid://shopify/Location/10898312733248975000"
+    }
+  ]
+}
