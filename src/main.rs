@@ -6,9 +6,11 @@ use std::{
 
 use anyhow::{anyhow, Result};
 use clap::{CommandFactory, Parser};
-use function_runner::engine::run;
+use function_runner::engine::{run, ProfileOpts};
 
 use is_terminal::IsTerminal;
+
+const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
 
 /// Simple Function runner which takes JSON as a convenience.
 #[derive(Parser, Debug)]
@@ -25,6 +27,49 @@ struct Opts {
     /// Log the run result as a JSON object
     #[clap(short, long)]
     json: bool,
+
+    /// Enable profiling. This will make your Function run slower.
+    /// The resulting profile can be used in speedscope (https://www.speedscope.app/)
+    /// Specifying --profile-* argument will also enable profiling.
+    #[clap(short, long)]
+    profile: bool,
+
+    /// Where to save the profile information. Defaults to ./{wasm-filename}.perf.
+    #[clap(long)]
+    profile_out: Option<PathBuf>,
+
+    #[clap(long)]
+    /// How many samples per seconds. Defaults to 500_000 (every 5us).
+    profile_frequency: Option<u32>,
+}
+
+impl Opts {
+    pub fn profile_opts(&self) -> Option<ProfileOpts> {
+        if !self.profile && self.profile_out.is_none() && self.profile_frequency.is_none() {
+            return None;
+        }
+
+        let interval = self.profile_frequency.unwrap_or(PROFILE_DEFAULT_INTERVAL);
+        let out = self
+            .profile_out
+            .clone()
+            .unwrap_or_else(|| self.default_profile_out());
+
+        Some(ProfileOpts { interval, out })
+    }
+
+    fn default_profile_out(&self) -> PathBuf {
+        let mut path = PathBuf::new();
+
+        path.set_file_name(
+            self.function
+                .file_name()
+                .unwrap_or(std::ffi::OsStr::new("function")),
+        );
+        path.set_extension("perf");
+
+        path
+    }
 }
 
 fn main() -> Result<()> {
@@ -48,12 +93,17 @@ fn main() -> Result<()> {
     let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
         .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
 
-    let function_run_result = run(opts.function, buffer)?;
+    let profile_opts = opts.profile_opts();
+    let function_run_result = run(opts.function, buffer, profile_opts.as_ref())?;
 
     if opts.json {
         println!("{}", function_run_result.to_json());
     } else {
         println!("{function_run_result}");
+    }
+
+    if let Some(profile) = function_run_result.profile.as_ref() {
+        std::fs::write(profile_opts.unwrap().out, profile)?;
     }
 
     Ok(())

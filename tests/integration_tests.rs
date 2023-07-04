@@ -2,6 +2,7 @@
 mod tests {
 
     use assert_cmd::prelude::*;
+    use assert_fs::prelude::*;
     use function_runner::function_run_result::FunctionRunResult;
     use predicates::prelude::*;
     use predicates::{prelude::predicate, str::contains};
@@ -149,6 +150,37 @@ mod tests {
     }
 
     #[test]
+    fn profile_writes_file() -> Result<(), Box<dyn std::error::Error>> {
+        let (mut cmd, temp) = profile_base_cmd_in_temp_dir()?;
+        cmd.arg("--profile").assert().success();
+        temp.child("runtime_function.perf")
+            .assert(predicate::path::exists());
+
+        Ok(())
+    }
+
+    #[test]
+    fn profile_writes_specified_file_name() -> Result<(), Box<dyn std::error::Error>> {
+        let (mut cmd, temp) = profile_base_cmd_in_temp_dir()?;
+        cmd.args(["--profile-out", "foo.perf"]).assert().success();
+        temp.child("foo.perf").assert(predicate::path::exists());
+
+        Ok(())
+    }
+
+    #[test]
+    fn profile_frequency_triggers_profiling() -> Result<(), Box<dyn std::error::Error>> {
+        let (mut cmd, temp) = profile_base_cmd_in_temp_dir()?;
+        cmd.args(["--profile-frequency", "80000"])
+            .assert()
+            .success();
+        temp.child("runtime_function.perf")
+            .assert(predicate::path::exists());
+
+        Ok(())
+    }
+
+    #[test]
     fn incorrect_input() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
@@ -163,5 +195,19 @@ mod tests {
             .stderr(contains(""));
 
         Ok(())
+    }
+
+    fn profile_base_cmd_in_temp_dir(
+    ) -> Result<(Command, assert_fs::TempDir), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let cwd = std::env::current_dir()?;
+        let temp = assert_fs::TempDir::new()?;
+
+        cmd.current_dir(temp.path())
+            .arg("--function")
+            .arg(cwd.join("benchmark/build/runtime_function.wasm"))
+            .arg(cwd.join("benchmark/build/volume_discount.json"));
+
+        Ok((cmd, temp))
     }
 }
