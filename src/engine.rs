@@ -54,6 +54,7 @@ fn import_modules(
 pub fn run(
     function_path: PathBuf,
     input: Vec<u8>,
+    export: &str,
     profile_opts: Option<&ProfileOpts>,
 ) -> Result<FunctionRunResult> {
     let engine = Engine::new(
@@ -90,9 +91,7 @@ pub fn run(
         linker.module(&mut store, "Function", &module)?;
         let instance = linker.instantiate(&mut store, &module)?;
 
-        let func = instance
-            .get_typed_func::<(), ()>(store.as_context_mut(), "_start")
-            .unwrap();
+        let func = instance.get_typed_func::<(), ()>(store.as_context_mut(), export)?;
 
         let module_result;
         (module_result, profile_data) = if let Some(profile_opts) = profile_opts {
@@ -193,6 +192,7 @@ mod tests {
     use std::path::Path;
 
     const LINEAR_MEMORY_USAGE: u64 = 159 * 64;
+    const DEFAULT_EXPORT: &str = "_start";
 
     #[test]
     fn test_js_function() {
@@ -200,6 +200,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/js_function.wasm").to_path_buf(),
             input,
+            DEFAULT_EXPORT,
             None,
         );
 
@@ -212,6 +213,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/exit_code_function_zero.wasm").to_path_buf(),
             input,
+            DEFAULT_EXPORT,
             None,
         )
         .unwrap();
@@ -225,6 +227,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/exit_code_function_one.wasm").to_path_buf(),
             input,
+            DEFAULT_EXPORT,
             None,
         )
         .unwrap();
@@ -238,6 +241,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
             input,
+            DEFAULT_EXPORT,
             None,
         )
         .unwrap();
@@ -251,6 +255,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/log_truncation_function.wasm").to_path_buf(),
             input,
+            DEFAULT_EXPORT,
             None,
         )
         .unwrap();
@@ -266,6 +271,7 @@ mod tests {
         let function_run_result = run(
             Path::new("benchmark/build/size_function.wasm").to_path_buf(),
             input,
+            DEFAULT_EXPORT,
             None,
         )
         .unwrap();

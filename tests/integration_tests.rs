@@ -197,6 +197,31 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn exports() -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        cmd.args(["--function", "benchmark/build/exports.wasm"])
+            .args(["--export", "export1"])
+            .arg("benchmark/build/product_discount.json");
+
+        cmd.assert().success().stdout(contains("export1"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn missing_export() -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        cmd.args(["--function", "benchmark/build/exports.wasm"])
+            .arg("benchmark/build/product_discount.json");
+
+        cmd.assert()
+            .failure()
+            .stderr(contains(" failed to find function export `_start`"));
+
+        Ok(())
+    }
+
     fn profile_base_cmd_in_temp_dir(
     ) -> Result<(Command, assert_fs::TempDir), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;

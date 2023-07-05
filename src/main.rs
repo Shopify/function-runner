@@ -24,6 +24,10 @@ struct Opts {
     /// Path to json file containing Function input; if omitted, stdin is used
     input: Option<PathBuf>,
 
+    /// Name of the export to invoke.
+    #[clap(short, long, default_value = "_start")]
+    export: String,
+
     /// Log the run result as a JSON object
     #[clap(short, long)]
     json: bool,
@@ -94,7 +98,12 @@ fn main() -> Result<()> {
         .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
 
     let profile_opts = opts.profile_opts();
-    let function_run_result = run(opts.function, buffer, profile_opts.as_ref())?;
+    let function_run_result = run(
+        opts.function,
+        buffer,
+        opts.export.as_ref(),
+        profile_opts.as_ref(),
+    )?;
 
     if opts.json {
         println!("{}", function_run_result.to_json());
