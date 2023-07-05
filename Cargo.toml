@@ -7,6 +7,7 @@ members = [
   "benchmark/exit_code_function_zero",
   "benchmark/exit_code_function_one",
   "benchmark/log_truncation_function",
+  "benchmark/exports",
 ]
 
 [package]
