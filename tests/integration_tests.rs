@@ -82,22 +82,11 @@ mod tests {
     #[ignore = "This test hangs on CI but runs locally, is_terminal is likely returning false in CI"]
     fn run_function_no_input() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
-        let output = cmd
-            .arg("--function")
-            .arg("benchmark/build/runtime_function.wasm")
-            .stdout(Stdio::piped())
-            .spawn()
-            .expect("Failed to spawn child process")
-            .wait_with_output()
-            .expect("Failed waiting for output");
 
-        let actual = String::from_utf8(output.stdout).unwrap();
-        let predicate = predicate::str::contains(
-            "Simple Function runner which takes JSON as a convenience\n\nUsage: function-runner",
-        )
-        .count(1);
-
-        assert!(predicate.eval(&actual));
+        cmd.args(["--function", "benchmark/build/runtime_function.wasm"]);
+        cmd.assert()
+            .failure()
+            .stderr("Error: You must provide input via the --input flag or piped via stdin.\n");
 
         Ok(())
     }
