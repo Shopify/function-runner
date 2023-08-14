@@ -22,6 +22,7 @@ struct Opts {
     function: PathBuf,
 
     /// Path to json file containing Function input; if omitted, stdin is used
+    #[clap(short, long)]
     input: Option<PathBuf>,
 
     /// Name of the export to invoke.
