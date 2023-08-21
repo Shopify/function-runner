@@ -15,9 +15,8 @@ mod tests {
     fn run() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
-        cmd.arg("--function")
-            .arg("benchmark/build/runtime_function.wasm")
-            .arg("benchmark/build/volume_discount.json");
+        cmd.args(["--function", "benchmark/build/runtime_function.wasm"])
+            .args(["--input", "benchmark/build/volume_discount.json"]);
         cmd.assert().success();
 
         Ok(())
@@ -27,10 +26,9 @@ mod tests {
     fn invalid_json_input() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
-        cmd.arg("--function")
-            .arg("benchmark/build/runtime_function.wasm")
+        cmd.args(["--function", "benchmark/build/runtime_function.wasm"])
             .arg("--json")
-            .arg("benchmark/build/invalid_json.json");
+            .args(["--input", "benchmark/build/invalid_json.json"]);
         cmd.assert()
             .failure()
             .stderr("Error: Invalid input JSON: EOF while parsing an object at line 2 column 0\n");
@@ -43,8 +41,7 @@ mod tests {
         let file = File::open("benchmark/build/volume_discount.json")?;
         let mut cmd = Command::cargo_bin("function-runner")?;
         let output = cmd
-            .arg("--function")
-            .arg("benchmark/build/runtime_function.wasm")
+            .args(["--function", "benchmark/build/runtime_function.wasm"])
             .arg("--json")
             .stdin(Stdio::from(file))
             .stdout(Stdio::piped())
@@ -85,22 +82,11 @@ mod tests {
     #[ignore = "This test hangs on CI but runs locally, is_terminal is likely returning false in CI"]
     fn run_function_no_input() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
-        let output = cmd
-            .arg("--function")
-            .arg("benchmark/build/runtime_function.wasm")
-            .stdout(Stdio::piped())
-            .spawn()
-            .expect("Failed to spawn child process")
-            .wait_with_output()
-            .expect("Failed waiting for output");
 
-        let actual = String::from_utf8(output.stdout).unwrap();
-        let predicate = predicate::str::contains(
-            "Simple Function runner which takes JSON as a convenience\n\nUsage: function-runner",
-        )
-        .count(1);
-
-        assert!(predicate.eval(&actual));
+        cmd.args(["--function", "benchmark/build/runtime_function.wasm"]);
+        cmd.assert()
+            .failure()
+            .stderr("Error: You must provide input via the --input flag or piped via stdin.\n");
 
         Ok(())
     }
@@ -109,10 +95,9 @@ mod tests {
     fn run_json() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
-        cmd.arg("--function")
-            .arg("benchmark/build/runtime_function.wasm")
+        cmd.args(["--function", "benchmark/build/runtime_function.wasm"])
             .arg("--json")
-            .arg("benchmark/build/volume_discount.json");
+            .args(["--input", "benchmark/build/volume_discount.json"]);
         cmd.assert().success();
         let output = cmd.output().expect("Wasn't able to get output");
         let _ = serde_json::from_slice::<FunctionRunResult>(&output.stdout)
@@ -125,9 +110,8 @@ mod tests {
     fn wasm_file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
-        cmd.arg("--function")
-            .arg("test/file/doesnt/exist")
-            .arg("benchmark/build/volume_discount.json");
+        cmd.args(["--function", "test/file/doesnt/exist"])
+            .args(["--input", "benchmark/build/volume_discount.json"]);
         cmd.assert()
             .failure()
             .stderr("Error: Couldn\'t load the Function \"test/file/doesnt/exist\": failed to read input file\n");
@@ -139,9 +123,8 @@ mod tests {
     fn input_file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
-        cmd.arg("--function")
-            .arg("benchmark/build/runtime_function.wasm")
-            .arg("test/file/doesnt/exist.json");
+        cmd.args(["--function", "benchmark/build/runtime_function.wasm"])
+            .args(["--input", "test/file/doesnt/exist.json"]);
         cmd.assert()
             .failure()
             .stderr("Error: Couldn\'t load input \"test/file/doesnt/exist.json\": No such file or directory (os error 2)\n");
@@ -184,9 +167,8 @@ mod tests {
     fn incorrect_input() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
-        cmd.arg("--function")
-            .arg("benchmark/build/runtime_function.wasm")
-            .arg("benchmark/build/product_discount.json");
+        cmd.args(["--function", "benchmark/build/runtime_function.wasm"])
+            .args(["--input", "benchmark/build/product_discount.json"]);
         cmd.assert()
             .success()
             .stdout(contains("missing field `discountNode`"))
@@ -202,7 +184,7 @@ mod tests {
         let mut cmd = Command::cargo_bin("function-runner")?;
         cmd.args(["--function", "benchmark/build/exports.wasm"])
             .args(["--export", "export1"])
-            .arg("benchmark/build/product_discount.json");
+            .args(["--input", "benchmark/build/product_discount.json"]);
 
         cmd.assert().success().stdout(contains("export1"));
 
@@ -213,7 +195,7 @@ mod tests {
     fn missing_export() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         cmd.args(["--function", "benchmark/build/exports.wasm"])
-            .arg("benchmark/build/product_discount.json");
+            .args(["--input", "benchmark/build/product_discount.json"]);
 
         cmd.assert()
             .failure()
@@ -231,6 +213,7 @@ mod tests {
         cmd.current_dir(temp.path())
             .arg("--function")
             .arg(cwd.join("benchmark/build/runtime_function.wasm"))
+            .arg("--input")
             .arg(cwd.join("benchmark/build/volume_discount.json"));
 
         Ok((cmd, temp))

@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
-use clap::{CommandFactory, Parser};
+use clap::Parser;
 use function_runner::engine::{run, ProfileOpts};
 
 use is_terminal::IsTerminal;
@@ -22,6 +22,7 @@ struct Opts {
     function: PathBuf,
 
     /// Path to json file containing Function input; if omitted, stdin is used
+    #[clap(short, long)]
     input: Option<PathBuf>,
 
     /// Name of the export to invoke.
@@ -86,10 +87,9 @@ fn main() -> Result<()> {
     } else if !std::io::stdin().is_terminal() {
         Box::new(BufReader::new(stdin()))
     } else {
-        Opts::command()
-            .print_help()
-            .expect("Printing help should not fail");
-        return Ok(());
+        return Err(anyhow!(
+            "You must provide input via the --input flag or piped via stdin."
+        ));
     };
 
     let mut buffer = Vec::new();
