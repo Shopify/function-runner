@@ -14,7 +14,7 @@ upon completion.
 By default, the Function is expected to be named `function.wasm` in the
 current directory. This may be overriden using the `-f` option.
 
-Example: `function-runner -f '../my-function-name.wasm' '../my-input.json'`
+Example: `function-runner -f '../my-function-name.wasm' -i '../my-input.json'`
 
 ## Usage
 
