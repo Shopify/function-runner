@@ -37,3 +37,4 @@ and add the `function-runner` command to your path.
 
 1. Create and merge a PR incrementing the version in [Cargo.toml](https://github.com/Shopify/function-runner/blob/main/Cargo.toml#L11) in accordance with [SemVer](https://semver.org/) based on changes from the previous release
 1. Create a new release in [Github](https://github.com/Shopify/function-runner/releases/new) with a name like `v3.2.3` where the version matches the Cargo.toml version
+    - **:warning: Warning: If you create a draft release, the [GitHub action](https://github.com/Shopify/function-runner/actions/workflows/publish.yml) to generate the binary assets _will not_ be automatically run. You will need to manually run the action.**
