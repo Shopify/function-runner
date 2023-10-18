@@ -24,7 +24,7 @@ opt-level = "s"
 opt-level = 3
 
 [dependencies]
-wasmtime = "=8.0.1"
+wasmtime = "=13.0.0"
 wasmtime-wasi = "=8.0.1"
 wasi-common = "=8.0.1"
 deterministic-wasi-ctx = "=0.1.14"
