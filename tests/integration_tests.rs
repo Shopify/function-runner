@@ -114,7 +114,7 @@ mod tests {
             .args(["--input", "benchmark/build/volume_discount.json"]);
         cmd.assert()
             .failure()
-            .stderr("Error: Couldn\'t load the Function \"test/file/doesnt/exist\": failed to read input file\n");
+            .stderr("Error: Couldn\'t load the Function \"test/file/doesnt/exist\": failed to read input file: test/file/doesnt/exist\n");
 
         Ok(())
     }
