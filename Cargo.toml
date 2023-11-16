@@ -24,7 +24,7 @@ opt-level = "s"
 opt-level = 3
 
 [dependencies]
-wasmtime = "=14.0.4"
+wasmtime = { version = "14.0.4", features = ["cache"] }
 wasmtime-wasi = "=14.0.4"
 wasi-common = "=14.0.4"
 deterministic-wasi-ctx = "=0.1.16"

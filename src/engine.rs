@@ -61,7 +61,8 @@ pub fn run(
         Config::new()
             .wasm_multi_memory(true)
             .consume_fuel(true)
-            .epoch_interruption(true),
+            .epoch_interruption(true)
+            .cache_config_load_default()?,
     )?;
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
