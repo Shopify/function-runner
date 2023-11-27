@@ -6,7 +6,7 @@ use wasmtime::{AsContextMut, Config, Engine, Linker, Module, Store};
 
 use crate::{
     function_run_result::{
-        FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
+        FunctionOutput::{InvalidJsonOutput, JsonOutput},
         FunctionRunResult, InvalidOutput,
     },
     logs::LogStream,
@@ -56,6 +56,7 @@ pub fn run(
     input: Vec<u8>,
     export: &str,
     profile_opts: Option<&ProfileOpts>,
+    msgpack: bool,
 ) -> Result<FunctionRunResult> {
     let engine = Engine::new(
         Config::new()
@@ -65,6 +66,16 @@ pub fn run(
     )?;
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
+
+    let input = if msgpack {
+        let json_value: serde_json::Value = serde_json::from_slice(&input)
+            .map_err(|e| anyhow!("Couldn't parse input as JSON: {}", e))?;
+        rmp_serde::to_vec(&json_value).map_err(|e| anyhow!("Couldn't serialize input: {}", e))
+    } else {
+        let json_value: serde_json::Value = serde_json::from_slice(&input)
+            .map_err(|e| anyhow!("Couldn't parse input as JSON: {}", e))?;
+        serde_json::to_vec(&json_value).map_err(|e| anyhow!("Couldn't serialize input: {}", e))
+    }?;
 
     let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
@@ -157,15 +168,28 @@ pub fn run(
         .expect("Output stream reference still exists")
         .into_inner();
 
-    let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
-        Ok(json_output) => JsonOutput(json_output),
-        Err(error) => InvalidJsonOutput(InvalidOutput {
-            stdout: std::str::from_utf8(&raw_output)
-                .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
-                .unwrap()
-                .to_owned(),
-            error: error.to_string(),
-        }),
+    let output = if msgpack {
+        match rmp_serde::from_slice::<serde_json::Value>(&raw_output) {
+            Ok(json_value) => JsonOutput(json_value),
+            Err(error) => InvalidJsonOutput(InvalidOutput {
+                stdout: std::str::from_utf8(&raw_output)
+                    .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
+                    .unwrap()
+                    .to_owned(),
+                error: error.to_string(),
+            }),
+        }
+    } else {
+        match serde_json::from_slice(&raw_output) {
+            Ok(json_output) => JsonOutput(json_output),
+            Err(error) => InvalidJsonOutput(InvalidOutput {
+                stdout: std::str::from_utf8(&raw_output)
+                    .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
+                    .unwrap()
+                    .to_owned(),
+                error: error.to_string(),
+            }),
+        }
     };
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
@@ -202,6 +226,7 @@ mod tests {
             input,
             DEFAULT_EXPORT,
             None,
+            false,
         );
 
         assert!(function_run_result.is_ok());
@@ -215,6 +240,7 @@ mod tests {
             input,
             DEFAULT_EXPORT,
             None,
+            false,
         )
         .unwrap();
 
@@ -229,6 +255,7 @@ mod tests {
             input,
             DEFAULT_EXPORT,
             None,
+            false,
         )
         .unwrap();
 
@@ -243,6 +270,7 @@ mod tests {
             input,
             DEFAULT_EXPORT,
             None,
+            false,
         )
         .unwrap();
 
@@ -257,6 +285,7 @@ mod tests {
             input,
             DEFAULT_EXPORT,
             None,
+            false,
         )
         .unwrap();
 
@@ -273,6 +302,7 @@ mod tests {
             input,
             DEFAULT_EXPORT,
             None,
+            false,
         )
         .unwrap();
 

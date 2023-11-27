@@ -33,6 +33,10 @@ struct Opts {
     #[clap(short, long)]
     json: bool,
 
+    /// Convert the input to msgpack before passing it to the Function, and convert the output from msgpack to JSON.
+    #[clap(short, long)]
+    msgpack: bool,
+
     /// Enable profiling. This will make your Function run slower.
     /// The resulting profile can be used in speedscope (https://www.speedscope.app/)
     /// Specifying --profile-* argument will also enable profiling.
@@ -94,8 +98,6 @@ fn main() -> Result<()> {
 
     let mut buffer = Vec::new();
     input.read_to_end(&mut buffer)?;
-    let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
-        .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
 
     let profile_opts = opts.profile_opts();
     let function_run_result = run(
@@ -103,6 +105,7 @@ fn main() -> Result<()> {
         buffer,
         opts.export.as_ref(),
         profile_opts.as_ref(),
+        opts.msgpack,
     )?;
 
     if opts.json {

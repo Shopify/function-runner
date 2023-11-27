@@ -36,6 +36,7 @@ serde = "1.0"
 rust-embed = "6.8.1"
 is-terminal = "0.4.9"
 wasmprof = "0.2.0"
+rmp-serde = "1.1"
 
 [dev-dependencies]
 assert_cmd = "2.0"
