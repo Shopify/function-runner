@@ -2,7 +2,8 @@ use anyhow::{anyhow, Result};
 use rust_embed::RustEmbed;
 use std::{collections::HashSet, io::Cursor, path::PathBuf};
 use wasi_common::{I32Exit, WasiCtx};
-use wasmtime::{AsContextMut, Config, Engine, Linker, Module, Store};
+use wasmtime::{AsContextMut, Config, Engine, Linker, Module, Store, Caller, component::Component};
+use crate::local_storage::runner::local_storage::sql_ops;
 
 use crate::{
     function_run_result::{
@@ -10,6 +11,7 @@ use crate::{
         FunctionRunResult, InvalidOutput,
     },
     logs::LogStream,
+    local_storage::*,
 };
 
 #[derive(Clone)]
@@ -57,12 +59,15 @@ pub fn run(
     export: &str,
     profile_opts: Option<&ProfileOpts>,
 ) -> Result<FunctionRunResult> {
+    let mut config = Config::new();
+    config.wasm_multi_memory(true)
+    .consume_fuel(true)
+    .epoch_interruption(true)
+    .wasm_component_model(true);
+
     let engine = Engine::new(
-        Config::new()
-            .wasm_multi_memory(true)
-            .consume_fuel(true)
-            .epoch_interruption(true),
-    )?;
+        &config)?;
+
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
@@ -86,7 +91,13 @@ pub fn run(
         store.add_fuel(u64::MAX)?;
         store.set_epoch_deadline(1);
 
+        let sql_storage = SQLStorage::new("demo.sqlite");
+
         import_modules(&module, &engine, &mut linker, &mut store);
+
+        sql_ops::add_to_linker(&mut linker, |ctx| -> &mut SQLStorage {
+            ctx.data.as_mut().unwrap()
+        })?;
 
         linker.module(&mut store, "Function", &module)?;
         let instance = linker.instantiate(&mut store, &module)?;
