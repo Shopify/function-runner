@@ -24,10 +24,10 @@ opt-level = "s"
 opt-level = 3
 
 [dependencies]
-wasmtime = { version = "=14.0.4", features = ["component-model"] }
-wasmtime-wasi = "=14.0.4"
-wasi-common = "=14.0.4"
-deterministic-wasi-ctx = "=0.1.16"
+wasmtime = { version = "16.0.0", features = ["component-model"] }
+wasmtime-wasi = "16.0.0"
+wasi-common = "16.0.0"
+# deterministic-wasi-ctx = "=0.1.16"
 anyhow = "1.0"
 clap = { version = "4.4", features = ["derive"] }
 serde_json = "1.0"
