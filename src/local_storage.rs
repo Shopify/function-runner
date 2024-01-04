@@ -23,7 +23,13 @@ impl SQLStorage {
 
 impl From<types::Value> for DataType {
     fn from(value: types::Value) -> Self {
-        unreachable!()
+        match value {
+            types::Value::Null => DataType::Null,
+            types::Value::Integer(i) => DataType::Int64(i),
+            types::Value::Real(r) => DataType::Float(r),
+            types::Value::Text(t) => DataType::Str(t),
+            types::Value::Blob(b) => DataType::Binary(b),
+        }
     }
 }
 
