@@ -97,8 +97,8 @@ pub fn run(
 ) -> Result<FunctionRunResult> {
     let mut config = Config::new();
     config.wasm_multi_memory(true)
-    .consume_fuel(true)
-    .epoch_interruption(true)
+    //.consume_fuel(true) // This seems to cause an error in the wasm
+    //.epoch_interruption(true)
     .wasm_component_model(true);
 
     let engine = Engine::new(
@@ -107,9 +107,9 @@ pub fn run(
     let module = Component::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    // let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
-    // let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
-    // let error_stream = wasi_common::pipe::WritePipe::new(LogStream::default());
+    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
+    let output_stream = wasmtime_wasi::preview2::pipe::MemoryOutputPipe::new(4096);
+    let error_stream = wasmtime_wasi::preview2::pipe::MemoryOutputPipe::new(4096);
 
     let memory_usage: u64;
     let instructions: u64;
@@ -121,25 +121,25 @@ pub fn run(
         let mut linker = Linker::new(&engine);
         //let wasi = deterministic_wasi_ctx::build_wasi_ctx();
         let mut wasi = WasiCtxBuilder::new()
-        .inherit_stdio()
+        //.inherit_stdio()
+        //.stdin(Box::new(input_stream));
+        .stdout(output_stream.clone())
+        .stderr(error_stream.clone())
         .build();
-        // wasi.set_stdin(Box::new(input_stream));
-        // wasi.set_stdout(Box::new(output_stream.clone()));
-        // wasi.set_stderr(Box::new(error_stream.clone()));
+
         let mut store = Store::new(&engine, Ctx::new(sql, wasi));
        //store.add_fuel(u64::MAX)?;
         store.set_epoch_deadline(1);
 
         //import_modules(&module, &engine, &mut linker, &mut store);
-        sql_ops::add_to_linker(&mut linker, |ctx: &mut Ctx| &mut ctx.sql)?;
+        //sql_ops::add_to_linker(&mut linker, |ctx: &mut Ctx| &mut ctx.sql)?;
         add_to_linker(&mut linker)?;
 
 
         //linker.module(&mut store, "Function", &module)?;
         //let instance = linker.instantiate(&mut store, &module)?;
         //let instance = linker.instantiate(&mut store, &module)?;
-
-        let (command, _instance) = Command::instantiate(store.as_context_mut(), &module, &linker)?;
+        let (command, _instance) = Command::instantiate(&mut store, &module, &linker)?;
 
 
         //let func = instance.get_typed_func::<(), ()>(store.as_context_mut(), export)?;
@@ -162,7 +162,7 @@ pub fn run(
 
         let module_result = command
         .wasi_cli_run()
-        .call_run(store.as_context_mut());
+        .call_run(&mut store);
 
         // modules may exit with a specific exit code, an exit code of 0 is considered success but is reported as
         // a GuestFault by wasmtime, so we need to map it to a success result. Any other exit code is considered
@@ -201,21 +201,15 @@ pub fn run(
         }
     };
 
-    let error_stream = wasi_common::pipe::WritePipe::new(LogStream::default());
-
     let mut logs = error_stream
         .try_into_inner()
         .expect("Log stream reference still exists");
 
-    logs.append(error_logs.as_bytes())
-        .expect("Couldn't append error logs");
-
-    let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
+    // logs.append(error_logs.as_bytes())
+    //     .expect("Couldn't append error logs");
 
     let raw_output = output_stream
-        .try_into_inner()
-        .expect("Output stream reference still exists")
-        .into_inner();
+        .contents();
 
     let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
         Ok(json_output) => JsonOutput(json_output),
@@ -236,7 +230,7 @@ pub fn run(
         size,
         memory_usage,
         instructions,
-        logs.to_string(),
+        std::str::from_utf8(&logs).unwrap().to_string(),
         output,
         None,
     );
