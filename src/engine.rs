@@ -3,11 +3,10 @@ use clap::error;
 use rust_embed::RustEmbed;
 use wasmtime::AsContextMut;
 use wasmtime::component::*;
-use wasmtime_wasi::preview2::command::sync::add_to_linker;
+use wasmtime_wasi::preview2::command::sync::{add_to_linker, Command};
 use wasmtime_wasi::preview2::{command, Table, WasiCtx, WasiCtxBuilder, WasiView};
 use std::{collections::HashSet, io::Cursor, path::PathBuf};
 use wasi_common::{I32Exit};
-//use wasmtime::{AsContextMut, Config, Engine, Module, Store, Caller, component::Component};
 use wasmtime::{Store, Caller, Module, Engine, Config};
 use crate::local_storage::runner::local_storage::sql_ops;
 
@@ -137,10 +136,14 @@ pub fn run(
 
 
         //linker.module(&mut store, "Function", &module)?;
-        let (_, instance) = Sql::instantiate(&mut store, &module, &linker)?;
+        //let instance = linker.instantiate(&mut store, &module)?;
         //let instance = linker.instantiate(&mut store, &module)?;
 
-        let func = instance.get_typed_func::<(), ()>(store.as_context_mut(), export)?;
+        let (command, _instance) = Command::instantiate(store.as_context_mut(), &module, &linker)?;
+
+
+        //let func = instance.get_typed_func::<(), ()>(store.as_context_mut(), export)?;
+
 
         //let module_result;
         // (module_result, profile_data) = if let Some(profile_opts) = profile_opts {
@@ -154,18 +157,20 @@ pub fn run(
         //         Some(profile_data.into_collapsed_stacks().to_string()),
         //     )
         // } else {
-            let module_result = func.call(store.as_context_mut(), ());
+            //let module_result = func.call(store.as_context_mut(), ());
         //};
+
+        let module_result = command
+        .wasi_cli_run()
+        .call_run(store.as_context_mut());
 
         // modules may exit with a specific exit code, an exit code of 0 is considered success but is reported as
         // a GuestFault by wasmtime, so we need to map it to a success result. Any other exit code is considered
         // a failure.
-        let module_result =
-            module_result.or_else(|error| match error.downcast_ref::<wasi_common::I32Exit>() {
-                Some(I32Exit(0)) => Ok(()),
-                Some(I32Exit(code)) => Err(anyhow!("module exited with code: {}", code)),
-                None => Err(error),
-            });
+        // module_result.and_then(|wasm_result| match wasm_result {
+        //             Ok(()) => Ok(()),
+        //             Err(()) => Err(wasmtime_wasi::I32Exit(1).into()),
+        //         });
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
         // We need this mutable borrow to fall out of scope so that we can measure memory usage.
