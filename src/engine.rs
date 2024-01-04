@@ -132,7 +132,7 @@ pub fn run(
         store.set_epoch_deadline(1);
 
         //import_modules(&module, &engine, &mut linker, &mut store);
-        //sql_ops::add_to_linker(&mut linker, |ctx: &mut Ctx| &mut ctx.sql)?;
+        sql_ops::add_to_linker(&mut linker, |ctx: &mut Ctx| &mut ctx.sql)?;
         add_to_linker(&mut linker)?;
 
 
