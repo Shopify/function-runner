@@ -97,7 +97,7 @@ pub fn run(
 ) -> Result<FunctionRunResult> {
     let mut config = Config::new();
     config.wasm_multi_memory(true)
-    //.consume_fuel(true) // This seems to cause an error in the wasm
+    .consume_fuel(true)
     //.epoch_interruption(true)
     .wasm_component_model(true);
 
@@ -117,7 +117,7 @@ pub fn run(
     let profile_data: Option<String>;
 
     {
-        let sql = SQLStorage::new("demo.sqlite");
+        let sql = SQLStorage::new("pickup.sqlite");
         let mut linker = Linker::new(&engine);
         //let wasi = deterministic_wasi_ctx::build_wasi_ctx();
         let mut wasi = WasiCtxBuilder::new()
@@ -128,7 +128,7 @@ pub fn run(
         .build();
 
         let mut store = Store::new(&engine, Ctx::new(sql, wasi));
-       //store.add_fuel(u64::MAX)?;
+        store.set_fuel(u64::MAX)?;
         store.set_epoch_deadline(1);
 
         //import_modules(&module, &engine, &mut linker, &mut store);
@@ -190,8 +190,7 @@ pub fn run(
         //     .sum::<u64>()
         //     / 1024;
         memory_usage = 0;
-        instructions = 0;
-        //store.fuel_consumed().unwrap_or_default();
+        instructions = u64::MAX - store.get_fuel().unwrap_or_default();
 
         match module_result {
             Ok(_) => {}
