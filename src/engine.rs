@@ -107,7 +107,7 @@ pub fn run(
     let module = Component::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
+    let input_stream = wasmtime_wasi::preview2::pipe::MemoryInputPipe::new(input.into());
     let output_stream = wasmtime_wasi::preview2::pipe::MemoryOutputPipe::new(4096);
     let error_stream = wasmtime_wasi::preview2::pipe::MemoryOutputPipe::new(4096);
 
@@ -121,8 +121,7 @@ pub fn run(
         let mut linker = Linker::new(&engine);
         //let wasi = deterministic_wasi_ctx::build_wasi_ctx();
         let mut wasi = WasiCtxBuilder::new()
-        //.inherit_stdio()
-        //.stdin(Box::new(input_stream));
+        .stdin(input_stream)
         .stdout(output_stream.clone())
         .stderr(error_stream.clone())
         .build();
