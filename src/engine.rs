@@ -93,7 +93,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         wasi.set_stdout(Box::new(output_stream.clone()));
         wasi.set_stderr(Box::new(error_stream.clone()));
         let mut store = Store::new(&engine, wasi);
-        store.add_fuel(u64::MAX)?;
+        store.set_fuel(u64::MAX)?;
         store.set_epoch_deadline(1);
 
         import_modules(&module, &engine, &mut linker, &mut store);
@@ -136,8 +136,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
             .map(|memory| memory.data_size(store.as_context()) as u64)
             .sum::<u64>()
             / 1024;
-
-        instructions = store.fuel_consumed().unwrap_or_default();
+        instructions = u64::MAX.saturating_sub(store.get_fuel().unwrap_or_default());
 
         match module_result {
             Ok(_) => {}
