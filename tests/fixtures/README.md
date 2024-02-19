@@ -2,9 +2,21 @@
 
 Example Functions used as test fixtures.
 
-To recompile rust examples, from the project root:
+## Recompiling
+
+**Prereqs:**
+- Cargo WASI: `cargo install cargo-wasi`
+- wat2wasm from [WABT](https://github.com/WebAssembly/wabt)
+
+
+**Rust examples:**
 ```
-rustup target add wasm32-wasi
-cargo wasi build --release -p exit_code -p exports -p log_truncation_function
-cp target/wasm32-wasi/release/{exit_code.wasm,exports.wasm,log_truncation_function.wasm} tests/fixtures/build
+cargo wasi build --profile=wasm -p exit_code -p exports -p log_truncation_function &&
+  cp target/wasm32-wasi/wasm/{exit_code.wasm,exports.wasm,log_truncation_function.wasm} tests/fixtures/build
+```
+
+**`*.wat` examples:**
+```
+find tests/fixtures -maxdepth 1 -type f -name "*.wat" \
+  | xargs -I {} sh -c 'name=$(basename {} .wat); wat2wasm {} -o "tests/fixtures/build/$name.wasm"'
 ```
