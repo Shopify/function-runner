@@ -684,12 +684,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "exit_code_function_one"
+name = "exit_code"
 version = "0.1.0"
-
-[[package]]
-name = "exit_code_function_zero"
-version = "0.1.0"
+dependencies = [
+ "nanoserde",
+]
 
 [[package]]
 name = "exports"
@@ -1171,6 +1170,21 @@ dependencies = [
  "wasi",
  "windows-sys 0.48.0",
 ]
+
+[[package]]
+name = "nanoserde"
+version = "0.1.37"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5de9cf844ab1e25a0353525bd74cb889843a6215fa4a0d156fd446f4857a1b99"
+dependencies = [
+ "nanoserde-derive",
+]
+
+[[package]]
+name = "nanoserde-derive"
+version = "0.1.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e943b2c21337b7e3ec6678500687cdc741b7639ad457f234693352075c082204"
 
 [[package]]
 name = "nix"

@@ -179,6 +179,7 @@ pub fn run(
 #[cfg(test)]
 mod tests {
     use colored::Colorize;
+    use serde_json::json;
 
     use super::*;
     use std::path::Path;
@@ -201,8 +202,8 @@ mod tests {
     #[test]
     fn test_exit_code_zero() {
         let function_run_result = run(
-            Path::new("tests/fixtures/build/exit_code_function_zero.wasm").to_path_buf(),
-            "{}".as_bytes().to_vec(),
+            Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
+            json!({ "code": 0 }).to_string().into(),
             DEFAULT_EXPORT,
             None,
         )
@@ -214,8 +215,8 @@ mod tests {
     #[test]
     fn test_exit_code_one() {
         let function_run_result = run(
-            Path::new("tests/fixtures/build/exit_code_function_one.wasm").to_path_buf(),
-            "{}".as_bytes().to_vec(),
+            Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
+            json!({ "code": 1 }).to_string().into(),
             DEFAULT_EXPORT,
             None,
         )
@@ -255,11 +256,11 @@ mod tests {
 
     #[test]
     fn test_file_size_in_kb() {
-        let file_path = Path::new("tests/fixtures/build/exit_code_function_zero.wasm");
+        let file_path = Path::new("tests/fixtures/build/exit_code.wasm");
 
         let function_run_result = run(
             file_path.to_path_buf(),
-            "{}".as_bytes().to_vec(),
+            json!({ "code": 0 }).to_string().into(),
             DEFAULT_EXPORT,
             None,
         )

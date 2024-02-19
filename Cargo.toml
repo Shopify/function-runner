@@ -1,7 +1,6 @@
 [workspace]
 members = [
-  "tests/fixtures/exit_code_function_zero",
-  "tests/fixtures/exit_code_function_one",
+  "tests/fixtures/exit_code",
   "tests/fixtures/log_truncation_function",
   "tests/fixtures/exports",
 ]
