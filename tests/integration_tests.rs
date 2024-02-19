@@ -16,7 +16,7 @@ mod tests {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
         cmd.args(["--function", "tests/fixtures/build/runtime_function.wasm"])
-            .args(["--input", "tests/fixtures/build/volume_discount.json"]);
+            .args(["--input", "tests/fixtures/input/volume_discount.json"]);
         cmd.assert().success();
 
         Ok(())
@@ -28,7 +28,7 @@ mod tests {
 
         cmd.args(["--function", "tests/fixtures/build/runtime_function.wasm"])
             .arg("--json")
-            .args(["--input", "tests/fixtures/build/invalid_json.json"]);
+            .args(["--input", "tests/fixtures/input/invalid_json.json"]);
         cmd.assert()
             .failure()
             .stderr("Error: Invalid input JSON: EOF while parsing an object at line 2 column 0\n");
@@ -38,7 +38,7 @@ mod tests {
 
     #[test]
     fn run_stdin() -> Result<(), Box<dyn std::error::Error>> {
-        let file = File::open("tests/fixtures/build/volume_discount.json")?;
+        let file = File::open("tests/fixtures/input/volume_discount.json")?;
         let mut cmd = Command::cargo_bin("function-runner")?;
         let output = cmd
             .args(["--function", "tests/fixtures/build/runtime_function.wasm"])
@@ -97,7 +97,7 @@ mod tests {
 
         cmd.args(["--function", "tests/fixtures/build/runtime_function.wasm"])
             .arg("--json")
-            .args(["--input", "tests/fixtures/build/volume_discount.json"]);
+            .args(["--input", "tests/fixtures/input/volume_discount.json"]);
         cmd.assert().success();
         let output = cmd.output().expect("Wasn't able to get output");
         let _ = serde_json::from_slice::<FunctionRunResult>(&output.stdout)
@@ -111,7 +111,7 @@ mod tests {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
         cmd.args(["--function", "test/file/doesnt/exist"])
-            .args(["--input", "tests/fixtures/build/volume_discount.json"]);
+            .args(["--input", "tests/fixtures/input/volume_discount.json"]);
         cmd.assert()
             .failure()
             .stderr("Error: Couldn\'t load the Function \"test/file/doesnt/exist\": failed to read input file: test/file/doesnt/exist\n");
@@ -168,7 +168,7 @@ mod tests {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
         cmd.args(["--function", "tests/fixtures/build/runtime_function.wasm"])
-            .args(["--input", "tests/fixtures/build/product_discount.json"]);
+            .args(["--input", "tests/fixtures/input/product_discount.json"]);
         cmd.assert()
             .success()
             .stdout(contains("missing field `discountNode`"))
@@ -184,7 +184,7 @@ mod tests {
         let mut cmd = Command::cargo_bin("function-runner")?;
         cmd.args(["--function", "tests/fixtures/build/exports.wasm"])
             .args(["--export", "export1"])
-            .args(["--input", "tests/fixtures/build/product_discount.json"]);
+            .args(["--input", "tests/fixtures/input/product_discount.json"]);
 
         cmd.assert().success().stdout(contains("export1"));
 
@@ -195,7 +195,7 @@ mod tests {
     fn missing_export() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         cmd.args(["--function", "tests/fixtures/build/exports.wasm"])
-            .args(["--input", "tests/fixtures/build/product_discount.json"]);
+            .args(["--input", "tests/fixtures/input/product_discount.json"]);
 
         cmd.assert()
             .failure()
@@ -214,7 +214,7 @@ mod tests {
             .arg("--function")
             .arg(cwd.join("tests/fixtures/build/runtime_function.wasm"))
             .arg("--input")
-            .arg(cwd.join("tests/fixtures/build/volume_discount.json"));
+            .arg(cwd.join("tests/fixtures/input/volume_discount.json"));
 
         Ok((cmd, temp))
     }

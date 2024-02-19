@@ -187,7 +187,7 @@ mod tests {
 
     #[test]
     fn test_js_function() {
-        let input = include_bytes!("../tests/fixtures/build/js_function_input.json").to_vec();
+        let input = include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec();
         let function_run_result = run(
             Path::new("tests/fixtures/build/js_function.wasm").to_path_buf(),
             input,
