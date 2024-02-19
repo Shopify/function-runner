@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use rust_embed::RustEmbed;
 use std::{collections::HashSet, io::Cursor, path::PathBuf};
 use wasi_common::{I32Exit, WasiCtx};
-use wasmtime::{AsContextMut, Config, Engine, Linker, Module, Store};
+use wasmtime::{AsContext, AsContextMut, Config, Engine, Linker, Module, Store};
 
 use crate::{
     function_run_result::{
@@ -118,23 +118,15 @@ pub fn run(
                 None => Err(error),
             });
 
-        // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
-        // We need this mutable borrow to fall out of scope so that we can measure memory usage.
-        // https://docs.rs/wasmtime/0.37.0/wasmtime/struct.Instance.html#why-does-get_export-take-a-mutable-context
-        let memory_names: Vec<String> = instance
-            .exports(&mut store)
-            .filter(|export| export.clone().into_memory().is_some())
-            .map(|export| export.name().to_string())
-            .collect();
-
-        memory_usage = memory_names
+        memory_usage = instance
+            .exports(store.as_context_mut())
+            .filter_map(|memory| memory.into_memory())
+            .collect::<Vec<wasmtime::Memory>>() // Necessary to drop the mutable borrow of store
             .iter()
-            .map(|name| {
-                let memory = instance.get_memory(&mut store, name).unwrap();
-                memory.data_size(&store) as u64
-            })
+            .map(|memory| memory.data_size(store.as_context()) as u64)
             .sum::<u64>()
             / 1024;
+
         instructions = store.fuel_consumed().unwrap_or_default();
 
         match module_result {
