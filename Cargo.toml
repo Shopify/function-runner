@@ -1,7 +1,6 @@
 [workspace]
 members = [
   "tests/fixtures/linear_memory_function",
-  "tests/fixtures/size_function",
   "tests/fixtures/stack_memory_function",
   "tests/fixtures/exit_code_function_zero",
   "tests/fixtures/exit_code_function_one",

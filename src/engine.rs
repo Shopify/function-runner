@@ -259,10 +259,11 @@ mod tests {
 
     #[test]
     fn test_file_size_in_kb() {
-        let input = include_bytes!("../tests/fixtures/build/product_discount.json").to_vec();
+        let file_path = Path::new("tests/fixtures/build/exit_code_function_zero.wasm");
+
         let function_run_result = run(
-            Path::new("tests/fixtures/build/size_function.wasm").to_path_buf(),
-            input,
+            file_path.to_path_buf(),
+            "{}".as_bytes().to_vec(),
             DEFAULT_EXPORT,
             None,
         )
@@ -270,11 +271,7 @@ mod tests {
 
         assert_eq!(
             function_run_result.size,
-            Path::new("tests/fixtures/build/size_function.wasm")
-                .metadata()
-                .unwrap()
-                .len()
-                / 1024
+            file_path.metadata().unwrap().len() / 1024
         );
     }
 }
