@@ -200,10 +200,9 @@ mod tests {
 
     #[test]
     fn test_exit_code_zero() {
-        let input = include_bytes!("../tests/fixtures/build/product_discount.json").to_vec();
         let function_run_result = run(
             Path::new("tests/fixtures/build/exit_code_function_zero.wasm").to_path_buf(),
-            input,
+            "{}".as_bytes().to_vec(),
             DEFAULT_EXPORT,
             None,
         )
@@ -214,10 +213,9 @@ mod tests {
 
     #[test]
     fn test_exit_code_one() {
-        let input = include_bytes!("../tests/fixtures/build/product_discount.json").to_vec();
         let function_run_result = run(
             Path::new("tests/fixtures/build/exit_code_function_one.wasm").to_path_buf(),
-            input,
+            "{}".as_bytes().to_vec(),
             DEFAULT_EXPORT,
             None,
         )
