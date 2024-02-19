@@ -196,9 +196,9 @@ mod tests {
 
     #[test]
     fn test_js_function() {
-        let input = include_bytes!("../benchmark/build/js_function_input.json").to_vec();
+        let input = include_bytes!("../tests/fixtures/build/js_function_input.json").to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/js_function.wasm").to_path_buf(),
+            Path::new("tests/fixtures/build/js_function.wasm").to_path_buf(),
             input,
             DEFAULT_EXPORT,
             None,
@@ -209,9 +209,9 @@ mod tests {
 
     #[test]
     fn test_exit_code_zero() {
-        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
+        let input = include_bytes!("../tests/fixtures/build/product_discount.json").to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/exit_code_function_zero.wasm").to_path_buf(),
+            Path::new("tests/fixtures/build/exit_code_function_zero.wasm").to_path_buf(),
             input,
             DEFAULT_EXPORT,
             None,
@@ -223,9 +223,9 @@ mod tests {
 
     #[test]
     fn test_exit_code_one() {
-        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
+        let input = include_bytes!("../tests/fixtures/build/product_discount.json").to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/exit_code_function_one.wasm").to_path_buf(),
+            Path::new("tests/fixtures/build/exit_code_function_one.wasm").to_path_buf(),
             input,
             DEFAULT_EXPORT,
             None,
@@ -237,9 +237,9 @@ mod tests {
 
     #[test]
     fn test_linear_memory_usage_in_kb() {
-        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
+        let input = include_bytes!("../tests/fixtures/build/product_discount.json").to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
+            Path::new("tests/fixtures/build/linear_memory_function.wasm").to_path_buf(),
             input,
             DEFAULT_EXPORT,
             None,
@@ -253,7 +253,7 @@ mod tests {
     fn test_logs_truncation() {
         let input = "{}".as_bytes().to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/log_truncation_function.wasm").to_path_buf(),
+            Path::new("tests/fixtures/build/log_truncation_function.wasm").to_path_buf(),
             input,
             DEFAULT_EXPORT,
             None,
@@ -267,9 +267,9 @@ mod tests {
 
     #[test]
     fn test_file_size_in_kb() {
-        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
+        let input = include_bytes!("../tests/fixtures/build/product_discount.json").to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/size_function.wasm").to_path_buf(),
+            Path::new("tests/fixtures/build/size_function.wasm").to_path_buf(),
             input,
             DEFAULT_EXPORT,
             None,
@@ -278,7 +278,7 @@ mod tests {
 
         assert_eq!(
             function_run_result.size,
-            Path::new("benchmark/build/size_function.wasm")
+            Path::new("tests/fixtures/build/size_function.wasm")
                 .metadata()
                 .unwrap()
                 .len()

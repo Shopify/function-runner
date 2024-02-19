@@ -1,13 +1,13 @@
 [workspace]
 members = [
-  "benchmark/linear_memory_function",
-  "benchmark/rust_function",
-  "benchmark/size_function",
-  "benchmark/stack_memory_function",
-  "benchmark/exit_code_function_zero",
-  "benchmark/exit_code_function_one",
-  "benchmark/log_truncation_function",
-  "benchmark/exports",
+  "tests/fixtures/linear_memory_function",
+  "tests/fixtures/rust_function",
+  "tests/fixtures/size_function",
+  "tests/fixtures/stack_memory_function",
+  "tests/fixtures/exit_code_function_zero",
+  "tests/fixtures/exit_code_function_one",
+  "tests/fixtures/log_truncation_function",
+  "tests/fixtures/exports",
 ]
 
 [package]
