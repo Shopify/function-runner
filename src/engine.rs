@@ -183,7 +183,6 @@ mod tests {
     use super::*;
     use std::path::Path;
 
-    const LINEAR_MEMORY_USAGE: u64 = 159 * 64;
     const DEFAULT_EXPORT: &str = "_start";
 
     #[test]
@@ -229,16 +228,15 @@ mod tests {
 
     #[test]
     fn test_linear_memory_usage_in_kb() {
-        let input = include_bytes!("../tests/fixtures/build/product_discount.json").to_vec();
         let function_run_result = run(
-            Path::new("tests/fixtures/build/linear_memory_function.wasm").to_path_buf(),
-            input,
+            Path::new("tests/fixtures/build/linear_memory.wasm").to_path_buf(),
+            "{}".as_bytes().to_vec(),
             DEFAULT_EXPORT,
             None,
         )
         .unwrap();
 
-        assert_eq!(function_run_result.memory_usage, LINEAR_MEMORY_USAGE);
+        assert_eq!(function_run_result.memory_usage, 12800); // 200 * 64KiB pages
     }
 
     #[test]
