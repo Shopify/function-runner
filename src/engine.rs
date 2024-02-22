@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use rust_embed::RustEmbed;
 use std::{collections::HashSet, io::Cursor, path::PathBuf};
 use wasi_common::{I32Exit, WasiCtx};
-use wasmtime::{AsContextMut, Config, Engine, Linker, Module, Store};
+use wasmtime::{AsContext, AsContextMut, Config, Engine, Linker, Module, Store};
 
 use crate::{
     function_run_result::{
@@ -118,23 +118,15 @@ pub fn run(
                 None => Err(error),
             });
 
-        // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
-        // We need this mutable borrow to fall out of scope so that we can measure memory usage.
-        // https://docs.rs/wasmtime/0.37.0/wasmtime/struct.Instance.html#why-does-get_export-take-a-mutable-context
-        let memory_names: Vec<String> = instance
-            .exports(&mut store)
-            .filter(|export| export.clone().into_memory().is_some())
-            .map(|export| export.name().to_string())
-            .collect();
-
-        memory_usage = memory_names
+        memory_usage = instance
+            .exports(store.as_context_mut())
+            .filter_map(|memory| memory.into_memory())
+            .collect::<Vec<wasmtime::Memory>>() // Necessary to drop the mutable borrow of store
             .iter()
-            .map(|name| {
-                let memory = instance.get_memory(&mut store, name).unwrap();
-                memory.data_size(&store) as u64
-            })
+            .map(|memory| memory.data_size(store.as_context()) as u64)
             .sum::<u64>()
             / 1024;
+
         instructions = store.fuel_consumed().unwrap_or_default();
 
         match module_result {
@@ -187,18 +179,18 @@ pub fn run(
 #[cfg(test)]
 mod tests {
     use colored::Colorize;
+    use serde_json::json;
 
     use super::*;
     use std::path::Path;
 
-    const LINEAR_MEMORY_USAGE: u64 = 159 * 64;
     const DEFAULT_EXPORT: &str = "_start";
 
     #[test]
     fn test_js_function() {
-        let input = include_bytes!("../benchmark/build/js_function_input.json").to_vec();
+        let input = include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/js_function.wasm").to_path_buf(),
+            Path::new("tests/fixtures/build/js_function.wasm").to_path_buf(),
             input,
             DEFAULT_EXPORT,
             None,
@@ -209,10 +201,9 @@ mod tests {
 
     #[test]
     fn test_exit_code_zero() {
-        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/exit_code_function_zero.wasm").to_path_buf(),
-            input,
+            Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
+            json!({ "code": 0 }).to_string().into(),
             DEFAULT_EXPORT,
             None,
         )
@@ -223,10 +214,9 @@ mod tests {
 
     #[test]
     fn test_exit_code_one() {
-        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/exit_code_function_one.wasm").to_path_buf(),
-            input,
+            Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
+            json!({ "code": 1 }).to_string().into(),
             DEFAULT_EXPORT,
             None,
         )
@@ -237,23 +227,22 @@ mod tests {
 
     #[test]
     fn test_linear_memory_usage_in_kb() {
-        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/linear_memory_function.wasm").to_path_buf(),
-            input,
+            Path::new("tests/fixtures/build/linear_memory.wasm").to_path_buf(),
+            "{}".as_bytes().to_vec(),
             DEFAULT_EXPORT,
             None,
         )
         .unwrap();
 
-        assert_eq!(function_run_result.memory_usage, LINEAR_MEMORY_USAGE);
+        assert_eq!(function_run_result.memory_usage, 12800); // 200 * 64KiB pages
     }
 
     #[test]
     fn test_logs_truncation() {
         let input = "{}".as_bytes().to_vec();
         let function_run_result = run(
-            Path::new("benchmark/build/log_truncation_function.wasm").to_path_buf(),
+            Path::new("tests/fixtures/build/log_truncation_function.wasm").to_path_buf(),
             input,
             DEFAULT_EXPORT,
             None,
@@ -267,10 +256,11 @@ mod tests {
 
     #[test]
     fn test_file_size_in_kb() {
-        let input = include_bytes!("../benchmark/build/product_discount.json").to_vec();
+        let file_path = Path::new("tests/fixtures/build/exit_code.wasm");
+
         let function_run_result = run(
-            Path::new("benchmark/build/size_function.wasm").to_path_buf(),
-            input,
+            file_path.to_path_buf(),
+            json!({ "code": 0 }).to_string().into(),
             DEFAULT_EXPORT,
             None,
         )
@@ -278,11 +268,7 @@ mod tests {
 
         assert_eq!(
             function_run_result.size,
-            Path::new("benchmark/build/size_function.wasm")
-                .metadata()
-                .unwrap()
-                .len()
-                / 1024
+            file_path.metadata().unwrap().len() / 1024
         );
     }
 }

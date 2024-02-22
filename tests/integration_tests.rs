@@ -6,6 +6,7 @@ mod tests {
     use function_runner::function_run_result::FunctionRunResult;
     use predicates::prelude::*;
     use predicates::{prelude::predicate, str::contains};
+    use serde_json::json;
     use std::{
         fs::File,
         process::{Command, Stdio},
@@ -14,9 +15,11 @@ mod tests {
     #[test]
     fn run() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({"exit_code": 0}))?;
 
-        cmd.args(["--function", "benchmark/build/runtime_function.wasm"])
-            .args(["--input", "benchmark/build/volume_discount.json"]);
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+            .arg("--input")
+            .arg(input_file.as_os_str());
         cmd.assert().success();
 
         Ok(())
@@ -26,9 +29,9 @@ mod tests {
     fn invalid_json_input() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
-        cmd.args(["--function", "benchmark/build/runtime_function.wasm"])
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
             .arg("--json")
-            .args(["--input", "benchmark/build/invalid_json.json"]);
+            .args(["--input", "tests/fixtures/input/invalid_json.json"]);
         cmd.assert()
             .failure()
             .stderr("Error: Invalid input JSON: EOF while parsing an object at line 2 column 0\n");
@@ -38,10 +41,13 @@ mod tests {
 
     #[test]
     fn run_stdin() -> Result<(), Box<dyn std::error::Error>> {
-        let file = File::open("benchmark/build/volume_discount.json")?;
         let mut cmd = Command::cargo_bin("function-runner")?;
+
+        let input_file = temp_input(json!({"exit_code": 0}))?;
+        let file = File::open(input_file.path())?;
+
         let output = cmd
-            .args(["--function", "benchmark/build/runtime_function.wasm"])
+            .args(["--function", "tests/fixtures/build/exit_code.wasm"])
             .arg("--json")
             .stdin(Stdio::from(file))
             .stdout(Stdio::piped())
@@ -83,7 +89,7 @@ mod tests {
     fn run_function_no_input() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
-        cmd.args(["--function", "benchmark/build/runtime_function.wasm"]);
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"]);
         cmd.assert()
             .failure()
             .stderr("Error: You must provide input via the --input flag or piped via stdin.\n");
@@ -94,10 +100,12 @@ mod tests {
     #[test]
     fn run_json() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({"exit_code": 0}))?;
 
-        cmd.args(["--function", "benchmark/build/runtime_function.wasm"])
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
             .arg("--json")
-            .args(["--input", "benchmark/build/volume_discount.json"]);
+            .arg("--input")
+            .arg(input_file.as_os_str());
         cmd.assert().success();
         let output = cmd.output().expect("Wasn't able to get output");
         let _ = serde_json::from_slice::<FunctionRunResult>(&output.stdout)
@@ -109,9 +117,11 @@ mod tests {
     #[test]
     fn wasm_file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({"exit_code": 0}))?;
 
         cmd.args(["--function", "test/file/doesnt/exist"])
-            .args(["--input", "benchmark/build/volume_discount.json"]);
+            .arg("--input")
+            .arg(input_file.as_os_str());
         cmd.assert()
             .failure()
             .stderr("Error: Couldn\'t load the Function \"test/file/doesnt/exist\": failed to read input file: test/file/doesnt/exist\n");
@@ -123,7 +133,7 @@ mod tests {
     fn input_file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
-        cmd.args(["--function", "benchmark/build/runtime_function.wasm"])
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
             .args(["--input", "test/file/doesnt/exist.json"]);
         cmd.assert()
             .failure()
@@ -136,7 +146,7 @@ mod tests {
     fn profile_writes_file() -> Result<(), Box<dyn std::error::Error>> {
         let (mut cmd, temp) = profile_base_cmd_in_temp_dir()?;
         cmd.arg("--profile").assert().success();
-        temp.child("runtime_function.perf")
+        temp.child("exit_code.perf")
             .assert(predicate::path::exists());
 
         Ok(())
@@ -157,7 +167,7 @@ mod tests {
         cmd.args(["--profile-frequency", "80000"])
             .assert()
             .success();
-        temp.child("runtime_function.perf")
+        temp.child("exit_code.perf")
             .assert(predicate::path::exists());
 
         Ok(())
@@ -166,12 +176,15 @@ mod tests {
     #[test]
     fn incorrect_input() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({}))?;
 
-        cmd.args(["--function", "benchmark/build/runtime_function.wasm"])
-            .args(["--input", "benchmark/build/product_discount.json"]);
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+            .arg("--input")
+            .arg(input_file.as_os_str());
+
         cmd.assert()
             .success()
-            .stdout(contains("missing field `discountNode`"))
+            .stdout(contains("Key not found code"))
             .stdout(contains("Invalid Output"))
             .stdout(contains("JSON Error"))
             .stderr(contains(""));
@@ -182,9 +195,11 @@ mod tests {
     #[test]
     fn exports() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
-        cmd.args(["--function", "benchmark/build/exports.wasm"])
+        let input_file = temp_input(json!({}))?;
+        cmd.args(["--function", "tests/fixtures/build/exports.wasm"])
             .args(["--export", "export1"])
-            .args(["--input", "benchmark/build/product_discount.json"]);
+            .arg("--input")
+            .arg(input_file.as_os_str());
 
         cmd.assert().success().stdout(contains("export1"));
 
@@ -194,8 +209,10 @@ mod tests {
     #[test]
     fn missing_export() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
-        cmd.args(["--function", "benchmark/build/exports.wasm"])
-            .args(["--input", "benchmark/build/product_discount.json"]);
+        let input_file = temp_input(json!({}))?;
+        cmd.args(["--function", "tests/fixtures/build/exports.wasm"])
+            .arg("--input")
+            .arg(input_file.as_os_str());
 
         cmd.assert()
             .failure()
@@ -209,13 +226,24 @@ mod tests {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let cwd = std::env::current_dir()?;
         let temp = assert_fs::TempDir::new()?;
+        let input_file = temp.child("input.json");
+        input_file.write_str(json!({"exit_code": 0}).to_string().as_str())?;
 
         cmd.current_dir(temp.path())
             .arg("--function")
-            .arg(cwd.join("benchmark/build/runtime_function.wasm"))
+            .arg(cwd.join("tests/fixtures/build/exit_code.wasm"))
             .arg("--input")
-            .arg(cwd.join("benchmark/build/volume_discount.json"));
+            .arg(input_file.as_os_str());
 
         Ok((cmd, temp))
+    }
+
+    fn temp_input(
+        json: serde_json::Value,
+    ) -> Result<assert_fs::NamedTempFile, Box<dyn std::error::Error>> {
+        let file = assert_fs::NamedTempFile::new("input.json")?;
+        file.write_str(json.to_string().as_str())?;
+
+        Ok(file)
     }
 }

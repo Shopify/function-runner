@@ -1,13 +1,8 @@
 [workspace]
 members = [
-  "benchmark/linear_memory_function",
-  "benchmark/rust_function",
-  "benchmark/size_function",
-  "benchmark/stack_memory_function",
-  "benchmark/exit_code_function_zero",
-  "benchmark/exit_code_function_one",
-  "benchmark/log_truncation_function",
-  "benchmark/exports",
+  "tests/fixtures/exit_code",
+  "tests/fixtures/log_truncation_function",
+  "tests/fixtures/exports",
 ]
 
 [package]
@@ -15,10 +10,12 @@ name = "function-runner"
 version = "4.2.0"
 edition = "2021"
 
-[profile.benchmark]
+
+[profile.wasm]
 inherits = "release"
-lto = true
 opt-level = "s"
+strip = true
+lto = true
 
 [profile.test]
 opt-level = 3
