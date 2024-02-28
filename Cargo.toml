@@ -36,7 +36,7 @@ serde = "1.0"
 rust-embed = "8.0.0"
 is-terminal = "0.4.9"
 wasmprof = "0.3.0"
-rusqlite = { version = "0.30.0" }
+rusqlite = { version = "0.30.0", features = ["bundled-sqlcipher"] }
 
 [dev-dependencies]
 assert_cmd = "2.0"

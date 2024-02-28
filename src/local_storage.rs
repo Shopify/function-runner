@@ -1,6 +1,6 @@
 use anyhow::{Result, Error};
 use runner::local_storage::sql_ops::*;
-use rusqlite::{types, Connection};
+use rusqlite::{types, Connection, params};
 use std::path::Path;
 use wasmtime::component::*;
 
@@ -11,13 +11,15 @@ pub struct SQLStorage {
 }
 
 impl SQLStorage {
-    pub fn new<P>(p: P) -> Self
+    pub fn new<P>(p: P, passphrase: Option<&str>) -> Self
     where
         P: AsRef<Path>,
     {
-        Self {
-            conn: Connection::open(p).unwrap(),
+        let conn = Connection::open(p).unwrap();
+        if let Some(pass) = passphrase {
+            conn.query_row(&format!("PRAGMA key = '{}'", pass), params![], |_| Ok(())).unwrap();
         }
+        Self { conn }
     }
 }
 

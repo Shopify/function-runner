@@ -108,8 +108,8 @@ pub fn run(
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
     let input_stream = wasmtime_wasi::preview2::pipe::MemoryInputPipe::new(input.into());
-    let output_stream = wasmtime_wasi::preview2::pipe::MemoryOutputPipe::new(4096);
-    let error_stream = wasmtime_wasi::preview2::pipe::MemoryOutputPipe::new(4096);
+    let output_stream = wasmtime_wasi::preview2::pipe::MemoryOutputPipe::new(40960);
+    let error_stream = wasmtime_wasi::preview2::pipe::MemoryOutputPipe::new(40960);
 
     let memory_usage: u64;
     let instructions: u64;
@@ -117,7 +117,7 @@ pub fn run(
     let profile_data: Option<String>;
 
     {
-        let sql = SQLStorage::new("pickup.sqlite");
+        let sql = SQLStorage::new("db.sqlite", None);
         let mut linker = Linker::new(&engine);
         //let wasi = deterministic_wasi_ctx::build_wasi_ctx();
         let mut wasi = WasiCtxBuilder::new()
