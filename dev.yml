@@ -1,0 +1,6 @@
+name: function-runner
+
+type: rust
+
+up:
+  - rust
