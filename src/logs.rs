@@ -1,9 +1,63 @@
 use core::fmt;
 use std::io;
+use std::str::FromStr;
 
 use colored::Colorize;
 
-const MAX_BOUNDED_LOG_BYTESIZE: usize = 1000;
+const DEFAULT_BOUNDED_LOG_BYTESIZE: usize = 1000;
+
+/// A type that represents the maximum size of a log stream.
+#[derive(Debug, Clone, Copy)]
+pub enum LogMaxSize {
+    /// Unbounded log size, effectively means `usize::MAX`
+    Unbounded,
+    /// Bounded log size
+    Bounded(usize),
+}
+
+impl Default for LogMaxSize {
+    fn default() -> Self {
+        LogMaxSize::Bounded(DEFAULT_BOUNDED_LOG_BYTESIZE)
+    }
+}
+
+impl FromStr for LogMaxSize {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "unbounded" => Ok(LogMaxSize::Unbounded),
+            _ => match s.parse::<usize>() {
+                Ok(size) => Ok(LogMaxSize::Bounded(size)),
+                Err(_) => Err("Invalid log size"),
+            },
+        }
+    }
+}
+
+/// Convert `Option<usize>` to `LogMaxSize`, where `None` is equivalent to the default bounded log size.
+impl From<Option<usize>> for LogMaxSize {
+    fn from(size: Option<usize>) -> Self {
+        Self::Bounded(size.unwrap_or(DEFAULT_BOUNDED_LOG_BYTESIZE))
+    }
+}
+
+/// Convert `usize` to `LogMaxSize`, where `usize` is equivalent to `LogMaxSize::Bounded(usize)`.
+impl From<usize> for LogMaxSize {
+    fn from(size: usize) -> Self {
+        LogMaxSize::Bounded(size)
+    }
+}
+
+/// Convert `LogMaxSize` to `usize`, where `LogMaxSize::Unbounded` is equivalent to `usize::MAX`.
+impl From<LogMaxSize> for usize {
+    fn from(size: LogMaxSize) -> usize {
+        match size {
+            LogMaxSize::Unbounded => usize::MAX,
+            LogMaxSize::Bounded(size) => size,
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct LogStream {
@@ -14,7 +68,7 @@ pub struct LogStream {
 
 impl Default for LogStream {
     fn default() -> Self {
-        let capacity = MAX_BOUNDED_LOG_BYTESIZE;
+        let capacity = DEFAULT_BOUNDED_LOG_BYTESIZE;
         let logs = Vec::new();
         let current_bytesize = 0;
         Self {
@@ -45,10 +99,16 @@ impl io::Write for LogStream {
 }
 
 impl LogStream {
+    /// Create a new LogStream with the specified capacity.
+    /// # Arguments
+    /// * `capacity` - the maximum size of the log stream.
+    ///
+    /// # Returns
+    /// * `LogStream` - a new log stream with the specified capacity.
     #[must_use]
-    pub fn with_capacity(capacity: usize) -> Self {
+    pub fn with_capacity<T: Into<LogMaxSize>>(capacity: T) -> Self {
         Self {
-            capacity,
+            capacity: capacity.into().into(),
             ..Default::default()
         }
     }

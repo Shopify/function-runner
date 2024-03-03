@@ -5,12 +5,26 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
-use clap::Parser;
-use function_runner::engine::{run, ProfileOpts};
+use clap::{Parser, ValueEnum};
+use function_runner::{
+    engine::{run, FunctionRunParams, ProfileOpts},
+    logs::LogMaxSize,
+};
 
 use is_terminal::IsTerminal;
 
 const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
+
+/// Supported input flavors
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+enum InputFlavor {
+    /// JSON input, must be valid JSON
+    Json,
+    /// Raw input, no validation, passed as-is
+    Raw,
+    /// JSON input, will be converted to MessagePack, must be valid JSON
+    JsonToMessagepack,
+}
 
 /// Simple Function runner which takes JSON as a convenience.
 #[derive(Parser, Debug)]
@@ -43,9 +57,16 @@ struct Opts {
     #[clap(long)]
     profile_out: Option<PathBuf>,
 
-    #[clap(long)]
     /// How many samples per seconds. Defaults to 500_000 (every 5us).
+    #[clap(long)]
     profile_frequency: Option<u32>,
+
+    #[clap(short = 'l', long, value_enum, default_value = "json")]
+    input_flavor: InputFlavor,
+
+    /// Log buffer size. Specify either a number or "unbounded" to disable the limit.
+    #[clap(short = 'b', long, default_value = "1000")]
+    log_buffer: LogMaxSize,
 }
 
 impl Opts {
@@ -94,16 +115,30 @@ fn main() -> Result<()> {
 
     let mut buffer = Vec::new();
     input.read_to_end(&mut buffer)?;
-    let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
-        .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
+
+    let buffer = match opts.input_flavor {
+        InputFlavor::Json => {
+            let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
+                .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
+            buffer
+        }
+        InputFlavor::Raw => buffer,
+        InputFlavor::JsonToMessagepack => {
+            let json: serde_json::Value = serde_json::from_slice(&buffer)
+                .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
+            rmp_serde::to_vec(&json)
+                .map_err(|e| anyhow!("Couldn't convert JSON to MessagePack: {}", e))?
+        }
+    };
 
     let profile_opts = opts.profile_opts();
-    let function_run_result = run(
-        opts.function,
-        buffer,
-        opts.export.as_ref(),
-        profile_opts.as_ref(),
-    )?;
+    let function_run_result = run(FunctionRunParams {
+        function_path: opts.function,
+        input: buffer,
+        export: opts.export.as_ref(),
+        profile_opts: profile_opts.as_ref(),
+        log_buffer_size: opts.log_buffer,
+    })?;
 
     if opts.json {
         println!("{}", function_run_result.to_json());
