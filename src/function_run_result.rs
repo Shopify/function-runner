@@ -2,6 +2,8 @@ use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+const FUNCTION_LOG_LIMIT: usize = 20_000;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct InvalidOutput {
     pub error: String,
@@ -86,6 +88,17 @@ impl fmt::Display for FunctionRunResult {
             "            Logs            ".black().on_bright_blue(),
             self.logs
         )?;
+
+        let logs_length = self.logs.len();
+        if logs_length > FUNCTION_LOG_LIMIT {
+            writeln!(
+                formatter,
+                "{}\n\n",
+                &format!(
+                    "Logs would be truncated in production, length {logs_length} > {FUNCTION_LOG_LIMIT} limit",
+                ).red()
+            )?;
+        }
 
         match &self.output {
             FunctionOutput::JsonOutput(json_output) => {

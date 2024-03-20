@@ -6,10 +6,7 @@ use std::{
 
 use anyhow::{anyhow, Result};
 use clap::{Parser, ValueEnum};
-use function_runner::{
-    engine::{run, FunctionRunParams, ProfileOpts},
-    logs::LogMaxSize,
-};
+use function_runner::engine::{run, FunctionRunParams, ProfileOpts};
 
 use is_terminal::IsTerminal;
 
@@ -63,10 +60,6 @@ struct Opts {
 
     #[clap(short = 'l', long, value_enum, default_value = "json")]
     input_flavor: InputFlavor,
-
-    /// Log buffer size. Specify either a number or "unbounded" to disable the limit.
-    #[clap(short = 'b', long, default_value = "1000")]
-    log_buffer: LogMaxSize,
 }
 
 impl Opts {
@@ -137,7 +130,6 @@ fn main() -> Result<()> {
         input: buffer,
         export: opts.export.as_ref(),
         profile_opts: profile_opts.as_ref(),
-        log_buffer_size: opts.log_buffer,
     })?;
 
     if opts.json {

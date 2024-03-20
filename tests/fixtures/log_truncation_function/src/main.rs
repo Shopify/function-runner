@@ -12,7 +12,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         output: "hello world".to_string(),
     };
     result.serialize(&mut serializer)?;
-    for _ in 0..2000 {
+    for _ in 0..6_667 {
         eprint!("☠");
     }
     Ok(())

@@ -9,7 +9,7 @@ use crate::{
         FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
         FunctionRunResult, InvalidOutput,
     },
-    logs::{LogMaxSize, LogStream},
+    logs::LogStream,
 };
 
 #[derive(Clone)]
@@ -57,7 +57,6 @@ pub struct FunctionRunParams<'a> {
     pub input: Vec<u8>,
     pub export: &'a str,
     pub profile_opts: Option<&'a ProfileOpts>,
-    pub log_buffer_size: LogMaxSize,
 }
 
 pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
@@ -66,7 +65,6 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         input,
         export,
         profile_opts,
-        log_buffer_size,
     } = params;
 
     let engine = Engine::new(
@@ -80,7 +78,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
-    let error_stream = wasi_common::pipe::WritePipe::new(LogStream::with_capacity(log_buffer_size));
+    let error_stream = wasi_common::pipe::WritePipe::new(LogStream::default());
 
     let memory_usage: u64;
     let instructions: u64;
@@ -153,8 +151,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         .try_into_inner()
         .expect("Log stream reference still exists");
 
-    logs.append(error_logs.as_bytes())
-        .expect("Couldn't append error logs");
+    logs.append(error_logs.as_bytes());
 
     let raw_output = output_stream
         .try_into_inner()
@@ -258,14 +255,18 @@ mod tests {
                 .to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
-            log_buffer_size: LogMaxSize::Bounded(10),
             ..Default::default()
         })
         .unwrap();
 
-        assert!(function_run_result
-            .logs
-            .contains(&"...[TRUNCATED]".red().to_string()));
+        assert!(
+            function_run_result.to_string().contains(
+                &"Logs would be truncated in production, length 20001 > 20000 limit"
+                    .red()
+                    .to_string()
+            ),
+            "Expected logs to be truncated, but were: {function_run_result}"
+        );
     }
 
     #[test]
