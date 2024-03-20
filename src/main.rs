@@ -14,7 +14,7 @@ const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
 
 /// Supported input flavors
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-enum InputFlavor {
+enum Codec {
     /// JSON input, must be valid JSON
     Json,
     /// Raw input, no validation, passed as-is
@@ -58,8 +58,8 @@ struct Opts {
     #[clap(long)]
     profile_frequency: Option<u32>,
 
-    #[clap(short = 'l', long, value_enum, default_value = "json")]
-    input_flavor: InputFlavor,
+    #[clap(short = 'c', long, value_enum, default_value = "json")]
+    codec: Codec,
 }
 
 impl Opts {
@@ -109,14 +109,14 @@ fn main() -> Result<()> {
     let mut buffer = Vec::new();
     input.read_to_end(&mut buffer)?;
 
-    let buffer = match opts.input_flavor {
-        InputFlavor::Json => {
+    let buffer = match opts.codec {
+        Codec::Json => {
             let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
                 .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
             buffer
         }
-        InputFlavor::Raw => buffer,
-        InputFlavor::JsonToMessagepack => {
+        Codec::Raw => buffer,
+        Codec::JsonToMessagepack => {
             let json: serde_json::Value = serde_json::from_slice(&buffer)
                 .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
             rmp_serde::to_vec(&json)
