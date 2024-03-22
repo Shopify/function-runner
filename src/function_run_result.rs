@@ -2,7 +2,7 @@ use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-const FUNCTION_LOG_LIMIT: usize = 20_000;
+const FUNCTION_LOG_LIMIT: usize = 1_000;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct InvalidOutput {

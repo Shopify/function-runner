@@ -261,7 +261,7 @@ mod tests {
 
         assert!(
             function_run_result.to_string().contains(
-                &"Logs would be truncated in production, length 20001 > 20000 limit"
+                &"Logs would be truncated in production, length 6000 > 1000 limit"
                     .red()
                     .to_string()
             ),
