@@ -51,12 +51,22 @@ fn import_modules(
     });
 }
 
-pub fn run(
-    function_path: PathBuf,
-    input: Vec<u8>,
-    export: &str,
-    profile_opts: Option<&ProfileOpts>,
-) -> Result<FunctionRunResult> {
+#[derive(Default)]
+pub struct FunctionRunParams<'a> {
+    pub function_path: PathBuf,
+    pub input: Vec<u8>,
+    pub export: &'a str,
+    pub profile_opts: Option<&'a ProfileOpts>,
+}
+
+pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
+    let FunctionRunParams {
+        function_path,
+        input,
+        export,
+        profile_opts,
+    } = params;
+
     let engine = Engine::new(
         Config::new()
             .wasm_multi_memory(true)
@@ -141,8 +151,7 @@ pub fn run(
         .try_into_inner()
         .expect("Log stream reference still exists");
 
-    logs.append(error_logs.as_bytes())
-        .expect("Couldn't append error logs");
+    logs.append(error_logs.as_bytes());
 
     let raw_output = output_stream
         .try_into_inner()
@@ -189,24 +198,24 @@ mod tests {
     #[test]
     fn test_js_function() {
         let input = include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec();
-        let function_run_result = run(
-            Path::new("tests/fixtures/build/js_function.wasm").to_path_buf(),
+        let function_run_result = run(FunctionRunParams {
+            function_path: Path::new("tests/fixtures/build/js_function.wasm").to_path_buf(),
             input,
-            DEFAULT_EXPORT,
-            None,
-        );
+            export: DEFAULT_EXPORT,
+            ..Default::default()
+        });
 
         assert!(function_run_result.is_ok());
     }
 
     #[test]
     fn test_exit_code_zero() {
-        let function_run_result = run(
-            Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
-            json!({ "code": 0 }).to_string().into(),
-            DEFAULT_EXPORT,
-            None,
-        )
+        let function_run_result = run(FunctionRunParams {
+            function_path: Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
+            input: json!({ "code": 0 }).to_string().into(),
+            export: DEFAULT_EXPORT,
+            ..Default::default()
+        })
         .unwrap();
 
         assert_eq!(function_run_result.logs, "");
@@ -214,12 +223,12 @@ mod tests {
 
     #[test]
     fn test_exit_code_one() {
-        let function_run_result = run(
-            Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
-            json!({ "code": 1 }).to_string().into(),
-            DEFAULT_EXPORT,
-            None,
-        )
+        let function_run_result = run(FunctionRunParams {
+            function_path: Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
+            input: json!({ "code": 1 }).to_string().into(),
+            export: DEFAULT_EXPORT,
+            ..Default::default()
+        })
         .unwrap();
 
         assert_eq!(function_run_result.logs, "module exited with code: 1");
@@ -227,12 +236,12 @@ mod tests {
 
     #[test]
     fn test_linear_memory_usage_in_kb() {
-        let function_run_result = run(
-            Path::new("tests/fixtures/build/linear_memory.wasm").to_path_buf(),
-            "{}".as_bytes().to_vec(),
-            DEFAULT_EXPORT,
-            None,
-        )
+        let function_run_result = run(FunctionRunParams {
+            function_path: Path::new("tests/fixtures/build/linear_memory.wasm").to_path_buf(),
+            input: "{}".as_bytes().to_vec(),
+            export: DEFAULT_EXPORT,
+            ..Default::default()
+        })
         .unwrap();
 
         assert_eq!(function_run_result.memory_usage, 12800); // 200 * 64KiB pages
@@ -241,29 +250,35 @@ mod tests {
     #[test]
     fn test_logs_truncation() {
         let input = "{}".as_bytes().to_vec();
-        let function_run_result = run(
-            Path::new("tests/fixtures/build/log_truncation_function.wasm").to_path_buf(),
+        let function_run_result = run(FunctionRunParams {
+            function_path: Path::new("tests/fixtures/build/log_truncation_function.wasm")
+                .to_path_buf(),
             input,
-            DEFAULT_EXPORT,
-            None,
-        )
+            export: DEFAULT_EXPORT,
+            ..Default::default()
+        })
         .unwrap();
 
-        assert!(function_run_result
-            .logs
-            .contains(&"...[TRUNCATED]".red().to_string()));
+        assert!(
+            function_run_result.to_string().contains(
+                &"Logs would be truncated in production, length 6000 > 1000 limit"
+                    .red()
+                    .to_string()
+            ),
+            "Expected logs to be truncated, but were: {function_run_result}"
+        );
     }
 
     #[test]
     fn test_file_size_in_kb() {
         let file_path = Path::new("tests/fixtures/build/exit_code.wasm");
 
-        let function_run_result = run(
-            file_path.to_path_buf(),
-            json!({ "code": 0 }).to_string().into(),
-            DEFAULT_EXPORT,
-            None,
-        )
+        let function_run_result = run(FunctionRunParams {
+            function_path: file_path.to_path_buf(),
+            input: json!({ "code": 0 }).to_string().into(),
+            export: DEFAULT_EXPORT,
+            ..Default::default()
+        })
         .unwrap();
 
         assert_eq!(
