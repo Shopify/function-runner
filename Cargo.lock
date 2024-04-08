@@ -2012,9 +2012,9 @@ dependencies = [
 
 [[package]]
 name = "wasmprof"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee266863bfc2d31af47116c4fee2037b252d04e60e637a5b54e7247c27476aa1"
+checksum = "81fdbc0b6b43480badb746034a1f310bc4d76cc17fce4ed43e2d48a73f09d042"
 dependencies = [
  "cpp_demangle 0.4.3",
  "libc",
