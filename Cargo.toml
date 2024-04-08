@@ -21,9 +21,9 @@ lto = true
 opt-level = 3
 
 [dependencies]
-wasmtime = "=16.0.0"
-wasmtime-wasi = "=16.0.0"
-wasi-common = "=16.0.0"
+wasmtime = "=17.0.0"
+wasmtime-wasi = "=17.0.0"
+wasi-common = "=17.0.0"
 deterministic-wasi-ctx = "=0.1.19"
 anyhow = "1.0"
 clap = { version = "4.5", features = ["derive"] }
@@ -33,7 +33,7 @@ serde = "1.0"
 rust-embed = "8.3.0"
 rmp-serde = "1.1"
 is-terminal = "0.4.12"
-wasmprof = { path = "../wasmprof" }
+wasmprof = "0.4.0" 
 
 [dev-dependencies]
 assert_cmd = "2.0"
