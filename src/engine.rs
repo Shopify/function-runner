@@ -89,7 +89,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     {
         let mut linker = Linker::new(&engine);
-        wasmtime_wasi::add_to_linker(&mut linker, |s| s)?;
+        wasi_common::sync::add_to_linker(&mut linker, |s| s)?;
         let wasi = deterministic_wasi_ctx::build_wasi_ctx();
         wasi.set_stdin(Box::new(input_stream));
         wasi.set_stdout(Box::new(output_stream.clone()));
