@@ -72,6 +72,8 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let engine = Engine::new(
         Config::new()
             .wasm_multi_memory(true)
+            .wasm_threads(false)
+            .wasm_reference_types(false)
             .consume_fuel(true)
             .epoch_interruption(true),
     )?;
