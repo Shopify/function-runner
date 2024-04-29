@@ -23,7 +23,7 @@ pub struct FunctionRunResult {
     pub memory_usage: u64,
     pub instructions: u64,
     pub logs: String,
-    pub output: FunctionOutput,
+    // pub output: FunctionOutput,
     #[serde(skip)]
     pub profile: Option<String>,
 }
@@ -35,7 +35,7 @@ impl FunctionRunResult {
         memory_usage: u64,
         instructions: u64,
         logs: String,
-        output: FunctionOutput,
+        // output: FunctionOutput,
         profile: Option<String>,
     ) -> Self {
         FunctionRunResult {
@@ -43,7 +43,7 @@ impl FunctionRunResult {
             size,
             memory_usage,
             instructions,
-            output,
+            // output,
             logs,
             profile,
         }
@@ -100,32 +100,32 @@ impl fmt::Display for FunctionRunResult {
             )?;
         }
 
-        match &self.output {
-            FunctionOutput::JsonOutput(json_output) => {
-                writeln!(
-                    formatter,
-                    "{}\n\n{}",
-                    "           Output           ".black().on_bright_green(),
-                    serde_json::to_string_pretty(&json_output)
-                        .unwrap_or_else(|error| error.to_string())
-                )?;
-            }
-            FunctionOutput::InvalidJsonOutput(invalid_output) => {
-                writeln!(
-                    formatter,
-                    "{}\n\n{}",
-                    "        Invalid Output      ".black().on_bright_red(),
-                    invalid_output.stdout
-                )?;
+        // match &self.output {
+        //     FunctionOutput::JsonOutput(json_output) => {
+        //         writeln!(
+        //             formatter,
+        //             "{}\n\n{}",
+        //             "           Output           ".black().on_bright_green(),
+        //             serde_json::to_string_pretty(&json_output)
+        //                 .unwrap_or_else(|error| error.to_string())
+        //         )?;
+        //     }
+        //     FunctionOutput::InvalidJsonOutput(invalid_output) => {
+        //         writeln!(
+        //             formatter,
+        //             "{}\n\n{}",
+        //             "        Invalid Output      ".black().on_bright_red(),
+        //             invalid_output.stdout
+        //         )?;
 
-                writeln!(
-                    formatter,
-                    "{}\n\n{}",
-                    "         JSON Error         ".black().on_bright_red(),
-                    invalid_output.error
-                )?;
-            }
-        }
+        //         writeln!(
+        //             formatter,
+        //             "{}\n\n{}",
+        //             "         JSON Error         ".black().on_bright_red(),
+        //             invalid_output.error
+        //         )?;
+        //     }
+        // }
 
         Ok(())
     }
@@ -145,9 +145,9 @@ mod tests {
             memory_usage: 1000,
             instructions: 1001,
             logs: "test".to_string(),
-            output: FunctionOutput::JsonOutput(serde_json::json!({
-                "test": "test"
-            })),
+            // output: FunctionOutput::JsonOutput(serde_json::json!({
+            //     "test": "test"
+            // })),
             profile: None,
         };
 
@@ -164,9 +164,9 @@ mod tests {
             memory_usage: 1000,
             instructions: 1000,
             logs: "test".to_string(),
-            output: FunctionOutput::JsonOutput(serde_json::json!({
-                "test": "test"
-            })),
+            // output: FunctionOutput::JsonOutput(serde_json::json!({
+            //     "test": "test"
+            // })),
             profile: None,
         };
 
@@ -183,9 +183,9 @@ mod tests {
             memory_usage: 1000,
             instructions: 999,
             logs: "test".to_string(),
-            output: FunctionOutput::JsonOutput(serde_json::json!({
-                "test": "test"
-            })),
+            // output: FunctionOutput::JsonOutput(serde_json::json!({
+            //     "test": "test"
+            // })),
             profile: None,
         };
 

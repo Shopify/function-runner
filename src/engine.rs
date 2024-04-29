@@ -156,21 +156,21 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     logs.append(error_logs.as_bytes());
 
-    let raw_output = output_stream
-        .try_into_inner()
-        .expect("Output stream reference still exists")
-        .into_inner();
+    // let raw_output = output_stream
+    //     .try_into_inner()
+    //     .expect("Output stream reference still exists")
+    //     .into_inner();
 
-    let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
-        Ok(json_output) => JsonOutput(json_output),
-        Err(error) => InvalidJsonOutput(InvalidOutput {
-            stdout: std::str::from_utf8(&raw_output)
-                .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
-                .unwrap()
-                .to_owned(),
-            error: error.to_string(),
-        }),
-    };
+    // let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
+    //     Ok(json_output) => JsonOutput(json_output),
+    //     Err(error) => InvalidJsonOutput(InvalidOutput {
+    //         stdout: std::str::from_utf8(&raw_output)
+    //             .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
+    //             .unwrap()
+    //             .to_owned(),
+    //         error: error.to_string(),
+    //     }),
+    // };
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len() / 1024;
@@ -181,7 +181,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         memory_usage,
         instructions,
         logs.to_string(),
-        output,
+        // output,
         profile_data,
     );
 
