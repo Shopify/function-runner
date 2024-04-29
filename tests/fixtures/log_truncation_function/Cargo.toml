@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 serde_json = "*"
-serde = { version = "1.0.197", features = ["derive"] }
+serde = { version = "1.0.199", features = ["derive"] }
