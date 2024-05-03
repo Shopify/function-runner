@@ -30,22 +30,18 @@ fn import_modules(
 ) {
     let imported_modules: HashSet<String> =
         module.imports().map(|i| i.module().to_string()).collect();
-    imported_modules.iter().for_each(|imported_module| {
-        let imported_module_bytes = StandardProviders::get(&format!("{imported_module}.wasm"));
+    imported_modules.iter().for_each(|module_name| {
+        let imported_module_bytes = StandardProviders::get(&format!("{module_name}.wasm"));
 
         if let Some(bytes) = imported_module_bytes {
             let imported_module = Module::from_binary(engine, &bytes.data)
-                .unwrap_or_else(|_| panic!("Failed to load module {imported_module}"));
+                .unwrap_or_else(|_| panic!("Failed to load module {module_name}"));
 
             let imported_module_instance = linker
                 .instantiate(&mut store, &imported_module)
                 .expect("Failed to instantiate imported instance");
             linker
-                .instance(
-                    &mut store,
-                    "javy_quickjs_provider_v1",
-                    imported_module_instance,
-                )
+                .instance(&mut store, module_name, imported_module_instance)
                 .expect("Failed to import module");
         }
     });
