@@ -23,7 +23,7 @@ opt-level = 3
 [dependencies]
 wasmtime = "=19.0.2"
 wasmtime-wasi = "=19.0.0"
-wasi-common = "=19.0.0"
+wasi-common = "=20.0.1"
 deterministic-wasi-ctx = "=0.1.20"
 anyhow = "1.0"
 clap = { version = "4.5", features = ["derive"] }
