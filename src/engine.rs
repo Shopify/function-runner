@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use rust_embed::RustEmbed;
 use std::{collections::HashSet, io::Cursor, path::PathBuf};
 use wasi_common::{I32Exit, WasiCtx};
-use wasmtime::{AsContext, AsContextMut, Config, Engine, Linker, Module, Store};
+use wasmtime::{AsContextMut, Config, Engine, Linker, Module, ResourceLimiter, Store};
 
 use crate::{
     function_run_result::{
@@ -22,11 +22,11 @@ pub struct ProfileOpts {
 #[folder = "providers/"]
 struct StandardProviders;
 
-fn import_modules(
+fn import_modules<T>(
     module: &Module,
     engine: &Engine,
-    linker: &mut Linker<WasiCtx>,
-    mut store: &mut Store<WasiCtx>,
+    linker: &mut Linker<T>,
+    mut store: &mut Store<T>,
 ) {
     let imported_modules: HashSet<String> =
         module.imports().map(|i| i.module().to_string()).collect();
@@ -56,6 +56,57 @@ pub struct FunctionRunParams<'a> {
 }
 
 const STARTING_FUEL: u64 = u64::MAX;
+const MAXIMUM_MEMORIES: usize = 2; // 1 for the module, 1 for Javy's provider
+
+struct FunctionContext {
+    wasi: WasiCtx,
+    limiter: MemoryLimiter,
+}
+
+impl FunctionContext {
+    fn new(wasi: WasiCtx) -> Self {
+        Self {
+            wasi,
+            limiter: Default::default(),
+        }
+    }
+
+    fn max_memory_bytes(&self) -> usize {
+        self.limiter.max_memory_bytes
+    }
+}
+
+#[derive(Default)]
+pub struct MemoryLimiter {
+    max_memory_bytes: usize,
+}
+
+impl ResourceLimiter for MemoryLimiter {
+    /// See [`wasmtime::ResourceLimiter::memory_growing`].
+    fn memory_growing(
+        &mut self,
+        _current: usize,
+        desired: usize,
+        _maximum: Option<usize>,
+    ) -> anyhow::Result<bool> {
+        self.max_memory_bytes = std::cmp::max(self.max_memory_bytes, desired);
+        Ok(true)
+    }
+
+    /// See [`wasmtime::ResourceLimiter::table_growing`].
+    fn table_growing(
+        &mut self,
+        _current: u32,
+        _desired: u32,
+        _maximum: Option<u32>,
+    ) -> anyhow::Result<bool> {
+        Ok(true)
+    }
+
+    fn memories(&self) -> usize {
+        MAXIMUM_MEMORIES
+    }
+}
 
 pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let FunctionRunParams {
@@ -87,12 +138,14 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     {
         let mut linker = Linker::new(&engine);
-        wasi_common::sync::add_to_linker(&mut linker, |s| s)?;
+        wasi_common::sync::add_to_linker(&mut linker, |ctx: &mut FunctionContext| &mut ctx.wasi)?;
         let wasi = deterministic_wasi_ctx::build_wasi_ctx();
         wasi.set_stdin(Box::new(input_stream));
         wasi.set_stdout(Box::new(output_stream.clone()));
         wasi.set_stderr(Box::new(error_stream.clone()));
-        let mut store = Store::new(&engine, wasi);
+        let function_context = FunctionContext::new(wasi);
+        let mut store = Store::new(&engine, function_context);
+        store.limiter(|s| &mut s.limiter);
         store.set_fuel(STARTING_FUEL)?;
         store.set_epoch_deadline(1);
 
@@ -128,14 +181,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
                 None => Err(error),
             });
 
-        memory_usage = instance
-            .exports(store.as_context_mut())
-            .filter_map(|memory| memory.into_memory())
-            .collect::<Vec<wasmtime::Memory>>() // Necessary to drop the mutable borrow of store
-            .iter()
-            .map(|memory| memory.data_size(store.as_context()) as u64)
-            .sum::<u64>()
-            / 1024;
+        memory_usage = store.data().max_memory_bytes() as u64 / 1024;
         instructions = STARTING_FUEL.saturating_sub(store.get_fuel().unwrap_or_default());
 
         match module_result {
@@ -205,6 +251,7 @@ mod tests {
         });
 
         assert!(function_run_result.is_ok());
+        assert_eq!(function_run_result.unwrap().memory_usage, 1280);
     }
 
     #[test]
