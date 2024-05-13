@@ -873,7 +873,7 @@ dependencies = [
  "serde_json",
  "wasi-common",
  "wasmprof",
- "wasmtime 19.0.2",
+ "wasmtime 20.0.2",
  "wasmtime-wasi",
 ]
 
@@ -2265,13 +2265,13 @@ dependencies = [
  "target-lexicon",
  "wasm-encoder 0.201.0",
  "wasmparser 0.201.0",
- "wasmtime-cache",
+ "wasmtime-cache 19.0.2",
  "wasmtime-component-macro 19.0.2",
  "wasmtime-component-util 19.0.2",
  "wasmtime-cranelift 19.0.2",
  "wasmtime-environ 19.0.2",
  "wasmtime-fiber 19.0.2",
- "wasmtime-jit-debug",
+ "wasmtime-jit-debug 19.0.2",
  "wasmtime-jit-icache-coherence 19.0.2",
  "wasmtime-runtime 19.0.2",
  "wasmtime-slab 19.0.2",
@@ -2286,35 +2286,43 @@ version = "20.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4af5cb32045daee8476711eb12b8b71275c2dd1fc7a58cc2a11b33ce9205f6a2"
 dependencies = [
+ "addr2line",
  "anyhow",
  "async-trait",
  "bincode",
  "bumpalo",
  "cfg-if",
  "encoding_rs",
+ "fxprof-processed-profile",
  "gimli",
  "indexmap",
+ "ittapi",
  "libc",
  "log",
  "object 0.33.0",
  "once_cell",
  "paste",
+ "rayon",
  "rustix",
  "semver",
  "serde",
  "serde_derive",
  "serde_json",
  "target-lexicon",
+ "wasm-encoder 0.202.0",
  "wasmparser 0.202.0",
+ "wasmtime-cache 20.0.2",
  "wasmtime-component-macro 20.0.2",
  "wasmtime-component-util 20.0.2",
  "wasmtime-cranelift 20.0.2",
  "wasmtime-environ 20.0.2",
  "wasmtime-fiber 20.0.2",
+ "wasmtime-jit-debug 20.0.2",
  "wasmtime-jit-icache-coherence 20.0.2",
  "wasmtime-runtime 20.0.2",
  "wasmtime-slab 20.0.2",
  "wasmtime-winch 20.0.2",
+ "wat",
  "windows-sys 0.52.0",
 ]
 
@@ -2341,6 +2349,26 @@ name = "wasmtime-cache"
 version = "19.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4e660537b0ac2fc76917fb0cc9d403d2448b6983a84e59c51f7fea7b7dae024"
+dependencies = [
+ "anyhow",
+ "base64",
+ "bincode",
+ "directories-next",
+ "log",
+ "rustix",
+ "serde",
+ "serde_derive",
+ "sha2",
+ "toml",
+ "windows-sys 0.52.0",
+ "zstd",
+]
+
+[[package]]
+name = "wasmtime-cache"
+version = "20.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3aa2de7189ea6b3270727d0027790494aec5e7101ca50da3f9549a86628cae4"
 dependencies = [
  "anyhow",
  "base64",
@@ -2497,11 +2525,13 @@ checksum = "ad72e2e3f7ea5b50fedf66dd36ba24634e4f445c370644683b433d45d88f6126"
 dependencies = [
  "anyhow",
  "bincode",
+ "cpp_demangle",
  "cranelift-entity 0.107.2",
  "gimli",
  "indexmap",
  "log",
  "object 0.33.0",
+ "rustc-demangle",
  "serde",
  "serde_derive",
  "target-lexicon",
@@ -2556,6 +2586,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasmtime-jit-debug"
+version = "20.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "983ca409f2cd66385ce49486c022da0128acb7910c055beb5230998b49c6084c"
+dependencies = [
+ "object 0.33.0",
+ "once_cell",
+ "rustix",
+ "wasmtime-versioned-export-macros 20.0.2",
+]
+
+[[package]]
 name = "wasmtime-jit-icache-coherence"
 version = "19.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2601,7 +2643,7 @@ dependencies = [
  "wasmtime-asm-macros 19.0.2",
  "wasmtime-environ 19.0.2",
  "wasmtime-fiber 19.0.2",
- "wasmtime-jit-debug",
+ "wasmtime-jit-debug 19.0.2",
  "wasmtime-versioned-export-macros 19.0.2",
  "wasmtime-wmemcheck",
  "windows-sys 0.52.0",
@@ -2627,9 +2669,11 @@ dependencies = [
  "psm",
  "rustix",
  "sptr",
+ "wasm-encoder 0.202.0",
  "wasmtime-asm-macros 20.0.2",
  "wasmtime-environ 20.0.2",
  "wasmtime-fiber 20.0.2",
+ "wasmtime-jit-debug 20.0.2",
  "wasmtime-slab 20.0.2",
  "wasmtime-versioned-export-macros 20.0.2",
  "windows-sys 0.52.0",
