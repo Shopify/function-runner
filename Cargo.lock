@@ -686,16 +686,16 @@ dependencies = [
 
 [[package]]
 name = "deterministic-wasi-ctx"
-version = "0.1.20"
+version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32f8b1a4cacfbcee182ef2eb78636455f47980ed2ae1a2cc7b2447ebef177f6b"
+checksum = "6027402b495456b78f7598e1716be95f2cac00ff4e27ee308bf2015a0f23445c"
 dependencies = [
  "anyhow",
  "async-trait",
  "cap-primitives",
  "rand_core",
  "rand_pcg",
- "wasi-common",
+ "wasi-common 20.0.2",
 ]
 
 [[package]]
@@ -871,7 +871,7 @@ dependencies = [
  "rust-embed",
  "serde",
  "serde_json",
- "wasi-common",
+ "wasi-common 19.0.0",
  "wasmprof",
  "wasmtime 19.0.2",
  "wasmtime-wasi",
@@ -2103,6 +2103,32 @@ dependencies = [
  "tracing",
  "wasmtime 19.0.2",
  "wiggle 19.0.0",
+ "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "wasi-common"
+version = "20.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a50088539152d419200c1558482c23b7033b9c5e0c751e97d4338050669ff9f1"
+dependencies = [
+ "anyhow",
+ "bitflags 2.5.0",
+ "cap-fs-ext",
+ "cap-rand",
+ "cap-std",
+ "cap-time-ext",
+ "fs-set-times",
+ "io-extras",
+ "io-lifetimes",
+ "log",
+ "once_cell",
+ "rustix",
+ "system-interface",
+ "thiserror",
+ "tracing",
+ "wasmtime 20.0.2",
+ "wiggle 20.0.2",
  "windows-sys 0.52.0",
 ]
 
