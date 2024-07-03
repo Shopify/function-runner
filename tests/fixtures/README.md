@@ -1,4 +1,4 @@
-# Fiture Functions
+# Fixture Functions
 
 Example Functions used as test fixtures.
 
