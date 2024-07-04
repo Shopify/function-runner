@@ -149,15 +149,19 @@ mod tests {
 
     #[test]
     fn test_js_output() {
+        let input_json = serde_json::json!({
+            "input_test": "input_value"
+        });
+        let input_vec = serde_json::to_vec(&input_json).unwrap();
+        let mock_input_string = String::from_utf8(input_vec).unwrap();
+
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
             size: 100,
             memory_usage: 1000,
             instructions: 1001,
             logs: "test".to_string(),
-            input: serde_json::json!({
-                "input_test": "input_value"
-            }),
+            input: mock_input_string.clone(),
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
@@ -165,22 +169,27 @@ mod tests {
         };
 
         let predicate = predicates::str::contains("Instructions: 1.001K")
-            .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains("\"input_test\": \"input_value\""));
+            .and(predicates::str::contains(mock_input_string))
+            .and(predicates::str::contains("Linear Memory Usage: 1000KB"));
+
         assert!(predicate.eval(&function_run_result.to_string()));
     }
 
     #[test]
     fn test_js_output_1000() {
+        let input_json = serde_json::json!({
+            "input_test": "input_value"
+        });
+        let input_vec = serde_json::to_vec(&input_json).unwrap();
+        let mock_input_string = String::from_utf8(input_vec).unwrap();
+
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
             size: 100,
             memory_usage: 1000,
             instructions: 1000,
             logs: "test".to_string(),
-            input: serde_json::json!({
-                "input_test": "input_value"
-            }),
+            input: mock_input_string.clone(),
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
@@ -189,21 +198,25 @@ mod tests {
 
         let predicate = predicates::str::contains("Instructions: 1")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains("\"input_test\": \"input_value\""));
+            .and(predicates::str::contains(mock_input_string));
         assert!(predicate.eval(&function_run_result.to_string()));
     }
 
     #[test]
     fn test_instructions_less_than_1000() {
+        let input_json = serde_json::json!({
+            "input_test": "input_value"
+        });
+        let input_vec = serde_json::to_vec(&input_json).unwrap();
+        let mock_input_string = String::from_utf8(input_vec).unwrap();
+
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
             size: 100,
             memory_usage: 1000,
             instructions: 999,
             logs: "test".to_string(),
-            input: serde_json::json!({
-                "input_test": "input_value"
-            }),
+            input: mock_input_string.clone(),
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
@@ -212,7 +225,7 @@ mod tests {
 
         let predicate = predicates::str::contains("Instructions: 999")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains("\"input_test\": \"input_value\""));
+            .and(predicates::str::contains(mock_input_string));
         assert!(predicate.eval(&function_run_result.to_string()));
     }
 }
