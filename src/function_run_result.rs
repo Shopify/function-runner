@@ -30,28 +30,6 @@ pub struct FunctionRunResult {
 }
 
 impl FunctionRunResult {
-    pub fn new(
-        name: String,
-        size: u64,
-        memory_usage: u64,
-        instructions: u64,
-        logs: String,
-        input: String,
-        output: FunctionOutput,
-        profile: Option<String>,
-    ) -> Self {
-        FunctionRunResult {
-            name,
-            size,
-            memory_usage,
-            instructions,
-            logs,
-            input,
-            output,
-            profile,
-        }
-    }
-
     pub fn to_json(&self) -> String {
         serde_json::to_string_pretty(&self).unwrap_or_else(|error| error.to_string())
     }
