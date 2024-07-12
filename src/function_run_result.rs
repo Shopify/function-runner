@@ -53,16 +53,6 @@ fn humanize_instructions(instructions: u64) -> String {
 
 impl fmt::Display for FunctionRunResult {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        let title = "      Benchmark Results      "
-            .black()
-            .on_truecolor(150, 191, 72);
-
-        write!(formatter, "{title}\n\n")?;
-        writeln!(formatter, "Name: {}", self.name)?;
-        writeln!(formatter, "Linear Memory Usage: {}KB", self.memory_usage)?;
-        writeln!(formatter, "{}", humanize_instructions(self.instructions))?;
-        writeln!(formatter, "Size: {}KB\n", self.size)?;
-
         writeln!(
             formatter,
             "{}\n\n{}",
@@ -115,6 +105,16 @@ impl fmt::Display for FunctionRunResult {
             }
         }
 
+        let title = "     Benchmark Results      "
+            .black()
+            .on_truecolor(150, 191, 72);
+
+        write!(formatter, "\n\n{title}\n\n")?;
+        writeln!(formatter, "Name: {}", self.name)?;
+        writeln!(formatter, "Linear Memory Usage: {}KB", self.memory_usage)?;
+        writeln!(formatter, "{}", humanize_instructions(self.instructions))?;
+        writeln!(formatter, "Size: {}KB\n", self.size)?;
+
         Ok(())
     }
 }
@@ -127,11 +127,7 @@ mod tests {
 
     #[test]
     fn test_js_output() {
-        let input_json = serde_json::json!({
-            "input_test": "input_value"
-        });
-        let input_vec = serde_json::to_vec(&input_json).unwrap();
-        let mock_input_string = String::from_utf8(input_vec).unwrap();
+        let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -155,11 +151,7 @@ mod tests {
 
     #[test]
     fn test_js_output_1000() {
-        let input_json = serde_json::json!({
-            "input_test": "input_value"
-        });
-        let input_vec = serde_json::to_vec(&input_json).unwrap();
-        let mock_input_string = String::from_utf8(input_vec).unwrap();
+        let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -182,11 +174,7 @@ mod tests {
 
     #[test]
     fn test_instructions_less_than_1000() {
-        let input_json = serde_json::json!({
-            "input_test": "input_value"
-        });
-        let input_vec = serde_json::to_vec(&input_json).unwrap();
-        let mock_input_string = String::from_utf8(input_vec).unwrap();
+        let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
