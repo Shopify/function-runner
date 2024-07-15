@@ -23,32 +23,13 @@ pub struct FunctionRunResult {
     pub memory_usage: u64,
     pub instructions: u64,
     pub logs: String,
+    pub input: String,
     pub output: FunctionOutput,
     #[serde(skip)]
     pub profile: Option<String>,
 }
 
 impl FunctionRunResult {
-    pub fn new(
-        name: String,
-        size: u64,
-        memory_usage: u64,
-        instructions: u64,
-        logs: String,
-        output: FunctionOutput,
-        profile: Option<String>,
-    ) -> Self {
-        FunctionRunResult {
-            name,
-            size,
-            memory_usage,
-            instructions,
-            output,
-            logs,
-            profile,
-        }
-    }
-
     pub fn to_json(&self) -> String {
         serde_json::to_string_pretty(&self).unwrap_or_else(|error| error.to_string())
     }
@@ -72,15 +53,12 @@ fn humanize_instructions(instructions: u64) -> String {
 
 impl fmt::Display for FunctionRunResult {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        let title = "      Benchmark Results      "
-            .black()
-            .on_truecolor(150, 191, 72);
-
-        write!(formatter, "{title}\n\n")?;
-        writeln!(formatter, "Name: {}", self.name)?;
-        writeln!(formatter, "Linear Memory Usage: {}KB", self.memory_usage)?;
-        writeln!(formatter, "{}", humanize_instructions(self.instructions))?;
-        writeln!(formatter, "Size: {}KB\n", self.size)?;
+        writeln!(
+            formatter,
+            "{}\n\n{}",
+            "            Input            ".black().on_bright_yellow(),
+            self.input
+        )?;
 
         writeln!(
             formatter,
@@ -127,6 +105,16 @@ impl fmt::Display for FunctionRunResult {
             }
         }
 
+        let title = "     Benchmark Results      "
+            .black()
+            .on_truecolor(150, 191, 72);
+
+        write!(formatter, "\n\n{title}\n\n")?;
+        writeln!(formatter, "Name: {}", self.name)?;
+        writeln!(formatter, "Linear Memory Usage: {}KB", self.memory_usage)?;
+        writeln!(formatter, "{}", humanize_instructions(self.instructions))?;
+        writeln!(formatter, "Size: {}KB\n", self.size)?;
+
         Ok(())
     }
 }
@@ -139,12 +127,15 @@ mod tests {
 
     #[test]
     fn test_js_output() {
+        let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
+
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
             size: 100,
             memory_usage: 1000,
             instructions: 1001,
             logs: "test".to_string(),
+            input: mock_input_string.clone(),
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
@@ -152,18 +143,23 @@ mod tests {
         };
 
         let predicate = predicates::str::contains("Instructions: 1.001K")
+            .and(predicates::str::contains(mock_input_string))
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"));
+
         assert!(predicate.eval(&function_run_result.to_string()));
     }
 
     #[test]
     fn test_js_output_1000() {
+        let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
+
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
             size: 100,
             memory_usage: 1000,
             instructions: 1000,
             logs: "test".to_string(),
+            input: mock_input_string.clone(),
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
@@ -171,18 +167,22 @@ mod tests {
         };
 
         let predicate = predicates::str::contains("Instructions: 1")
-            .and(predicates::str::contains("Linear Memory Usage: 1000KB"));
+            .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
+            .and(predicates::str::contains(mock_input_string));
         assert!(predicate.eval(&function_run_result.to_string()));
     }
 
     #[test]
     fn test_instructions_less_than_1000() {
+        let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
+
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
             size: 100,
             memory_usage: 1000,
             instructions: 999,
             logs: "test".to_string(),
+            input: mock_input_string.clone(),
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
@@ -190,7 +190,8 @@ mod tests {
         };
 
         let predicate = predicates::str::contains("Instructions: 999")
-            .and(predicates::str::contains("Linear Memory Usage: 1000KB"));
+            .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
+            .and(predicates::str::contains(mock_input_string));
         assert!(predicate.eval(&function_run_result.to_string()));
     }
 }

@@ -127,7 +127,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
+    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input.clone()));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
     let error_stream = wasi_common::pipe::WritePipe::new(LogStream::default());
 
@@ -217,15 +217,19 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len() / 1024;
 
-    let function_run_result = FunctionRunResult::new(
-        name.to_string(),
+    let parsed_input =
+        String::from_utf8(input).map_err(|e| anyhow!("Couldn't parse input: {}", e))?;
+
+    let function_run_result = FunctionRunResult {
+        name: name.to_string(),
         size,
         memory_usage,
         instructions,
-        logs.to_string(),
+        logs: logs.to_string(),
+        input: parsed_input,
         output,
-        profile_data,
-    );
+        profile: profile_data,
+    };
 
     Ok(function_run_result)
 }
