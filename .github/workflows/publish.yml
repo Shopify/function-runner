@@ -69,13 +69,6 @@ jobs:
       - name: Install target
         run: rustup target add ${{ matrix.target }}
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: default
-          toolchain: stable
-          default: true
-
       - name: Build ${{ matrix.target }}
         run: cargo build --release --target ${{ matrix.target }} --package function-runner
 
