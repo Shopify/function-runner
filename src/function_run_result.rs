@@ -11,9 +11,16 @@ pub struct InvalidOutput {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(untagged)]
 pub enum FunctionOutput {
     JsonOutput(serde_json::Value),
     InvalidJsonOutput(InvalidOutput),
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum FunctionInput {
+    JsonInput(serde_json::Value)
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -23,7 +30,7 @@ pub struct FunctionRunResult {
     pub memory_usage: u64,
     pub instructions: u64,
     pub logs: String,
-    pub input: String,
+    pub input: FunctionInput,
     pub output: FunctionOutput,
     #[serde(skip)]
     pub profile: Option<String>,
@@ -53,11 +60,13 @@ fn humanize_instructions(instructions: u64) -> String {
 
 impl fmt::Display for FunctionRunResult {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        
         writeln!(
             formatter,
             "{}\n\n{}",
             "            Input            ".black().on_bright_yellow(),
-            self.input
+            serde_json::to_string_pretty(&self.input)
+                .unwrap_or_else(|error| error.to_string())
         )?;
 
         writeln!(
@@ -122,12 +131,14 @@ impl fmt::Display for FunctionRunResult {
 #[cfg(test)]
 mod tests {
     use predicates::prelude::*;
+    use anyhow::Result;
 
     use super::*;
 
     #[test]
-    fn test_js_output() {
+    fn test_js_output() -> Result<()> {
         let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
+        let mock_function_input = FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -135,7 +146,7 @@ mod tests {
             memory_usage: 1000,
             instructions: 1001,
             logs: "test".to_string(),
-            input: mock_input_string.clone(),
+            input: mock_function_input,
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
@@ -147,11 +158,13 @@ mod tests {
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"));
 
         assert!(predicate.eval(&function_run_result.to_string()));
+        Ok(())
     }
 
     #[test]
-    fn test_js_output_1000() {
+    fn test_js_output_1000() -> Result<()> {
         let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
+        let mock_function_input = FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -159,7 +172,7 @@ mod tests {
             memory_usage: 1000,
             instructions: 1000,
             logs: "test".to_string(),
-            input: mock_input_string.clone(),
+            input: mock_function_input,
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
@@ -170,11 +183,13 @@ mod tests {
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
             .and(predicates::str::contains(mock_input_string));
         assert!(predicate.eval(&function_run_result.to_string()));
+        Ok(())
     }
 
     #[test]
-    fn test_instructions_less_than_1000() {
+    fn test_instructions_less_than_1000() -> Result<()> {
         let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
+        let mock_function_input = FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -182,7 +197,7 @@ mod tests {
             memory_usage: 1000,
             instructions: 999,
             logs: "test".to_string(),
-            input: mock_input_string.clone(),
+            input: mock_function_input,
             output: FunctionOutput::JsonOutput(serde_json::json!({
                 "test": "test"
             })),
@@ -193,5 +208,6 @@ mod tests {
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
             .and(predicates::str::contains(mock_input_string));
         assert!(predicate.eval(&function_run_result.to_string()));
+        Ok(())
     }
 }
