@@ -20,7 +20,7 @@ pub enum FunctionOutput {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum FunctionInput {
-    JsonInput(serde_json::Value)
+    JsonInput(serde_json::Value),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -60,13 +60,11 @@ fn humanize_instructions(instructions: u64) -> String {
 
 impl fmt::Display for FunctionRunResult {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        
         writeln!(
             formatter,
             "{}\n\n{}",
             "            Input            ".black().on_bright_yellow(),
-            serde_json::to_string_pretty(&self.input)
-                .unwrap_or_else(|error| error.to_string())
+            serde_json::to_string_pretty(&self.input).unwrap_or_else(|error| error.to_string())
         )?;
 
         writeln!(
@@ -130,15 +128,16 @@ impl fmt::Display for FunctionRunResult {
 
 #[cfg(test)]
 mod tests {
-    use predicates::prelude::*;
     use anyhow::Result;
+    use predicates::prelude::*;
 
     use super::*;
 
     #[test]
     fn test_js_output() -> Result<()> {
         let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
-        let mock_function_input = FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
+        let mock_function_input =
+            FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
         let expected_input_display = serde_json::to_string_pretty(&mock_function_input)?;
 
         let function_run_result = FunctionRunResult {
@@ -165,7 +164,8 @@ mod tests {
     #[test]
     fn test_js_output_1000() -> Result<()> {
         let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
-        let mock_function_input = FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
+        let mock_function_input =
+            FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
         let expected_input_display = serde_json::to_string_pretty(&mock_function_input)?;
 
         let function_run_result = FunctionRunResult {
@@ -191,7 +191,8 @@ mod tests {
     #[test]
     fn test_instructions_less_than_1000() -> Result<()> {
         let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
-        let mock_function_input = FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
+        let mock_function_input =
+            FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
         let expected_input_display = serde_json::to_string_pretty(&mock_function_input)?;
 
         let function_run_result = FunctionRunResult {

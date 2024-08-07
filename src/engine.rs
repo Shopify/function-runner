@@ -6,7 +6,9 @@ use wasmtime::{AsContextMut, Config, Engine, Linker, Module, ResourceLimiter, St
 
 use crate::{
     function_run_result::{
-        FunctionInput::{self, JsonInput}, FunctionOutput::{self, InvalidJsonOutput, JsonOutput}, FunctionRunResult, InvalidOutput
+        FunctionInput::{self, JsonInput},
+        FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
+        FunctionRunResult, InvalidOutput,
     },
     logs::LogStream,
 };
