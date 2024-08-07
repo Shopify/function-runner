@@ -139,6 +139,7 @@ mod tests {
     fn test_js_output() -> Result<()> {
         let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
         let mock_function_input = FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
+        let expected_input_display = serde_json::to_string_pretty(&mock_function_input)?;
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -154,8 +155,8 @@ mod tests {
         };
 
         let predicate = predicates::str::contains("Instructions: 1.001K")
-            .and(predicates::str::contains(mock_input_string))
-            .and(predicates::str::contains("Linear Memory Usage: 1000KB"));
+            .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
+            .and(predicates::str::contains(expected_input_display));
 
         assert!(predicate.eval(&function_run_result.to_string()));
         Ok(())
@@ -165,6 +166,7 @@ mod tests {
     fn test_js_output_1000() -> Result<()> {
         let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
         let mock_function_input = FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
+        let expected_input_display = serde_json::to_string_pretty(&mock_function_input)?;
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -181,7 +183,7 @@ mod tests {
 
         let predicate = predicates::str::contains("Instructions: 1")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains(mock_input_string));
+            .and(predicates::str::contains(expected_input_display));
         assert!(predicate.eval(&function_run_result.to_string()));
         Ok(())
     }
@@ -190,6 +192,7 @@ mod tests {
     fn test_instructions_less_than_1000() -> Result<()> {
         let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
         let mock_function_input = FunctionInput::JsonInput(serde_json::from_str(&mock_input_string)?);
+        let expected_input_display = serde_json::to_string_pretty(&mock_function_input)?;
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -206,7 +209,7 @@ mod tests {
 
         let predicate = predicates::str::contains("Instructions: 999")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains(mock_input_string));
+            .and(predicates::str::contains(expected_input_display));
         assert!(predicate.eval(&function_run_result.to_string()));
         Ok(())
     }
