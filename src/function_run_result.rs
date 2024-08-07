@@ -58,7 +58,8 @@ impl fmt::Display for FunctionRunResult {
             formatter,
             "{}\n\n{}",
             "            Input            ".black().on_bright_yellow(),
-            serde_json::to_string_pretty(&self.input).unwrap_or_else(|error| error.to_string())
+            serde_json::to_string_pretty(&self.input)
+                .expect("Input should be serializable to a string")
         )?;
 
         writeln!(
@@ -86,7 +87,7 @@ impl fmt::Display for FunctionRunResult {
                     "{}\n\n{}",
                     "           Output           ".black().on_bright_green(),
                     serde_json::to_string_pretty(&json_output)
-                        .unwrap_or_else(|error| error.to_string())
+                        .expect("Output should be serializable to a string")
                 )?;
             }
             FunctionOutput::InvalidJsonOutput(invalid_output) => {
