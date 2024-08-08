@@ -220,13 +220,15 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let parsed_input =
         String::from_utf8(input).map_err(|e| anyhow!("Couldn't parse input: {}", e))?;
 
+    let function_run_input = serde_json::from_str(&parsed_input)?;
+
     let function_run_result = FunctionRunResult {
         name: name.to_string(),
         size,
         memory_usage,
         instructions,
         logs: logs.to_string(),
-        input: parsed_input,
+        input: function_run_input,
         output,
         profile: profile_data,
     };
