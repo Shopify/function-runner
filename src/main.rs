@@ -97,17 +97,31 @@ impl Opts {
 
         path
     }
-    // ?? TODO: look into CLI generate schema and what that does
-    // will they take in file path or string directly
+    // Read from path - CLI will generate schema through generate schema command
     fn load_schema(&self) -> Result<String> {
         std::fs::read_to_string(&self.schema_path)
             .map_err(|e| anyhow!("Failed to load schema: {}", e))
     }
 
-    // ?? TODO: we pass the query directly or do we read from file
+    // Read from path - partner written
     fn load_query(&self) -> Result<String> {
         std::fs::read_to_string(&self.schema_path)
             .map_err(|e| anyhow!("Failed to load query path: {}", e))
+    }
+
+    // ChatGPT Rust help - when input can be null, might be same for above.
+    fn load_input(&self) -> Result<String> {
+        match &self.input {
+            Some(input_path) => {
+                // Here input_path is a &PathBuf, which does implement AsRef<Path>
+                std::fs::read_to_string(input_path)
+                    .map_err(|e| anyhow!("Failed to load input: {}", e))
+            }
+            None => {
+                // Handle the case where no input path is provided
+                Err(anyhow!("No input file specified"))
+            }
+        }
     }
 }
 
@@ -121,11 +135,11 @@ const INPUT_SIZE_BYTES_LIMIT: u64 = 64_000;
 const OUT_SIZE_BYTES_LIMIT: u64 = 20_000;
 const INSTRUCTION_COUNT_LIMIT: u64 = 11_000_000;
 
-fn analyze_query(schema: &str, query: &str) -> Result<ScaleLimits> {
-    compute_scale_limits(&schema, &query)
+fn analyze_query(schema: &str, query: &str, input: &str) -> Result<ScaleLimits> {
+    compute_scale_limits(&schema, &query, &input)
 }
 
-fn compute_scale_limits(schema: &str, query: &str) -> Result<ScaleLimits> {
+fn compute_scale_limits(schema: &str, query: &str, input: &str) -> Result<ScaleLimits> {
     let limits = ScaleLimits {
         input_size_bytes: INPUT_SIZE_BYTES_LIMIT,
         output_size_bytes: OUT_SIZE_BYTES_LIMIT,
@@ -135,14 +149,21 @@ fn compute_scale_limits(schema: &str, query: &str) -> Result<ScaleLimits> {
     eprintln!("🔵bluejay analyzer");
     eprintln!("{:?}", schema);
     eprint!("{:?}", query);
+    eprintln!("{:?}", input);
 
     Ok(limits)
 }
 
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
+    let schema = opts.load_schema();
+    let query = opts.load_query();
+    let input = opts.load_input();
 
-    eprintln!("Opts {:?}", opts);
+    eprintln!("Opts ---- {:?} \n\n ", opts);
+    eprintln!("schema --- {:?} \n\n ", schema);
+    eprintln!("query ---- {:?} \n\n ", query);
+    eprintln!("input --- {:?} \n\n ", input);
 
     let mut input: Box<dyn Read + Sync + Send + 'static> = if let Some(ref input) = opts.input {
         Box::new(BufReader::new(File::open(input).map_err(|e| {
