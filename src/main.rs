@@ -60,6 +60,14 @@ struct Opts {
 
     #[clap(short = 'c', long, value_enum, default_value = "json")]
     codec: Codec,
+
+    // Needed to determine scale_factor
+    #[clap(short = 's', long, default_value = "schema.graphql")]
+    schema_path: PathBuf,
+
+    // Needed to determine scale_factor
+    #[clap(short = 'q', long, default_value = "src/run.graphql")]
+    query_path: PathBuf,
 }
 
 impl Opts {
@@ -89,10 +97,52 @@ impl Opts {
 
         path
     }
+    // ?? TODO: look into CLI generate schema and what that does
+    // will they take in file path or string directly
+    fn load_schema(&self) -> Result<String> {
+        std::fs::read_to_string(&self.schema_path)
+            .map_err(|e| anyhow!("Failed to load schema: {}", e))
+    }
+
+    // ?? TODO: we pass the query directly or do we read from file
+    fn load_query(&self) -> Result<String> {
+        std::fs::read_to_string(&self.schema_path)
+            .map_err(|e| anyhow!("Failed to load query path: {}", e))
+    }
+}
+
+struct ScaleLimits {
+    input_size_bytes: u64,
+    output_size_bytes: u64,
+    instruction_count: u64,
+}
+
+const INPUT_SIZE_BYTES_LIMIT: u64 = 64_000;
+const OUT_SIZE_BYTES_LIMIT: u64 = 20_000;
+const INSTRUCTION_COUNT_LIMIT: u64 = 11_000_000;
+
+fn analyze_query(schema: &str, query: &str) -> Result<ScaleLimits> {
+    compute_scale_limits(&schema, &query)
+}
+
+fn compute_scale_limits(schema: &str, query: &str) -> Result<ScaleLimits> {
+    let limits = ScaleLimits {
+        input_size_bytes: INPUT_SIZE_BYTES_LIMIT,
+        output_size_bytes: OUT_SIZE_BYTES_LIMIT,
+        instruction_count: 11000000,
+    };
+
+    eprintln!("🔵bluejay analyzer");
+    eprintln!("{:?}", schema);
+    eprint!("{:?}", query);
+
+    Ok(limits)
 }
 
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
+
+    eprintln!("Opts {:?}", opts);
 
     let mut input: Box<dyn Read + Sync + Send + 'static> = if let Some(ref input) = opts.input {
         Box::new(BufReader::new(File::open(input).map_err(|e| {
