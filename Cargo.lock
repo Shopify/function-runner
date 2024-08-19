@@ -708,9 +708,9 @@ dependencies = [
 
 [[package]]
 name = "deterministic-wasi-ctx"
-version = "0.1.22"
+version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ddd21e1781b6a509a4f6a5a8b6a638cd111d185730a531722d1540e49366e5c0"
+checksum = "6b3f4fefc4b4b50e20bdb8ed235eaf1c6a5a521cb13b09a11371081737080376"
 dependencies = [
  "anyhow",
  "async-trait",
