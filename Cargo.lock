@@ -717,7 +717,7 @@ dependencies = [
  "cap-primitives",
  "rand_core",
  "rand_pcg",
- "wasi-common",
+ "wasi-common 22.0.0",
 ]
 
 [[package]]
@@ -899,7 +899,7 @@ dependencies = [
  "rust-embed",
  "serde",
  "serde_json",
- "wasi-common",
+ "wasi-common 23.0.2",
  "wasmprof",
  "wasmtime 22.0.0",
  "wasmtime-wasi",
@@ -2149,6 +2149,32 @@ dependencies = [
  "tracing",
  "wasmtime 22.0.0",
  "wiggle 22.0.0",
+ "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "wasi-common"
+version = "23.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c19d0b2b2f88ef39e8f5fd0e29e8b00d129e0824cc8c06d2caf9866a6a72b6b"
+dependencies = [
+ "anyhow",
+ "bitflags 2.6.0",
+ "cap-fs-ext",
+ "cap-rand",
+ "cap-std",
+ "cap-time-ext",
+ "fs-set-times",
+ "io-extras",
+ "io-lifetimes",
+ "log",
+ "once_cell",
+ "rustix",
+ "system-interface",
+ "thiserror",
+ "tracing",
+ "wasmtime 23.0.2",
+ "wiggle 23.0.2",
  "windows-sys 0.52.0",
 ]
 
