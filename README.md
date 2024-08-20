@@ -1,3 +1,11 @@
+## Mehid Notes:
+
+Run test with:
+```
+cargo run -- -f './tests/fixtures/build/js_function.wasm' -i './tests/fixtures/input/js_function_input.json' -s='yolo-schema.graphql'
+```
+
+
 # function-runner
 
 [About this repo](#about-this-repo) | [Usage](#usage) | [Development](#development)
