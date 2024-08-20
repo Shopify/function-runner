@@ -124,7 +124,11 @@ fn create_definition_document(schema_string: &str) -> Result<DefinitionDocument,
     result
 }
 
-fn create_schema_definition(schema: String, definition_document: DefinitionDocument) {}
+fn create_schema_definition(schema: String, definition_document: DefinitionDocument) {
+    let schema_definition = SchemaDefinition::try_from(&definition_document);
+
+    println!("Schema Definition => {:?}", schema_definition);
+}
 
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
@@ -139,17 +143,11 @@ fn main() -> Result<()> {
     let document_definition: std::result::Result<DefinitionDocument, Vec<Error>> =
         create_definition_document(&schema_string);
 
-    eprintln!(
-        "DOCUMENT DEFINITION => {:?} {:?}",
-        document_definition, "DOCUMENT DEFINITION"
-    );
-
     match document_definition {
         Ok(document) => {
             // If the document is successfully created, then continue with other stuff
             create_schema_definition(schema_string.clone(), document);
             println!("Document definition created successfully.");
-
             // Now we need to create the SchemaDefintiion, and thewn we can analyze it
         }
         Err(errors) => {
