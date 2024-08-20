@@ -10,6 +10,14 @@ use function_runner::engine::{run, FunctionRunParams, ProfileOpts};
 
 use is_terminal::IsTerminal;
 
+use bluejay_parser::{
+    ast::{
+        definition::{DefaultContext, DefinitionDocument, SchemaDefinition},
+        Parse,
+    },
+    Error,
+};
+
 const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
 
 /// Supported input flavors
@@ -60,6 +68,11 @@ struct Opts {
 
     #[clap(short = 'c', long, value_enum, default_value = "json")]
     codec: Codec,
+
+    // Also takes in schema string, CLI can generate this via 'generate schema'
+    /// Path to json file containing Function input; if omitted, stdin is used
+    #[clap(short = 's', long, default_value = "schema.graphql")]
+    schema_path: Option<PathBuf>,
 }
 
 impl Opts {
@@ -89,10 +102,64 @@ impl Opts {
 
         path
     }
+
+    // Reads the schema file and returns its contents as a String.
+    pub fn read_schema_to_string(&self) -> Result<String> {
+        match &self.schema_path {
+            Some(schema_path) => {
+                let mut file = File::open(schema_path)
+                    .map_err(|e| anyhow!("Couldn't open schema file {:?}: {}", schema_path, e))?;
+                let mut contents = String::new();
+                file.read_to_string(&mut contents)
+                    .map_err(|e| anyhow!("Couldn't read schema file {:?}: {}", schema_path, e))?;
+                Ok(contents)
+            }
+            None => Err(anyhow!("Schema file path is not provided")),
+        }
+    }
 }
+
+fn create_definition_document(schema_string: &str) -> Result<DefinitionDocument, Vec<Error>> {
+    let result: Result<DefinitionDocument, _> = DefinitionDocument::parse(schema_string);
+    result
+}
+
+fn create_schema_definition(schema: String, definition_document: DefinitionDocument) {}
 
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
+
+    let schema_string_result = opts.read_schema_to_string();
+
+    let schema_string = match schema_string_result {
+        Ok(schema_string) => schema_string,
+        Err(error) => panic!("Problem creating schema from string"),
+    };
+
+    let document_definition: std::result::Result<DefinitionDocument, Vec<Error>> =
+        create_definition_document(&schema_string);
+
+    eprintln!(
+        "DOCUMENT DEFINITION => {:?} {:?}",
+        document_definition, "DOCUMENT DEFINITION"
+    );
+
+    match document_definition {
+        Ok(document) => {
+            // If the document is successfully created, then continue with other stuff
+            create_schema_definition(schema_string.clone(), document);
+            println!("Document definition created successfully.");
+
+            // Now we need to create the SchemaDefintiion, and thewn we can analyze it
+        }
+        Err(errors) => {
+            // If there are errors, handle them
+            for error in errors {
+                eprintln!("Error parsing document: {:?}", error);
+            }
+            return Err(anyhow!("Failed to parse document."));
+        }
+    }
 
     let mut input: Box<dyn Read + Sync + Send + 'static> = if let Some(ref input) = opts.input {
         Box::new(BufReader::new(File::open(input).map_err(|e| {
