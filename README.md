@@ -2,7 +2,7 @@
 
 Run test with:
 ```
-cargo run -- -f './tests/fixtures/build/js_function.wasm' -i './tests/fixtures/input/js_function_input.json' -s='yolo-schema.graphql'
+cargo run -- -f './tests/fixtures/build/js_function.wasm' -i './tests/fixtures/input/js_function_input.json' -s='yolo-schema.graphql' -q='yolo-query.graphql'
 ```
 
 
