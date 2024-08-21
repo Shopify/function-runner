@@ -14,12 +14,14 @@ use is_terminal::IsTerminal;
 use bluejay_parser::{
     ast::{
         definition::{DefaultContext, DefinitionDocument, SchemaDefinition},
+        executable::ExecutableDocument,
         Parse,
     },
     Error,
 };
 
 use bluejay_core::definition::ObjectTypeDefinition;
+
 use bluejay_core::definition::SchemaDefinition as CoreSchemaDefinition;
 
 const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
@@ -77,6 +79,11 @@ struct Opts {
     /// Path to json file containing Function input; if omitted, stdin is used
     #[clap(short = 's', long, default_value = "schema.graphql")]
     schema_path: Option<PathBuf>,
+
+    // Also takes in schema string, CLI can generate this via 'generate schema'
+    /// Path to json file containing Function input; if omitted, stdin is used
+    #[clap(short = 'q', long, default_value = "input.graphql")]
+    query_path: Option<PathBuf>,
 }
 
 impl Opts {
@@ -121,6 +128,20 @@ impl Opts {
             None => Err(anyhow!("Schema file path is not provided")),
         }
     }
+
+    pub fn read_query_to_string(&self) -> Result<String> {
+        match &self.query_path {
+            Some(query_path) => {
+                let mut file = File::open(query_path)
+                    .map_err(|e| anyhow!("Couldn't open schema file {:?}: {}", query_path, e))?;
+                let mut contents = String::new();
+                file.read_to_string(&mut contents)
+                    .map_err(|e| anyhow!("Couldn't read schema file {:?}: {}", query_path, e))?;
+                Ok(contents)
+            }
+            None => Err(anyhow!("Schema file path is not provided")),
+        }
+    }
 }
 
 fn create_definition_document(schema_string: &str) -> Result<DefinitionDocument, Vec<Error>> {
@@ -128,9 +149,7 @@ fn create_definition_document(schema_string: &str) -> Result<DefinitionDocument,
     result
 }
 
-fn analyze_schema_definition(schema_definition: SchemaDefinition) {}
-
-fn create_schema_definition(definition_document: DefinitionDocument) {
+fn create_schema_definition(definition_document: DefinitionDocument, query: &str) {
     eprintln!("Creating the SchemaDefinition  beep boop bapp");
 
     let schema_definition: Result<SchemaDefinition, _> =
@@ -139,10 +158,74 @@ fn create_schema_definition(definition_document: DefinitionDocument) {
     eprintln!("schema_definition => {:?}", schema_definition);
 
     if let Ok(schema_def) = schema_definition {
-        analyze_schema_definition(schema_def);
+        analyze_schema_definition(schema_def, query);
     } else {
         println!("Failed to create schema definition.");
     }
+}
+
+pub struct ScaleLimits;
+
+impl
+    bluejay_validator::executable::operation::Visitor<
+        '_,
+        ExecutableDocument<'_>,
+        SchemaDefinition<'_>,
+        serde_json::Map<String, serde_json::Value>,
+    > for ScaleLimits
+{
+    fn new(
+        operation_definition: &'_ <ExecutableDocument as bluejay_core::executable::ExecutableDocument>::OperationDefinition,
+        schema_definition: &'_ SchemaDefinition,
+        variable_values: &'_ serde_json::Map<String, serde_json::Value>,
+        cache: &'_ bluejay_validator::executable::Cache<'_, ExecutableDocument, SchemaDefinition>,
+    ) -> Self {
+        Self
+    }
+}
+
+impl
+    bluejay_validator::executable::operation::Analyzer<
+        '_,
+        ExecutableDocument<'_>,
+        SchemaDefinition<'_>,
+        serde_json::Map<String, serde_json::Value>,
+    > for ScaleLimits
+{
+    type Output = f64;
+
+    fn into_output(self) -> Self::Output {
+        1.0
+    }
+}
+
+type ScaleLimitsAnalyzer<'a> = bluejay_validator::executable::operation::Orchestrator<
+    'a,
+    ExecutableDocument<'a>,
+    SchemaDefinition<'a>,
+    serde_json::Map<String, serde_json::Value>,
+    ScaleLimits,
+>;
+
+fn analyze_schema_definition(schema_definition: SchemaDefinition, query: &str) {
+    // create exeucatble document
+    let executable_document =
+        ExecutableDocument::parse(query).unwrap_or_else(|_| panic!("Document had parse errors"));
+    let cache = bluejay_validator::executable::Cache::new(&executable_document, &schema_definition);
+
+    let scale_factor = ScaleLimitsAnalyzer::analyze(
+        &executable_document,
+        &schema_definition,
+        None,
+        &Default::default(),
+        &cache,
+    )
+    .unwrap();
+
+    eprintln!(
+        "Success creating ed, pass thing into analyzer? {:?}",
+        scale_factor
+    );
 }
 
 fn main() -> Result<()> {
@@ -155,13 +238,19 @@ fn main() -> Result<()> {
         Err(error) => panic!("Problem creating schema from string"),
     };
 
+    // validate
+    let query_string = match opts.read_query_to_string() {
+        Ok(query_string) => query_string,
+        Err(error) => panic!("Problem creating schema from string"),
+    };
+
     let document_definition: std::result::Result<DefinitionDocument, Vec<Error>> =
         create_definition_document(&schema_string);
 
     match document_definition {
         Ok(document) => {
             // If the document is successfully created, then continue with other stuff
-            create_schema_definition(document);
+            create_schema_definition(document, &query_string);
             println!("Document definition created successfully.");
             // Now we need to create the SchemaDefintiion, and thewn we can analyze it
         }
