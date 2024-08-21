@@ -5,8 +5,9 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
+
 use clap::{Parser, ValueEnum};
-use function_runner::engine::{run, FunctionRunParams, ProfileOpts};
+use function_runner::engine::{run, FunctionRunParams, ProfileOpts}; // Adjust the import based on actual module path
 
 use is_terminal::IsTerminal;
 
@@ -17,6 +18,9 @@ use bluejay_parser::{
     },
     Error,
 };
+
+use bluejay_core::definition::ObjectTypeDefinition;
+use bluejay_core::definition::SchemaDefinition as CoreSchemaDefinition;
 
 const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
 
@@ -124,10 +128,21 @@ fn create_definition_document(schema_string: &str) -> Result<DefinitionDocument,
     result
 }
 
-fn create_schema_definition(schema: String, definition_document: DefinitionDocument) {
-    let schema_definition = SchemaDefinition::try_from(&definition_document);
+fn analyze_schema_definition(schema_definition: SchemaDefinition) {}
 
-    println!("Schema Definition => {:?}", schema_definition);
+fn create_schema_definition(definition_document: DefinitionDocument) {
+    eprintln!("Creating the SchemaDefinition  beep boop bapp");
+
+    let schema_definition: Result<SchemaDefinition, _> =
+        SchemaDefinition::try_from(&definition_document);
+
+    eprintln!("schema_definition => {:?}", schema_definition);
+
+    if let Ok(schema_def) = schema_definition {
+        analyze_schema_definition(schema_def);
+    } else {
+        println!("Failed to create schema definition.");
+    }
 }
 
 fn main() -> Result<()> {
@@ -146,7 +161,7 @@ fn main() -> Result<()> {
     match document_definition {
         Ok(document) => {
             // If the document is successfully created, then continue with other stuff
-            create_schema_definition(schema_string.clone(), document);
+            create_schema_definition(document);
             println!("Document definition created successfully.");
             // Now we need to create the SchemaDefintiion, and thewn we can analyze it
         }
