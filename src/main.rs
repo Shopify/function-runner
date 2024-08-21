@@ -13,6 +13,7 @@ use is_terminal::IsTerminal;
 
 use bluejay_parser::{
     ast::{
+        definition::FieldDefinition,
         definition::{DefaultContext, DefinitionDocument, SchemaDefinition},
         executable::ExecutableDocument,
         Parse,
@@ -21,6 +22,10 @@ use bluejay_parser::{
 };
 
 use bluejay_core::definition::ObjectTypeDefinition;
+use bluejay_core::AsIter;
+use bluejay_core::Directive;
+use bluejay_core::Value;
+use bluejay_core::{definition::HasDirectives, ValueReference};
 
 use bluejay_core::definition::SchemaDefinition as CoreSchemaDefinition;
 
@@ -155,7 +160,7 @@ fn create_schema_definition(definition_document: DefinitionDocument, query: &str
     let schema_definition: Result<SchemaDefinition, _> =
         SchemaDefinition::try_from(&definition_document);
 
-    eprintln!("schema_definition => {:?}", schema_definition);
+    // eprintln!("schema_definition => {:?}", schema_definition);
 
     if let Ok(schema_def) = schema_definition {
         analyze_schema_definition(schema_def, query);
@@ -164,7 +169,25 @@ fn create_schema_definition(definition_document: DefinitionDocument, query: &str
     }
 }
 
-pub struct ScaleLimits;
+pub struct ScaleLimits {
+    max_rate: f64,
+}
+
+impl ScaleLimits {
+    fn new() -> Self {
+        Self { max_rate: 0.0 }
+    }
+
+    fn update_max_rate(&mut self, rate: f64) {
+        if rate > self.max_rate {
+            self.max_rate = rate;
+        }
+    }
+
+    fn get_max_rate(&self) -> f64 {
+        self.max_rate
+    }
+}
 
 impl
     bluejay_validator::executable::operation::Visitor<
@@ -180,7 +203,54 @@ impl
         variable_values: &'_ serde_json::Map<String, serde_json::Value>,
         cache: &'_ bluejay_validator::executable::Cache<'_, ExecutableDocument, SchemaDefinition>,
     ) -> Self {
-        Self
+        Self { max_rate: 0.0 }
+    }
+
+    fn visit_field(
+        &mut self,
+        field: &'_ <ExecutableDocument<'_> as bluejay_core::executable::ExecutableDocument>::Field,
+        field_definition: &'_ <SchemaDefinition as CoreSchemaDefinition>::FieldDefinition,
+        scoped_type: bluejay_core::definition::TypeDefinitionReference<
+            '_,
+            <SchemaDefinition<'_> as CoreSchemaDefinition>::TypeDefinition,
+        >,
+        included: bool,
+    ) {
+        // println!("field => {:?}", field_definition);
+        // println!("field =>");
+
+        field_definition.directives().and_then(|directives| {
+            directives
+                .iter()
+                .find(|directive| directive.name() == "scaleLimits")
+                .and_then(|directive| {
+                    let x = directive.arguments();
+
+                    eprintln!("errr me now {:?}", x);
+
+                    x
+                })
+                .and_then(|arguments| {
+                    arguments
+                        .iter()
+                        .find(|argument| argument.name() == "rate")
+                        .and_then(|argument| {
+                            eprintln!("MEOW CHOW argument {:?}", argument);
+                            let value = argument.value();
+
+                            eprintln!("hello value for scaleFactor.rate => {:?}", value);
+                            if let ValueReference::Float(rate) = argument.value().as_ref() {
+                                self.update_max_rate(rate);
+                                let rate = Some(rate);
+                                eprintln!("rate? = {:?}", rate);
+
+                                rate
+                            } else {
+                                None
+                            }
+                        })
+                })
+        });
     }
 }
 
@@ -195,7 +265,51 @@ impl
     type Output = f64;
 
     fn into_output(self) -> Self::Output {
-        1.0
+        self.max_rate
+    }
+}
+
+// TODO: Maybe use these?
+struct QueryScaleFactorCollector {
+    max_scale_factor: f64,
+}
+
+impl QueryScaleFactorCollector {
+    fn new() -> Self {
+        Self {
+            max_scale_factor: 0.0,
+        }
+    }
+
+    fn visit_scale_factor(&mut self, scale_factor: f64) {
+        if scale_factor > self.max_scale_factor {
+            self.max_scale_factor = scale_factor;
+        }
+    }
+
+    fn get_max_scale_factor(&self) -> f64 {
+        self.max_scale_factor
+    }
+}
+
+struct FieldScaleFactorCollector {
+    total_scale_factor: f64,
+}
+
+impl FieldScaleFactorCollector {
+    fn new() -> Self {
+        Self {
+            total_scale_factor: 0.0,
+        }
+    }
+
+    fn collect_scale_factor(&mut self, field_length: usize, rate: f64) {
+        let scale_factor = field_length as f64 * rate;
+        self.total_scale_factor += scale_factor;
+    }
+
+    fn get_total_scale_factor(&self) -> f64 {
+        self.total_scale_factor
     }
 }
 
