@@ -7,27 +7,12 @@ use std::{
 use anyhow::{anyhow, Result};
 
 use clap::{Parser, ValueEnum};
-use function_runner::engine::{run, FunctionRunParams, ProfileOpts}; // Adjust the import based on actual module path
-
-use is_terminal::IsTerminal;
-
-use bluejay_parser::{
-    ast::{
-        definition::FieldDefinition,
-        definition::{DefaultContext, DefinitionDocument, SchemaDefinition},
-        executable::ExecutableDocument,
-        Parse,
-    },
-    Error,
+use function_runner::{
+    bluejay_schema_analyzer::BluejaySchemaAnalyzer,
+    engine::{run, FunctionRunParams, ProfileOpts},
 };
 
-use bluejay_core::definition::ObjectTypeDefinition;
-use bluejay_core::AsIter;
-use bluejay_core::Directive;
-use bluejay_core::Value;
-use bluejay_core::{definition::HasDirectives, ValueReference};
-
-use bluejay_core::definition::SchemaDefinition as CoreSchemaDefinition;
+use is_terminal::IsTerminal;
 
 const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
 
@@ -149,231 +134,28 @@ impl Opts {
     }
 }
 
-fn create_definition_document(schema_string: &str) -> Result<DefinitionDocument, Vec<Error>> {
-    let result: Result<DefinitionDocument, _> = DefinitionDocument::parse(schema_string);
-    result
-}
-
-fn create_schema_definition(definition_document: DefinitionDocument, query: &str) {
-    eprintln!("Creating the SchemaDefinition  beep boop bapp");
-
-    let schema_definition: Result<SchemaDefinition, _> =
-        SchemaDefinition::try_from(&definition_document);
-
-    // eprintln!("schema_definition => {:?}", schema_definition);
-
-    if let Ok(schema_def) = schema_definition {
-        analyze_schema_definition(schema_def, query);
-    } else {
-        println!("Failed to create schema definition.");
-    }
-}
-
-pub struct ScaleLimits {
-    max_rate: f64,
-}
-
-impl ScaleLimits {
-    fn new() -> Self {
-        Self { max_rate: 0.0 }
-    }
-
-    fn update_max_rate(&mut self, rate: f64) {
-        if rate > self.max_rate {
-            self.max_rate = rate;
-        }
-    }
-
-    fn get_max_rate(&self) -> f64 {
-        self.max_rate
-    }
-}
-
-impl
-    bluejay_validator::executable::operation::Visitor<
-        '_,
-        ExecutableDocument<'_>,
-        SchemaDefinition<'_>,
-        serde_json::Map<String, serde_json::Value>,
-    > for ScaleLimits
-{
-    fn new(
-        operation_definition: &'_ <ExecutableDocument as bluejay_core::executable::ExecutableDocument>::OperationDefinition,
-        schema_definition: &'_ SchemaDefinition,
-        variable_values: &'_ serde_json::Map<String, serde_json::Value>,
-        cache: &'_ bluejay_validator::executable::Cache<'_, ExecutableDocument, SchemaDefinition>,
-    ) -> Self {
-        Self { max_rate: 0.0 }
-    }
-
-    fn visit_field(
-        &mut self,
-        field: &'_ <ExecutableDocument<'_> as bluejay_core::executable::ExecutableDocument>::Field,
-        field_definition: &'_ <SchemaDefinition as CoreSchemaDefinition>::FieldDefinition,
-        scoped_type: bluejay_core::definition::TypeDefinitionReference<
-            '_,
-            <SchemaDefinition<'_> as CoreSchemaDefinition>::TypeDefinition,
-        >,
-        included: bool,
-    ) {
-        // println!("field => {:?}", field_definition);
-        // println!("field =>");
-
-        field_definition.directives().and_then(|directives| {
-            directives
-                .iter()
-                .find(|directive| directive.name() == "scaleLimits")
-                .and_then(|directive| {
-                    let x = directive.arguments();
-
-                    eprintln!("errr me now {:?}", x);
-
-                    x
-                })
-                .and_then(|arguments| {
-                    arguments
-                        .iter()
-                        .find(|argument| argument.name() == "rate")
-                        .and_then(|argument| {
-                            eprintln!("MEOW CHOW argument {:?}", argument);
-                            let value = argument.value();
-
-                            eprintln!("hello value for scaleFactor.rate => {:?}", value);
-                            if let ValueReference::Float(rate) = argument.value().as_ref() {
-                                self.update_max_rate(rate);
-                                let rate = Some(rate);
-                                eprintln!("rate? = {:?}", rate);
-
-                                rate
-                            } else {
-                                None
-                            }
-                        })
-                })
-        });
-    }
-}
-
-impl
-    bluejay_validator::executable::operation::Analyzer<
-        '_,
-        ExecutableDocument<'_>,
-        SchemaDefinition<'_>,
-        serde_json::Map<String, serde_json::Value>,
-    > for ScaleLimits
-{
-    type Output = f64;
-
-    fn into_output(self) -> Self::Output {
-        self.max_rate
-    }
-}
-
-// TODO: Maybe use these?
-struct QueryScaleFactorCollector {
-    max_scale_factor: f64,
-}
-
-impl QueryScaleFactorCollector {
-    fn new() -> Self {
-        Self {
-            max_scale_factor: 0.0,
-        }
-    }
-
-    fn visit_scale_factor(&mut self, scale_factor: f64) {
-        if scale_factor > self.max_scale_factor {
-            self.max_scale_factor = scale_factor;
-        }
-    }
-
-    fn get_max_scale_factor(&self) -> f64 {
-        self.max_scale_factor
-    }
-}
-
-struct FieldScaleFactorCollector {
-    total_scale_factor: f64,
-}
-
-impl FieldScaleFactorCollector {
-    fn new() -> Self {
-        Self {
-            total_scale_factor: 0.0,
-        }
-    }
-
-    fn collect_scale_factor(&mut self, field_length: usize, rate: f64) {
-        let scale_factor = field_length as f64 * rate;
-        self.total_scale_factor += scale_factor;
-    }
-
-    fn get_total_scale_factor(&self) -> f64 {
-        self.total_scale_factor
-    }
-}
-
-type ScaleLimitsAnalyzer<'a> = bluejay_validator::executable::operation::Orchestrator<
-    'a,
-    ExecutableDocument<'a>,
-    SchemaDefinition<'a>,
-    serde_json::Map<String, serde_json::Value>,
-    ScaleLimits,
->;
-
-fn analyze_schema_definition(schema_definition: SchemaDefinition, query: &str) {
-    // create exeucatble document
-    let executable_document =
-        ExecutableDocument::parse(query).unwrap_or_else(|_| panic!("Document had parse errors"));
-    let cache = bluejay_validator::executable::Cache::new(&executable_document, &schema_definition);
-
-    let scale_factor = ScaleLimitsAnalyzer::analyze(
-        &executable_document,
-        &schema_definition,
-        None,
-        &Default::default(),
-        &cache,
-    )
-    .unwrap();
-
-    eprintln!(
-        "Success creating ed, pass thing into analyzer? {:?}",
-        scale_factor
-    );
-}
-
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let schema_string_result = opts.read_schema_to_string();
+    let schema_string = opts.read_schema_to_string()?;
+    let query_string = opts.read_query_to_string()?;
 
-    let schema_string = match schema_string_result {
-        Ok(schema_string) => schema_string,
-        Err(error) => panic!("Problem creating schema from string"),
-    };
+    let document_definition =
+        BluejaySchemaAnalyzer::create_definition_document(&schema_string).unwrap();
 
-    // validate
-    let query_string = match opts.read_query_to_string() {
-        Ok(query_string) => query_string,
-        Err(error) => panic!("Problem creating schema from string"),
-    };
+    // Properly handle the Result from create_schema_definition
+    let schema_result = BluejaySchemaAnalyzer::create_schema_definition(&document_definition);
 
-    let document_definition: std::result::Result<DefinitionDocument, Vec<Error>> =
-        create_definition_document(&schema_string);
-
-    match document_definition {
-        Ok(document) => {
-            // If the document is successfully created, then continue with other stuff
-            create_schema_definition(document, &query_string);
+    match schema_result {
+        Ok(schema) => {
             println!("Document definition created successfully.");
-            // Now we need to create the SchemaDefintiion, and thewn we can analyze it
+            BluejaySchemaAnalyzer::analyze_schema_definition(schema, &query_string);
         }
         Err(errors) => {
-            // If there are errors, handle them
             for error in errors {
-                eprintln!("Error parsing document: {:?}", error);
+                eprintln!("Error creating schema definition: {:?}", error);
             }
-            return Err(anyhow!("Failed to parse document."));
+            return Err(anyhow!("Failed to create schema definition."));
         }
     }
 
