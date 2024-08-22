@@ -66,10 +66,6 @@ impl
                         .iter()
                         .find(|argument| argument.name() == "rate")
                         .and_then(|argument| {
-                            eprintln!("MEOW CHOW argument {:?}", argument);
-                            let value = argument.value();
-
-                            eprintln!("hello value for scaleFactor.rate => {:?}", value);
                             if let ValueReference::Float(rate) = argument.value().as_ref() {
                                 self.update_max_rate(rate);
                                 let rate = Some(rate);

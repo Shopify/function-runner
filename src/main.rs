@@ -13,8 +13,32 @@ use function_runner::{
 };
 
 use is_terminal::IsTerminal;
+use serde::Deserialize;
+use serde::Serialize;
 
 const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
+
+// todo: get rid of these
+#[derive(Serialize, Deserialize, Debug)]
+struct Input {
+    cart: Cart,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Cart {
+    lines: Vec<CartLine>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct CartLine {
+    quantity: u32,
+    merchandise: Merchandise,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Merchandise {
+    id: String,
+}
 
 /// Supported input flavors
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -146,18 +170,17 @@ fn main() -> Result<()> {
     // Properly handle the Result from create_schema_definition
     let schema_result = BluejaySchemaAnalyzer::create_schema_definition(&document_definition);
 
-    match schema_result {
-        Ok(schema) => {
-            println!("Document definition created successfully.");
-            BluejaySchemaAnalyzer::analyze_schema_definition(schema, &query_string);
-        }
+    let analyze_result = match schema_result {
+        Ok(schema) => BluejaySchemaAnalyzer::analyze_schema_definition(schema, &query_string),
         Err(errors) => {
             for error in errors {
                 eprintln!("Error creating schema definition: {:?}", error);
             }
-            return Err(anyhow!("Failed to create schema definition."));
+            panic!("opps got an error!")
         }
-    }
+    };
+
+    eprintln!("analyze result => {:?}", analyze_result);
 
     let mut input: Box<dyn Read + Sync + Send + 'static> = if let Some(ref input) = opts.input {
         Box::new(BufReader::new(File::open(input).map_err(|e| {
@@ -173,6 +196,29 @@ fn main() -> Result<()> {
 
     let mut buffer = Vec::new();
     input.read_to_end(&mut buffer)?;
+
+    let scaling_factor = match analyze_result {
+        Ok(rate) => {
+            let input: Input = serde_json::from_slice(&buffer)?;
+            let num_cart_lines = input.cart.lines.len();
+
+            match num_cart_lines < 200 {
+                true => 1.0,
+                false => rate,
+            }
+        }
+        Err(_) => {
+            panic!("an error occured");
+        }
+    };
+
+    eprintln!("scaling_factor {:?}", scaling_factor);
+
+    // ** Determine Cart Lines for Scaling **
+    // based on 'num_cart_lines' and the result of 'analyze_result
+    // use 1.0 for scaling rate if rate lines are less than
+    // the scaling factor is 1.0 if cart lines is less than 200
+    // the scaling factor is the rate if lines are over 200
 
     let buffer = match opts.codec {
         Codec::Json => {

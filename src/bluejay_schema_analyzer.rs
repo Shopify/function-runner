@@ -1,20 +1,13 @@
-use bluejay_parser::error::{Annotation, Error as BluejayError};
-use bluejay_core::definition::ObjectTypeDefinition;
-use bluejay_core::definition::SchemaDefinition as CoreSchemaDefinition;
-use bluejay_core::AsIter;
-use bluejay_core::Directive;
-use bluejay_core::Value;
-use bluejay_core::{definition::HasDirectives, ValueReference};
+use crate::scale_limits_analyzer::ScaleLimitsAnalyzer;
+use bluejay_parser::error::Error as BluejayError;
 use bluejay_parser::{
     ast::{
-        definition::FieldDefinition,
         definition::{DefaultContext, DefinitionDocument, SchemaDefinition},
         executable::ExecutableDocument,
         Parse,
     },
     Error,
 };
-use crate::scale_limits_analyzer::ScaleLimitsAnalyzer;
 
 pub struct BluejaySchemaAnalyzer;
 
@@ -42,7 +35,10 @@ impl BluejaySchemaAnalyzer {
         })
     }
 
-    pub fn analyze_schema_definition(schema_definition: SchemaDefinition, query: &str) {
+    pub fn analyze_schema_definition(
+        schema_definition: SchemaDefinition,
+        query: &str,
+    ) -> Result<f64, Error> {
         let executable_document =
             ExecutableDocument::parse(query).expect("Document had parse errors");
         let cache =
@@ -61,5 +57,30 @@ impl BluejaySchemaAnalyzer {
             "Success creating ed, pass thing into analyzer? {:?}",
             scale_factor
         );
+
+        Ok(scale_factor)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_create_definition_document_valid() {
+        let schema = r#"
+        type Query {
+            field: String @scaleLimits(rate: 1.5)
+        }
+        "#;
+        let result = BluejaySchemaAnalyzer::create_definition_document(schema);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_create_definition_document_invalid() {
+        let schema = "type Query { field: String";
+        let result = BluejaySchemaAnalyzer::create_definition_document(schema);
+        assert!(result.is_err());
     }
 }
