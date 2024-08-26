@@ -38,6 +38,7 @@ impl BluejaySchemaAnalyzer {
     pub fn analyze_schema_definition(
         schema_definition: SchemaDefinition,
         query: &str,
+        input: &serde_json::Value,
     ) -> Result<f64, Error> {
         let executable_document =
             ExecutableDocument::parse(query).expect("Document had parse errors");
@@ -50,6 +51,7 @@ impl BluejaySchemaAnalyzer {
             None,
             &Default::default(),
             &cache,
+            input,
         )
         .expect("Analysis failed");
 

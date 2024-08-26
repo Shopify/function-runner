@@ -161,27 +161,6 @@ impl Opts {
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let schema_string = opts.read_schema_to_string()?;
-    let query_string = opts.read_query_to_string()?;
-
-    let document_definition =
-        BluejaySchemaAnalyzer::create_definition_document(&schema_string).unwrap();
-
-    // Properly handle the Result from create_schema_definition
-    let schema_result = BluejaySchemaAnalyzer::create_schema_definition(&document_definition);
-
-    let analyze_result = match schema_result {
-        Ok(schema) => BluejaySchemaAnalyzer::analyze_schema_definition(schema, &query_string),
-        Err(errors) => {
-            for error in errors {
-                eprintln!("Error creating schema definition: {:?}", error);
-            }
-            panic!("opps got an error!")
-        }
-    };
-
-    eprintln!("analyze result => {:?}", analyze_result);
-
     let mut input: Box<dyn Read + Sync + Send + 'static> = if let Some(ref input) = opts.input {
         Box::new(BufReader::new(File::open(input).map_err(|e| {
             anyhow!("Couldn't load input {:?}: {}", input, e)
@@ -196,6 +175,30 @@ fn main() -> Result<()> {
 
     let mut buffer = Vec::new();
     input.read_to_end(&mut buffer)?;
+
+    let schema_string = opts.read_schema_to_string()?;
+    let query_string = opts.read_query_to_string()?;
+    let input_json: serde_json::Value = serde_json::from_slice(&buffer)?;
+
+    let document_definition =
+        BluejaySchemaAnalyzer::create_definition_document(&schema_string).unwrap();
+
+    // Properly handle the Result from create_schema_definition
+    let schema_result = BluejaySchemaAnalyzer::create_schema_definition(&document_definition);
+
+    let analyze_result = match schema_result {
+        Ok(schema) => {
+            BluejaySchemaAnalyzer::analyze_schema_definition(schema, &query_string, &input_json)
+        }
+        Err(errors) => {
+            for error in errors {
+                eprintln!("Error creating schema definition: {:?}", error);
+            }
+            panic!("opps got an error!")
+        }
+    };
+
+    eprintln!("analyze result => {:?}", analyze_result);
 
     let scaling_factor = match analyze_result {
         Ok(rate) => {
