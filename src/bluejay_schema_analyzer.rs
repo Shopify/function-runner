@@ -54,11 +54,7 @@ impl BluejaySchemaAnalyzer {
             input,
         )
         .expect("Analysis failed");
-
-        eprintln!(
-            "Success creating ed, pass thing into analyzer? {:?}",
-            scale_factor
-        );
+        // todo: handle errors better
 
         Ok(scale_factor)
     }

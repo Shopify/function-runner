@@ -1,19 +1,12 @@
-use bluejay_core::definition::ObjectTypeDefinition;
 use bluejay_core::definition::SchemaDefinition as CoreSchemaDefinition;
 use bluejay_core::AsIter;
 use bluejay_core::Directive;
 use bluejay_core::Value as CoreValue;
 use bluejay_core::{definition::prelude::*, ValueReference};
-use bluejay_parser::error::{Annotation, Error as BluejayError};
-use bluejay_parser::{
-    ast::{
-        definition::FieldDefinition,
-        definition::{
-            ArgumentsDefinition, DefaultContext, DefinitionDocument, Directives, SchemaDefinition,
-        },
-        executable::ExecutableDocument,
-    },
-    Error,
+use bluejay_parser::ast::{
+    definition::FieldDefinition,
+    definition::{DefaultContext, SchemaDefinition},
+    executable::ExecutableDocument,
 };
 use serde_json::Value;
 use std::collections::HashMap;
@@ -27,7 +20,6 @@ pub type ScaleLimitsAnalyzer<'a> = bluejay_validator::executable::operation::Orc
 >;
 
 pub struct ScaleLimits<'a> {
-    input: &'a Value,
     value_stack: Vec<Vec<&'a Value>>,
     path_stack: Vec<&'a str>,
     rates: HashMap<Vec<&'a str>, f64>,
@@ -44,14 +36,13 @@ impl<'a>
     type ExtraInfo = &'a Value;
 
     fn new(
-        operation_definition: &'a <ExecutableDocument as bluejay_core::executable::ExecutableDocument>::OperationDefinition,
-        schema_definition: &'a SchemaDefinition<'a>,
-        variable_values: &'a serde_json::Map<String, serde_json::Value>,
-        cache: &'a bluejay_validator::executable::Cache<'a, ExecutableDocument, SchemaDefinition>,
+        _operation_definition: &'a <ExecutableDocument as bluejay_core::executable::ExecutableDocument>::OperationDefinition,
+        _schema_definition: &'a SchemaDefinition<'a>,
+        _variable_values: &'a serde_json::Map<String, serde_json::Value>,
+        _cache: &'a bluejay_validator::executable::Cache<'a, ExecutableDocument, SchemaDefinition>,
         extra_info: &'a Value,
     ) -> Self {
         Self {
-            input: extra_info,
             value_stack: vec![vec![extra_info]],
             path_stack: Vec::new(),
             rates: Default::default(),

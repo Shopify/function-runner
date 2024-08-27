@@ -198,30 +198,10 @@ fn main() -> Result<()> {
         }
     };
 
-    eprintln!("analyze result => {:?}", analyze_result);
-
-    let scaling_factor = match analyze_result {
-        Ok(rate) => {
-            let input: Input = serde_json::from_slice(&buffer)?;
-            let num_cart_lines = input.cart.lines.len();
-
-            match num_cart_lines < 200 {
-                true => 1.0,
-                false => rate,
-            }
-        }
-        Err(_) => {
-            panic!("an error occured");
-        }
-    };
-
-    eprintln!("scaling_factor {:?}", scaling_factor);
-
-    // ** Determine Cart Lines for Scaling **
-    // based on 'num_cart_lines' and the result of 'analyze_result
-    // use 1.0 for scaling rate if rate lines are less than
-    // the scaling factor is 1.0 if cart lines is less than 200
-    // the scaling factor is the rate if lines are over 200
+    eprintln!(
+        "analyze result => {:?} todo: pass this result into function run result",
+        analyze_result
+    );
 
     let buffer = match opts.codec {
         Codec::Json => {
