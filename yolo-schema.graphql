@@ -114,7 +114,7 @@ type Cart {
   """
   The delivery groups available for the cart based on the buyer's shipping address.
   """
-  deliveryGroups: [CartDeliveryGroup!]!
+  deliveryGroups: [CartDeliveryGroup!]! @scaleLimits(rate: 0.005)
 
   """
   A list of lines containing information about the items the customer intends to purchase.
