@@ -165,7 +165,7 @@ mod tests {
         "#;
         let query = "{ field }";
         let input_json = serde_json::json!({
-            "field": (0..10000).map(|_| "value").collect::<Vec<_>>()
+          "field": vec!["value"; 10000]
         });
 
         let definition_document =
