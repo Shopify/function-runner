@@ -128,34 +128,30 @@ impl Opts {
         path
     }
 
-    // Reads the schema file and returns its contents as a String.
     pub fn read_schema_to_string(&self) -> Result<String> {
-        match &self.schema_path {
-            Some(schema_path) => {
-                let mut file = File::open(schema_path)
-                    .map_err(|e| anyhow!("Couldn't open schema file {:?}: {}", schema_path, e))?;
-                let mut contents = String::new();
-                file.read_to_string(&mut contents)
-                    .map_err(|e| anyhow!("Couldn't read schema file {:?}: {}", schema_path, e))?;
-                Ok(contents)
-            }
-            None => Err(anyhow!("Schema file path is not provided")),
-        }
+        self.schema_path
+            .as_ref()
+            .ok_or_else(|| anyhow!("Schema file path is not provided"))
+            .and_then(read_file_to_string)
     }
 
     pub fn read_query_to_string(&self) -> Result<String> {
-        match &self.query_path {
-            Some(query_path) => {
-                let mut file = File::open(query_path)
-                    .map_err(|e| anyhow!("Couldn't open schema file {:?}: {}", query_path, e))?;
-                let mut contents = String::new();
-                file.read_to_string(&mut contents)
-                    .map_err(|e| anyhow!("Couldn't read schema file {:?}: {}", query_path, e))?;
-                Ok(contents)
-            }
-            None => Err(anyhow!("Schema file path is not provided")),
-        }
+        self.query_path
+            .as_ref()
+            .ok_or_else(|| anyhow!("Query file path is not provided"))
+            .and_then(read_file_to_string)
     }
+}
+
+fn read_file_to_string(file_path: &PathBuf) -> Result<String> {
+    let mut file =
+        File::open(file_path).map_err(|e| anyhow!("Couldn't open file {:?}: {}", file_path, e))?;
+
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)
+        .map_err(|e| anyhow!("Couldn't read file {:?}: {}", file_path, e))?;
+
+    Ok(contents)
 }
 
 fn main() -> Result<()> {
@@ -176,27 +172,32 @@ fn main() -> Result<()> {
     let mut buffer = Vec::new();
     input.read_to_end(&mut buffer)?;
 
-    let schema_string = opts.read_schema_to_string()?;
-    let query_string = opts.read_query_to_string()?;
+    let schema_string_read_result = opts.read_schema_to_string();
+    let query_string_read_result = opts.read_query_to_string();
     let input_json: serde_json::Value = serde_json::from_slice(&buffer)?;
+    let mut scale_factor = 1.0;
 
-    let document_definition =
-        BluejaySchemaAnalyzer::create_definition_document(&schema_string).unwrap();
+    if let (Ok(schema_string), Ok(query_string)) =
+        (schema_string_read_result, query_string_read_result)
+    {
+        let document_definition =
+            BluejaySchemaAnalyzer::create_definition_document(&schema_string).unwrap();
 
-    let schema_result = BluejaySchemaAnalyzer::create_schema_definition(&document_definition);
+        let schema_result = BluejaySchemaAnalyzer::create_schema_definition(&document_definition);
 
-    let analyze_schema_result = match schema_result {
-        Ok(schema) => {
-            BluejaySchemaAnalyzer::analyze_schema_definition(schema, &query_string, &input_json)
-                .unwrap_or(1.0)
-        }
-        Err(errors) => {
-            for error in errors {
-                eprintln!("Error creating schema definition: {:?}", error);
+        scale_factor = match schema_result {
+            Ok(schema) => {
+                BluejaySchemaAnalyzer::analyze_schema_definition(schema, &query_string, &input_json)
+                    .unwrap_or(1.0)
             }
-            1.0
-        }
-    };
+            Err(errors) => {
+                for error in errors {
+                    eprintln!("Error creating schema definition: {:?}", error);
+                }
+                1.0
+            }
+        };
+    }
 
     let buffer = match opts.codec {
         Codec::Json => {
@@ -220,7 +221,7 @@ fn main() -> Result<()> {
         input: buffer,
         export: opts.export.as_ref(),
         profile_opts: profile_opts.as_ref(),
-        scale_factor: analyze_schema_result,
+        scale_factor,
     })?;
 
     if opts.json {
