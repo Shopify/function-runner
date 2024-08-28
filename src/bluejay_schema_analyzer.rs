@@ -24,13 +24,7 @@ impl BluejaySchemaAnalyzer {
         SchemaDefinition::try_from(definition_document).map_err(|errors| {
             errors
                 .into_iter()
-                .map(|e| {
-                    BluejayError::new(
-                        "something went wrong?!", // Error message
-                        None,
-                        Vec::new(),
-                    )
-                })
+                .map(|e| BluejayError::new(format!("Invalid Schema: {:?}", e), None, Vec::new()))
                 .collect()
         })
     }
@@ -40,23 +34,34 @@ impl BluejaySchemaAnalyzer {
         query: &str,
         input: &serde_json::Value,
     ) -> Result<f64, Error> {
-        let executable_document =
-            ExecutableDocument::parse(query).expect("Document had parse errors");
-        let cache =
-            bluejay_validator::executable::Cache::new(&executable_document, &schema_definition);
+        let executable_document = ExecutableDocument::parse(query);
 
-        let scale_factor = ScaleLimitsAnalyzer::analyze(
-            &executable_document,
-            &schema_definition,
-            None,
-            &Default::default(),
-            &cache,
-            input,
-        )
-        .expect("Analysis failed");
-        // todo: handle errors better
+        match executable_document {
+            Ok(ed) => {
+                let cache = bluejay_validator::executable::Cache::new(&ed, &schema_definition);
 
-        Ok(scale_factor)
+                ScaleLimitsAnalyzer::analyze(
+                    &ed,
+                    &schema_definition,
+                    None,
+                    &Default::default(),
+                    &cache,
+                    input,
+                )
+                .map_err(|e| {
+                    Error::new(
+                        format!("Error analyzing scale limits: {:?}", e),
+                        None,
+                        Vec::new(),
+                    )
+                })
+            }
+            Err(_e) => Err(Error::new(
+                "Error creating the executable document",
+                None,
+                Vec::new(),
+            )),
+        }
     }
 }
 
