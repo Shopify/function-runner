@@ -183,25 +183,20 @@ fn main() -> Result<()> {
     let document_definition =
         BluejaySchemaAnalyzer::create_definition_document(&schema_string).unwrap();
 
-    // Properly handle the Result from create_schema_definition
     let schema_result = BluejaySchemaAnalyzer::create_schema_definition(&document_definition);
 
-    let analyze_result = match schema_result {
+    let analyze_schema_result = match schema_result {
         Ok(schema) => {
             BluejaySchemaAnalyzer::analyze_schema_definition(schema, &query_string, &input_json)
+                .unwrap_or(1.0)
         }
         Err(errors) => {
             for error in errors {
                 eprintln!("Error creating schema definition: {:?}", error);
             }
-            panic!("opps got an error!")
+            1.0
         }
     };
-
-    eprintln!(
-        "analyze result => {:?} todo: pass this result into function run result",
-        analyze_result
-    );
 
     let buffer = match opts.codec {
         Codec::Json => {
@@ -219,11 +214,13 @@ fn main() -> Result<()> {
     };
 
     let profile_opts = opts.profile_opts();
+
     let function_run_result = run(FunctionRunParams {
         function_path: opts.function,
         input: buffer,
         export: opts.export.as_ref(),
         profile_opts: profile_opts.as_ref(),
+        scale_factor: analyze_schema_result,
     })?;
 
     if opts.json {

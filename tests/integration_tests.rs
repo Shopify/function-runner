@@ -247,5 +247,3 @@ mod tests {
         Ok(file)
     }
 }
-
-// NOTE: add integration test with mock query, input

@@ -53,6 +53,7 @@ pub struct FunctionRunParams<'a> {
     pub input: Vec<u8>,
     pub export: &'a str,
     pub profile_opts: Option<&'a ProfileOpts>,
+    pub scale_factor: f64,
 }
 
 const STARTING_FUEL: u64 = u64::MAX;
@@ -114,6 +115,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         input,
         export,
         profile_opts,
+        scale_factor,
     } = params;
 
     let engine = Engine::new(
@@ -231,6 +233,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         input: function_run_input,
         output,
         profile: profile_data,
+        scale_factor,
     };
 
     Ok(function_run_result)

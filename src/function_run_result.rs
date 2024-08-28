@@ -28,15 +28,46 @@ pub struct FunctionRunResult {
     pub output: FunctionOutput,
     #[serde(skip)]
     pub profile: Option<String>,
+    #[serde(skip)]
+    pub scale_factor: f64,
+}
+
+const DEFAULT_INSTRUCTIONS_LIMIT: u64 = 11_000_000;
+const DEFAULT_INPUT_SIZE_LIMIT: u64 = 64_000;
+const DEFAULT_OUTPUT_SIZE_LIMIT: u64 = 20_000;
+
+pub fn get_json_size_as_bytes(value: &serde_json::Value) -> usize {
+    serde_json::to_vec(value).map(|v| v.len()).unwrap_or(0)
 }
 
 impl FunctionRunResult {
     pub fn to_json(&self) -> String {
         serde_json::to_string_pretty(&self).unwrap_or_else(|error| error.to_string())
     }
+
+    pub fn input_size(&self) -> usize {
+        get_json_size_as_bytes(&self.input)
+    }
+
+    pub fn output_size(&self) -> usize {
+        match &self.output {
+            FunctionOutput::JsonOutput(value) => get_json_size_as_bytes(value),
+            FunctionOutput::InvalidJsonOutput(_value) => 0,
+        }
+    }
 }
 
-fn humanize_instructions(instructions: u64) -> String {
+fn humanize_size(size_bytes: u64, size_limit: u64) -> String {
+    let size_kb = size_bytes as f64 / 1024.0; // Convert bytes to kilobytes
+
+    if size_kb as u64 > size_limit {
+        format!("{:.2}", size_kb).red().to_string()
+    } else {
+        format!("{:.2}", size_kb)
+    }
+}
+
+fn humanize_instructions(instructions: u64, scale_factor: f64) -> String {
     let instructions_humanized = match instructions {
         0..=999 => instructions.to_string(),
         1000..=999_999 => format!("{}K", instructions as f64 / 1000.0),
@@ -44,12 +75,14 @@ fn humanize_instructions(instructions: u64) -> String {
         1_000_000_000..=u64::MAX => format!("{}B", instructions as f64 / 1_000_000_000.0),
     };
 
-    // here
-    match instructions {
-        0..=11_000_000 => format!("Instructions: {instructions_humanized}"),
-        11_000_001..=u64::MAX => format!("Instructions: {instructions_humanized}")
+    let instructions_limit = DEFAULT_INSTRUCTIONS_LIMIT as f64 * scale_factor;
+
+    if instructions > instructions_limit as u64 {
+        format!("Instructions: {}", instructions_humanized)
             .red()
-            .to_string(),
+            .to_string()
+    } else {
+        format!("Instructions: {}", instructions_humanized)
     }
 }
 
@@ -112,11 +145,29 @@ impl fmt::Display for FunctionRunResult {
             .black()
             .on_truecolor(150, 191, 72);
 
+        let input_size_limit = self.scale_factor * DEFAULT_INPUT_SIZE_LIMIT as f64;
+        let output_size_limit = self.scale_factor * DEFAULT_OUTPUT_SIZE_LIMIT as f64;
+
         write!(formatter, "\n\n{title}\n\n")?;
         writeln!(formatter, "Name: {}", self.name)?;
         writeln!(formatter, "Linear Memory Usage: {}KB", self.memory_usage)?;
-        writeln!(formatter, "{}", humanize_instructions(self.instructions))?;
-        writeln!(formatter, "Size: {}KB\n", self.size)?;
+        writeln!(
+            formatter,
+            "{}",
+            humanize_instructions(self.instructions, self.scale_factor)
+        )?;
+        writeln!(
+            formatter,
+            "Input Size: {}KB",
+            humanize_size(self.input_size() as u64, input_size_limit as u64)
+        )?;
+        writeln!(
+            formatter,
+            "Output Size: {}KB",
+            humanize_size(self.output_size() as u64, output_size_limit as u64)
+        )?;
+
+        writeln!(formatter, "Module Size: {}KB\n", self.size)?;
 
         Ok(())
     }
@@ -146,6 +197,7 @@ mod tests {
                 "test": "test"
             })),
             profile: None,
+            scale_factor: 1.0,
         };
 
         let predicate = predicates::str::contains("Instructions: 1.001K")
@@ -173,6 +225,7 @@ mod tests {
                 "test": "test"
             })),
             profile: None,
+            scale_factor: 1.0,
         };
 
         let predicate = predicates::str::contains("Instructions: 1")
@@ -199,6 +252,7 @@ mod tests {
                 "test": "test"
             })),
             profile: None,
+            scale_factor: 1.0,
         };
 
         let predicate = predicates::str::contains("Instructions: 999")
