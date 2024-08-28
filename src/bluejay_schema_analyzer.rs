@@ -86,4 +86,105 @@ mod tests {
         let result = BluejaySchemaAnalyzer::create_definition_document(schema);
         assert!(result.is_err());
     }
+
+    #[test]
+    fn test_create_schema_definition_valid() {
+        let schema_string = r#"
+            directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
+
+            type Query {
+                field: String @scaleLimits(rate: 0.005)
+            }
+        "#;
+        let definition_document = BluejaySchemaAnalyzer::create_definition_document(schema_string)
+            .expect("Schema had parse errors");
+        let result = BluejaySchemaAnalyzer::create_schema_definition(&definition_document);
+        eprintln!("{:?}", result);
+
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_create_schema_definition_invalid() {
+        let schema_string = r#"
+            type Query {
+                field: String @scaleLimits(rate: "invalid_rate")
+            }
+        "#;
+        let definition_document =
+            BluejaySchemaAnalyzer::create_definition_document(schema_string).unwrap();
+        let result = BluejaySchemaAnalyzer::create_schema_definition(&definition_document);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_analyze_schema_definition() {
+        let schema_string = r#"
+            directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
+
+            type Query {
+                field: String @scaleLimits(rate: 0.005)
+            }
+        "#;
+        let query = "{ field }";
+        let input_json = serde_json::json!({
+            "field": "value"
+        });
+
+        let definition_document =
+            BluejaySchemaAnalyzer::create_definition_document(schema_string).unwrap();
+        let schema_definition =
+            BluejaySchemaAnalyzer::create_schema_definition(&definition_document).unwrap();
+        let result =
+            BluejaySchemaAnalyzer::analyze_schema_definition(schema_definition, query, &input_json);
+
+        eprintln!("result => {:?}", result);
+
+        assert!(
+            result.is_ok(),
+            "Expected successful analysis but got an error: {:?}",
+            result
+        );
+
+        let scale_factor = result.unwrap();
+        let expected_scale_factor = 1.0; // This should be the expected result based on your application logic
+        assert_eq!(
+            scale_factor, expected_scale_factor,
+            "The scale factor did not match the expected value"
+        );
+    }
+
+    #[test]
+    fn test_analyze_schema_with_large_input() {
+        let schema_string = r#"
+            directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
+
+            type Query {
+                field: [String] @scaleLimits(rate: 0.005)
+            }
+        "#;
+        let query = "{ field }";
+        let input_json = serde_json::json!({
+            "field": (0..10000).map(|_| "value").collect::<Vec<_>>()
+        });
+
+        let definition_document =
+            BluejaySchemaAnalyzer::create_definition_document(schema_string).unwrap();
+        let schema_definition =
+            BluejaySchemaAnalyzer::create_schema_definition(&definition_document).unwrap();
+        let result =
+            BluejaySchemaAnalyzer::analyze_schema_definition(schema_definition, query, &input_json);
+
+        assert!(
+            result.is_ok(),
+            "Expected successful analysis but got an error: {:?}",
+            result
+        );
+        let scale_factor = result.unwrap();
+        let expected_scale_factor = 10.0; // Adjust based on your scaling logic
+        assert_eq!(
+            scale_factor, expected_scale_factor,
+            "The scale factor did not match the expected value"
+        );
+    }
 }
