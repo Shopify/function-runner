@@ -1,9 +1,12 @@
 use crate::scale_limits_analyzer::ScaleLimitsAnalyzer;
 use anyhow::{anyhow, Result};
-use bluejay_parser::ast::{
-    definition::{DefinitionDocument, SchemaDefinition},
-    executable::ExecutableDocument,
-    Parse,
+use bluejay_parser::{
+    ast::{
+        definition::{DefinitionDocument, SchemaDefinition},
+        executable::ExecutableDocument,
+        Parse,
+    },
+    Error,
 };
 use serde_json::to_string as to_json_string;
 
@@ -16,21 +19,13 @@ impl BluejaySchemaAnalyzer {
         input: &serde_json::Value,
     ) -> Result<f64> {
         let document_definition = DefinitionDocument::parse(schema_string)
-            .map_err(|e| anyhow!("Failed to parse schema: {:?}", e))?;
+            .map_err(|errors| anyhow!(Error::format_errors(schema_string, errors)))?;
 
-        let schema_definition =
-            SchemaDefinition::try_from(&document_definition).map_err(|errors| {
-                anyhow!(
-                    "Invalid Schema: {:?}",
-                    errors
-                        .iter()
-                        .map(|e| format!("{:?}", e))
-                        .collect::<Vec<_>>()
-                )
-            })?;
+        let schema_definition = SchemaDefinition::try_from(&document_definition)
+            .map_err(|errors| anyhow!(Error::format_errors(schema_string, errors)))?;
 
         let executable_document = ExecutableDocument::parse(query)
-            .map_err(|e| anyhow!("Error parsing query: {:?}", e))?;
+            .map_err(|errors| anyhow!(Error::format_errors(query, errors)))?;
 
         let cache =
             bluejay_validator::executable::Cache::new(&executable_document, &schema_definition);
