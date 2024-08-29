@@ -67,9 +67,8 @@ impl<'a>
             let value_for_field = match value {
                 Value::Object(object) => object.get(field.response_key()),
                 Value::Null => None,
-                _ => panic!("invalid value"),
+                _ => None,
             };
-            // TODO handle scaling for this value
             if let Some(rate) = rate {
                 let length = match value_for_field {
                     Some(Value::String(s)) => s.len(),
