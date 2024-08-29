@@ -1,5 +1,4 @@
 use crate::scale_limits_analyzer::ScaleLimitsAnalyzer;
-use bluejay_parser::error::Error as BluejayError;
 use bluejay_parser::{
     ast::{
         definition::{DefaultContext, DefinitionDocument, SchemaDefinition},
@@ -20,11 +19,11 @@ impl BluejaySchemaAnalyzer {
 
     pub fn create_schema_definition<'a>(
         definition_document: &'a DefinitionDocument,
-    ) -> Result<SchemaDefinition<'a, DefaultContext>, Vec<BluejayError>> {
+    ) -> Result<SchemaDefinition<'a, DefaultContext>, Vec<Error>> {
         SchemaDefinition::try_from(definition_document).map_err(|errors| {
             errors
                 .into_iter()
-                .map(|e| BluejayError::new(format!("Invalid Schema: {:?}", e), None, Vec::new()))
+                .map(|e| Error::new(format!("Invalid Schema: {e:?}"), None, Vec::new()))
                 .collect()
         })
     }
@@ -99,7 +98,6 @@ mod tests {
         let definition_document = BluejaySchemaAnalyzer::create_definition_document(schema_string)
             .expect("Schema had parse errors");
         let result = BluejaySchemaAnalyzer::create_schema_definition(&definition_document);
-        eprintln!("{:?}", result);
 
         assert!(result.is_ok());
     }
@@ -137,8 +135,6 @@ mod tests {
             BluejaySchemaAnalyzer::create_schema_definition(&definition_document).unwrap();
         let result =
             BluejaySchemaAnalyzer::analyze_schema_definition(schema_definition, query, &input_json);
-
-        eprintln!("result => {:?}", result);
 
         assert!(
             result.is_ok(),

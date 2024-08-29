@@ -89,13 +89,11 @@ struct Opts {
     #[clap(short = 'c', long, value_enum, default_value = "json")]
     codec: Codec,
 
-    // Also takes in schema string, CLI can generate this via 'generate schema'
-    /// Path to json file containing Function input; if omitted, stdin is used
+    // Path to graphql file containing Function schema; if omitted, defauls will be used to calculate limits.
     #[clap(short = 's', long, default_value = "schema.graphql")]
     schema_path: Option<PathBuf>,
 
-    // Also takes in schema string, CLI can generate this via 'generate schema'
-    /// Path to json file containing Function input; if omitted, stdin is used
+    // Path to graphql file containing Function input query; if omitted, defauls will be used to calculate limits.
     #[clap(short = 'q', long, default_value = "input.graphql")]
     query_path: Option<PathBuf>,
 }

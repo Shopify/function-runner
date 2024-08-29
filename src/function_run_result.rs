@@ -60,7 +60,7 @@ impl FunctionRunResult {
 fn humanize_size(size_bytes: u64, size_limit: u64) -> String {
     let size_kb = size_bytes as f64 / 1024.0; // Convert bytes to kilobytes
 
-    if size_kb as u64 > size_limit {
+    if size_bytes > size_limit {
         format!("{:.2}", size_kb).red().to_string()
     } else {
         format!("{:.2}", size_kb)
