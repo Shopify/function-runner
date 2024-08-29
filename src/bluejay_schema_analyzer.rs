@@ -40,7 +40,11 @@ impl BluejaySchemaAnalyzer {
             &cache,
             input,
         )
-        .map_err(|e| anyhow!("Error analyzing scale limits: Input: {} {:?}", input_str, e))
+        .map_err(|e| {
+            let error = Error::new(e.message(), None, vec![]);
+            let errors = vec![error];
+            anyhow!(Error::format_errors(&input_str, errors))
+        })
     }
 }
 
