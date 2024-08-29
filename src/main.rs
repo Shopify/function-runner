@@ -170,22 +170,27 @@ fn main() -> Result<()> {
     let mut buffer = Vec::new();
     input.read_to_end(&mut buffer)?;
 
-    let schema_string_read_result = opts.read_schema_to_string();
-    let query_string_read_result = opts.read_query_to_string();
+    let schema_string = opts.read_schema_to_string().unwrap_or_else(|e| {
+        eprintln!("Failed to read schema: {}", e);
+        String::new() // Use an empty string as a fallback
+    });
+
+    let query_string = opts.read_query_to_string().unwrap_or_else(|e| {
+        eprintln!("Failed to read query: {}", e);
+        String::new() // Use an empty string as a fallback
+    });
+
     let input_json: serde_json::Value = serde_json::from_slice(&buffer)?;
 
-    let mut scale_factor = 1.0;
-
-    if let (Ok(schema_string), Ok(query_string)) =
-        (schema_string_read_result, query_string_read_result)
-    {
-        scale_factor = BluejaySchemaAnalyzer::analyze_schema_definition(
-            &schema_string,
-            &query_string,
-            &input_json,
-        )
-        .unwrap();
-    } // else notify user of schema and/or query is bad - EX defaults are used to determine limits
+    let scale_factor = BluejaySchemaAnalyzer::analyze_schema_definition(
+        &schema_string,
+        &query_string,
+        &input_json,
+    )
+    .unwrap_or_else(|e| {
+        eprintln!("Error analyzing schema: {}", e);
+        1.0 // Use default scale factor on error
+    });
 
     let buffer = match opts.codec {
         Codec::Json => {
