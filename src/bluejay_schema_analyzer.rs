@@ -82,4 +82,62 @@ mod tests {
             "The scale factor did not match the expected value"
         );
     }
+
+    #[test]
+    fn test_analyze_schema_with_array_length_scaling() {
+        let schema_string = r#"
+            directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
+            type Query {
+                cartLines: [String] @scaleLimits(rate: 0.005)
+            }
+        "#;
+        let query = "{ cartLines }";
+        let input_json = json!({
+            "cartLines": vec!["item"; 300]
+        });
+
+        let result =
+            BluejaySchemaAnalyzer::analyze_schema_definition(schema_string, query, &input_json);
+        assert!(
+            result.is_ok(),
+            "Expected successful analysis but got an error: {:?}",
+            result
+        );
+
+        let scale_factor = result.unwrap();
+        let expected_scale_factor = 1.5; // Adjust this based on how your scale limits are defined
+        assert_eq!(
+            scale_factor, expected_scale_factor,
+            "The scale factor did not match the expected value for array length scaling"
+        );
+    }
+
+    #[test]
+    fn test_analyze_schema_with_array_length_scaling_to_max_scale_factor() {
+        let schema_string = r#"
+            directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
+            type Query {
+                cartLines: [String] @scaleLimits(rate: 0.005)
+            }
+        "#;
+        let query = "{ cartLines }";
+        let input_json = json!({
+            "cartLines": vec!["item"; 1000000] // value that would scale well beyond the max
+        });
+
+        let result =
+            BluejaySchemaAnalyzer::analyze_schema_definition(schema_string, query, &input_json);
+        assert!(
+            result.is_ok(),
+            "Expected successful analysis but got an error: {:?}",
+            result
+        );
+
+        let scale_factor = result.unwrap();
+        let expected_scale_factor = 10.0;
+        assert_eq!(
+            scale_factor, expected_scale_factor,
+            "The scale factor did not match the expected value for array length scaling"
+        );
+    }
 }
