@@ -186,10 +186,12 @@ fn main() -> Result<()> {
         BluejaySchemaAnalyzer::analyze_schema_definition(&schema_string, &query_string, &input_json)
             .unwrap_or_else(|e| {
                 eprintln!("Error analyzing schema: {}", e);
+                eprintln!("Default resource limits will be used.");
                 1.0 // Use default scale factor on error
             })
     } else {
-        eprintln!("Analysis skipped due to missing schema or query. Default resource limits will be used.");
+        eprintln!("Analysis skipped due to missing schema or query.");
+        println!(" Default resource limits will be used.");
         1.0 // Use default scale factor when schema or query is missing
     };
 
