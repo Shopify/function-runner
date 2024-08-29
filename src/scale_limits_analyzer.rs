@@ -1,8 +1,7 @@
-use bluejay_core::definition::SchemaDefinition as CoreSchemaDefinition;
-use bluejay_core::AsIter;
-use bluejay_core::Directive;
-use bluejay_core::Value as CoreValue;
-use bluejay_core::{definition::prelude::*, ValueReference};
+use bluejay_core::{
+    definition::{prelude::*, SchemaDefinition as CoreSchemaDefinition},
+    AsIter, Directive, Value as CoreValue, ValueReference,
+};
 use bluejay_parser::ast::{
     definition::FieldDefinition,
     definition::{DefaultContext, SchemaDefinition},
