@@ -173,29 +173,19 @@ fn main() -> Result<()> {
     let schema_string_read_result = opts.read_schema_to_string();
     let query_string_read_result = opts.read_query_to_string();
     let input_json: serde_json::Value = serde_json::from_slice(&buffer)?;
+
     let mut scale_factor = 1.0;
 
     if let (Ok(schema_string), Ok(query_string)) =
         (schema_string_read_result, query_string_read_result)
     {
-        let document_definition =
-            BluejaySchemaAnalyzer::create_definition_document(&schema_string).unwrap();
-
-        let schema_result = BluejaySchemaAnalyzer::create_schema_definition(&document_definition);
-
-        scale_factor = match schema_result {
-            Ok(schema) => {
-                BluejaySchemaAnalyzer::analyze_schema_definition(schema, &query_string, &input_json)
-                    .unwrap_or(1.0)
-            }
-            Err(errors) => {
-                for error in errors {
-                    eprintln!("Error creating schema definition: {:?}", error);
-                }
-                1.0
-            }
-        };
-    }
+        scale_factor = BluejaySchemaAnalyzer::analyze_schema_definition(
+            &schema_string,
+            &query_string,
+            &input_json,
+        )
+        .unwrap();
+    } // else notify user of schema and/or query is bad - EX defaults are used to determine limits
 
     let buffer = match opts.codec {
         Codec::Json => {
