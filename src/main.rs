@@ -181,7 +181,13 @@ fn main() -> Result<()> {
     });
 
     let scale_factor = if !schema_string.is_empty() && !query_string.is_empty() {
-        let input_json: serde_json::Value = serde_json::from_slice(&buffer)?;
+        let input_json: serde_json::Value = match serde_json::from_slice(&buffer) {
+            Ok(json) => json,
+            Err(e) => {
+                eprintln!("Failed to parse input as JSON: {}", e);
+                return Err(anyhow!("Invalid input JSON: {}", e));
+            }
+        };
 
         BluejaySchemaAnalyzer::analyze_schema_definition(&schema_string, &query_string, &input_json)
             .unwrap_or_else(|e| {
