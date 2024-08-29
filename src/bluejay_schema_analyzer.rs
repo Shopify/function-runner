@@ -5,6 +5,7 @@ use bluejay_parser::ast::{
     executable::ExecutableDocument,
     Parse,
 };
+use serde_json::to_string as to_json_string;
 
 pub struct BluejaySchemaAnalyzer;
 
@@ -34,6 +35,8 @@ impl BluejaySchemaAnalyzer {
         let cache =
             bluejay_validator::executable::Cache::new(&executable_document, &schema_definition);
 
+        let input_str = to_json_string(input).unwrap_or_else(|_| "<invalid JSON>".to_string());
+
         ScaleLimitsAnalyzer::analyze(
             &executable_document,
             &schema_definition,
@@ -42,7 +45,7 @@ impl BluejaySchemaAnalyzer {
             &cache,
             input,
         )
-        .map_err(|e| anyhow!("Error analyzing scale limits: {:?}", e))
+        .map_err(|e| anyhow!("Error analyzing scale limits: Input: {} {:?}", input_str, e))
     }
 }
 
