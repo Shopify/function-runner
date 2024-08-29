@@ -134,23 +134,19 @@ impl<'a> ScaleLimits<'a> {
     fn rate_for_field_definition(
         field_definition: &FieldDefinition<DefaultContext>,
     ) -> Option<f64> {
-        field_definition.directives().and_then(|directives| {
-            directives
-                .iter()
-                .find(|directive| directive.name() == "scaleLimits")
-                .and_then(|directive| directive.arguments())
-                .and_then(|arguments| {
-                    arguments
-                        .iter()
-                        .find(|argument| argument.name() == "rate")
-                        .and_then(|argument| {
-                            if let ValueReference::Float(rate) = argument.value().as_ref() {
-                                Some(rate)
-                            } else {
-                                None
-                            }
-                        })
-                })
-        })
+        field_definition
+            .directives()
+            .iter()
+            .flat_map(|directives| directives.iter())
+            .find(|directive| directive.name() == "scaleLimits")
+            .and_then(|directive| directive.arguments())
+            .and_then(|arguments| arguments.iter().find(|argument| argument.name() == "rate"))
+            .and_then(|argument| {
+                if let ValueReference::Float(rate) = argument.value().as_ref() {
+                    Some(rate)
+                } else {
+                    None
+                }
+            })
     }
 }
