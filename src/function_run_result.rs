@@ -57,13 +57,13 @@ impl FunctionRunResult {
     }
 }
 
-fn humanize_size(size_bytes: u64, size_limit: u64) -> String {
+fn humanize_size(size_bytes: u64, size_limit: u64, title: &str) -> String {
     let size_kb = size_bytes as f64 / 1024.0; // Convert bytes to kilobytes
 
     if size_bytes > size_limit {
-        format!("{:.2}", size_kb).red().to_string()
+        format!("{}: {:.2}", title, size_kb).red().to_string()
     } else {
-        format!("{:.2}", size_kb)
+        format!("{}: {:.2}", title, size_kb)
     }
 }
 
@@ -158,13 +158,21 @@ impl fmt::Display for FunctionRunResult {
         )?;
         writeln!(
             formatter,
-            "Input Size: {}KB",
-            humanize_size(self.input_size() as u64, input_size_limit as u64)
+            "{}",
+            humanize_size(
+                self.input_size() as u64,
+                input_size_limit as u64,
+                "Input Size",
+            )
         )?;
         writeln!(
             formatter,
-            "Output Size: {}KB",
-            humanize_size(self.output_size() as u64, output_size_limit as u64)
+            "{}",
+            humanize_size(
+                self.output_size() as u64,
+                output_size_limit as u64,
+                "Output Size"
+            )
         )?;
 
         writeln!(formatter, "Module Size: {}KB\n", self.size)?;
