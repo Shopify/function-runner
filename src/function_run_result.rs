@@ -61,9 +61,9 @@ fn humanize_size(size_bytes: u64, size_limit: u64, title: &str) -> String {
     let size_kb = size_bytes as f64 / 1024.0; // Convert bytes to kilobytes
 
     if size_bytes > size_limit {
-        format!("{}: {:.2}", title, size_kb).red().to_string()
+        format!("{}: {:.2}KB", title, size_kb).red().to_string()
     } else {
-        format!("{}: {:.2}", title, size_kb)
+        format!("{}: {:.2}KB", title, size_kb)
     }
 }
 
