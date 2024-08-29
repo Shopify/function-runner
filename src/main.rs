@@ -172,25 +172,26 @@ fn main() -> Result<()> {
 
     let schema_string = opts.read_schema_to_string().unwrap_or_else(|e| {
         eprintln!("Failed to read schema: {}", e);
-        String::new() // Use an empty string as a fallback
+        String::new()
     });
 
     let query_string = opts.read_query_to_string().unwrap_or_else(|e| {
         eprintln!("Failed to read query: {}", e);
-        String::new() // Use an empty string as a fallback
+        String::new()
     });
 
-    let input_json: serde_json::Value = serde_json::from_slice(&buffer)?;
+    let scale_factor = if !schema_string.is_empty() && !query_string.is_empty() {
+        let input_json: serde_json::Value = serde_json::from_slice(&buffer)?;
 
-    let scale_factor = BluejaySchemaAnalyzer::analyze_schema_definition(
-        &schema_string,
-        &query_string,
-        &input_json,
-    )
-    .unwrap_or_else(|e| {
-        eprintln!("Error analyzing schema: {}", e);
-        1.0 // Use default scale factor on error
-    });
+        BluejaySchemaAnalyzer::analyze_schema_definition(&schema_string, &query_string, &input_json)
+            .unwrap_or_else(|e| {
+                eprintln!("Error analyzing schema: {}", e);
+                1.0 // Use default scale factor on error
+            })
+    } else {
+        eprintln!("Analysis skipped due to missing schema or query. Default resource limits will be used.");
+        1.0 // Use default scale factor when schema or query is missing
+    };
 
     let buffer = match opts.codec {
         Codec::Json => {
