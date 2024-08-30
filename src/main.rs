@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 
 use clap::{Parser, ValueEnum};
 use function_runner::{
@@ -13,32 +13,8 @@ use function_runner::{
 };
 
 use is_terminal::IsTerminal;
-use serde::Deserialize;
-use serde::Serialize;
 
 const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
-
-// todo: get rid of these
-#[derive(Serialize, Deserialize, Debug)]
-struct Input {
-    cart: Cart,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Cart {
-    lines: Vec<CartLine>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct CartLine {
-    quantity: u32,
-    merchandise: Merchandise,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Merchandise {
-    id: String,
-}
 
 /// Supported input flavors
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -89,11 +65,11 @@ struct Opts {
     #[clap(short = 'c', long, value_enum, default_value = "json")]
     codec: Codec,
 
-    // Path to graphql file containing Function schema; if omitted, defauls will be used to calculate limits.
+    /// Path to graphql file containing Function schema; if omitted, defauls will be used to calculate limits.
     #[clap(short = 's', long, default_value = "schema.graphql")]
     schema_path: Option<PathBuf>,
 
-    // Path to graphql file containing Function input query; if omitted, defauls will be used to calculate limits.
+    /// Path to graphql file containing Function input query; if omitted, defauls will be used to calculate limits.
     #[clap(short = 'q', long, default_value = "input.graphql")]
     query_path: Option<PathBuf>,
 }
@@ -142,12 +118,12 @@ impl Opts {
 }
 
 fn read_file_to_string(file_path: &PathBuf) -> Result<String> {
-    let mut file =
-        File::open(file_path).map_err(|e| anyhow!("Couldn't open file {:?}: {}", file_path, e))?;
+    let mut file = File::open(file_path)
+        .map_err(|e| anyhow!("Couldn't open file {}: {}", file_path.to_string_lossy(), e))?;
 
     let mut contents = String::new();
     file.read_to_string(&mut contents)
-        .map_err(|e| anyhow!("Couldn't read file {:?}: {}", file_path, e))?;
+        .map_err(|e| anyhow!("Couldn't read file {}: {}", file_path.to_string_lossy(), e))?;
 
     Ok(contents)
 }
@@ -185,7 +161,7 @@ fn main() -> Result<()> {
             Ok(json) => json,
             Err(e) => {
                 eprintln!("Failed to parse input as JSON: {}", e);
-                return Err(anyhow!("Invalid input JSON: {}", e));
+                bail!("Invalid input JSON: {}", e)
             }
         };
 
@@ -197,7 +173,7 @@ fn main() -> Result<()> {
             })
     } else {
         eprintln!("Analysis skipped due to missing schema or query.");
-        println!(" Default resource limits will be used.");
+        eprintln!("Default resource limits will be used.");
         1.0 // Use default scale factor when schema or query is missing
     };
 
