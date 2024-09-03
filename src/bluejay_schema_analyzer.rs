@@ -145,13 +145,12 @@ mod tests {
         let schema_string = r#"
             directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
             type Query {
-                field: [String] @scaleLimits(rate: 0.05)
+                field: [String] @scaleLimits(rate: 0.005)
             }
         "#;
-        // Querying the same field multiple times, where field is an array
         let query = "{ field field }";
         let input_json = json!({
-            "field": vec!["value"; 200]  // Array of length 200
+            "field": vec!["value"; 200]
         });
 
         let result =
@@ -163,9 +162,7 @@ mod tests {
         );
 
         let scale_factor = result.unwrap();
-        // Expect the scale factor to be as if the field were queried only once
-        // Since the array length is 200, and the rate is 0.1, the expected scale factor is 20.0
-        let expected_scale_factor = 1.0; // This should match the rate defined in the schema for a single occurrence of the field multiplied by the array length
+        let expected_scale_factor = 1.0;
         assert_eq!(
             scale_factor, expected_scale_factor,
             "The scale factor did not match the expected value, indicating potential double counting"

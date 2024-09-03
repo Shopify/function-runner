@@ -77,9 +77,12 @@ impl<'a>
                 };
                 let increment = length as f64 * rate;
 
-                let existing_rate = self.rates.entry(self.path_stack.clone()).or_insert(0.0);
-                if increment > *existing_rate {
-                    *existing_rate = increment;
+                if let Some(cumulative_rate_for_path) = self.rates.get_mut(&self.path_stack) {
+                    if increment > *cumulative_rate_for_path {
+                        *cumulative_rate_for_path = increment;
+                    }
+                } else {
+                    self.rates.insert(self.path_stack.clone(), increment);
                 }
             }
 
@@ -142,7 +145,6 @@ impl<'a> ScaleLimits<'a> {
             .and_then(|arguments| arguments.iter().find(|argument| argument.name() == "rate"))
             .and_then(|argument| {
                 if let ValueReference::Float(rate) = argument.value().as_ref() {
-                    eprint!("FOUND RATE {:?}", rate);
                     Some(rate)
                 } else {
                     None
