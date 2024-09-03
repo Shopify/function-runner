@@ -92,7 +92,7 @@ mod tests {
         "#;
         let query = "{ cartLines }";
         let input_json = json!({
-            "cartLines": vec!["item"; 300]
+            "cartLines": vec!["moeowomeow"; 500]
         });
 
         let result =
@@ -104,7 +104,7 @@ mod tests {
         );
 
         let scale_factor = result.unwrap();
-        let expected_scale_factor = 1.5; // Adjust this based on how your scale limits are defined
+        let expected_scale_factor = 2.5; // Adjust this based on how your scale limits are defined
         assert_eq!(
             scale_factor, expected_scale_factor,
             "The scale factor did not match the expected value for array length scaling"
@@ -137,6 +137,38 @@ mod tests {
         assert_eq!(
             scale_factor, expected_scale_factor,
             "The scale factor did not match the expected value for array length scaling"
+        );
+    }
+
+    #[test]
+    fn test_no_double_counting_for_duplicate_fields_with_array() {
+        let schema_string = r#"
+            directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
+            type Query {
+                field: [String] @scaleLimits(rate: 0.05)
+            }
+        "#;
+        // Querying the same field multiple times, where field is an array
+        let query = "{ field field }";
+        let input_json = json!({
+            "field": vec!["value"; 200]  // Array of length 200
+        });
+
+        let result =
+            BluejaySchemaAnalyzer::analyze_schema_definition(schema_string, query, &input_json);
+        assert!(
+            result.is_ok(),
+            "Expected successful analysis but got an error: {:?}",
+            result
+        );
+
+        let scale_factor = result.unwrap();
+        // Expect the scale factor to be as if the field were queried only once
+        // Since the array length is 200, and the rate is 0.1, the expected scale factor is 20.0
+        let expected_scale_factor = 1.0; // This should match the rate defined in the schema for a single occurrence of the field multiplied by the array length
+        assert_eq!(
+            scale_factor, expected_scale_factor,
+            "The scale factor did not match the expected value, indicating potential double counting"
         );
     }
 }

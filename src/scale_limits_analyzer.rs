@@ -62,6 +62,7 @@ impl<'a>
         let rate = Self::rate_for_field_definition(field_definition);
         let values = self.value_stack.last().unwrap();
         let mut nested_values = Vec::new();
+
         values.iter().for_each(|value| {
             let value_for_field = match value {
                 Value::Object(object) => object.get(field.response_key()),
@@ -76,10 +77,9 @@ impl<'a>
                 };
                 let increment = length as f64 * rate;
 
-                if let Some(cumulative_rate_for_path) = self.rates.get_mut(&self.path_stack) {
-                    *cumulative_rate_for_path += increment;
-                } else {
-                    self.rates.insert(self.path_stack.clone(), increment);
+                let existing_rate = self.rates.entry(self.path_stack.clone()).or_insert(0.0);
+                if increment > *existing_rate {
+                    *existing_rate = increment;
                 }
             }
 
@@ -142,6 +142,7 @@ impl<'a> ScaleLimits<'a> {
             .and_then(|arguments| arguments.iter().find(|argument| argument.name() == "rate"))
             .and_then(|argument| {
                 if let ValueReference::Float(rate) = argument.value().as_ref() {
+                    eprint!("FOUND RATE {:?}", rate);
                     Some(rate)
                 } else {
                     None
