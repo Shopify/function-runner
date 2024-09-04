@@ -30,7 +30,7 @@ impl BluejaySchemaAnalyzer {
         let cache =
             bluejay_validator::executable::Cache::new(&executable_document, &schema_definition);
 
-        let input_str = to_json_string(input).unwrap_or_else(|_| "<invalid JSON>".to_string());
+        let input_str = to_json_string(input)?;
 
         ScaleLimitsAnalyzer::analyze(
             &executable_document,

@@ -15,6 +15,7 @@ use function_runner::{
 use is_terminal::IsTerminal;
 
 const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
+const DEFAULT_SCALE_FACTOR: f64 = 1.0;
 
 /// Supported input flavors
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -166,15 +167,11 @@ fn main() -> Result<()> {
         };
 
         BluejaySchemaAnalyzer::analyze_schema_definition(&schema_string, &query_string, &input_json)
-            .unwrap_or_else(|e| {
-                eprintln!("Error analyzing schema: {}", e);
-                eprintln!("Default resource limits will be used.");
-                1.0 // Use default scale factor on error
-            })
+            .unwrap_or_else(
+                |_e| DEFAULT_SCALE_FACTOR, // Use default scale factor on error
+            )
     } else {
-        eprintln!("Analysis skipped due to missing schema or query.");
-        eprintln!("Default resource limits will be used.");
-        1.0 // Use default scale factor when schema or query is missing
+        DEFAULT_SCALE_FACTOR // Use default scale factor when schema or query is missing
     };
 
     let buffer = match opts.codec {
