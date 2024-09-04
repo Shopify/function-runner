@@ -14,17 +14,19 @@ pub struct BluejaySchemaAnalyzer;
 impl BluejaySchemaAnalyzer {
     pub fn analyze_schema_definition(
         schema_string: &str,
+        schema_path: Option<&str>,
         query: &str,
+        query_path: Option<&str>,
         input: &serde_json::Value,
     ) -> Result<f64> {
         let document_definition = DefinitionDocument::parse(schema_string)
-            .map_err(|errors| anyhow!(Error::format_errors(schema_string, errors)))?;
+            .map_err(|errors| anyhow!(Error::format_errors(schema_string, schema_path, errors)))?;
 
         let schema_definition = SchemaDefinition::try_from(&document_definition)
-            .map_err(|errors| anyhow!(Error::format_errors(schema_string, errors)))?;
+            .map_err(|errors| anyhow!(Error::format_errors(schema_string, schema_path, errors)))?;
 
         let executable_document = ExecutableDocument::parse(query)
-            .map_err(|errors| anyhow!(Error::format_errors(query, errors)))?;
+            .map_err(|errors| anyhow!(Error::format_errors(query, query_path, errors)))?;
 
         let cache =
             bluejay_validator::executable::Cache::new(&executable_document, &schema_definition);
@@ -37,7 +39,7 @@ impl BluejaySchemaAnalyzer {
             &cache,
             input,
         )
-        .map_err(|e| anyhow!(e.message()))
+        .map_err(|e| anyhow!("Unable to analyze scale limits: {}", e.message()))
     }
 }
 
@@ -59,8 +61,13 @@ mod tests {
             "field": "value"
         });
 
-        let result =
-            BluejaySchemaAnalyzer::analyze_schema_definition(schema_string, query, &input_json);
+        let result = BluejaySchemaAnalyzer::analyze_schema_definition(
+            schema_string,
+            Some("schema.graphql"),
+            query,
+            Some("query.graphql"),
+            &input_json,
+        );
         assert!(
             result.is_ok(),
             "Expected successful analysis but got an error: {:?}",
@@ -88,8 +95,13 @@ mod tests {
             "cartLines": vec!["moeowomeow"; 500]
         });
 
-        let result =
-            BluejaySchemaAnalyzer::analyze_schema_definition(schema_string, query, &input_json);
+        let result = BluejaySchemaAnalyzer::analyze_schema_definition(
+            schema_string,
+            Some("schema.graphql"),
+            query,
+            Some("query.graphql"),
+            &input_json,
+        );
         assert!(
             result.is_ok(),
             "Expected successful analysis but got an error: {:?}",
@@ -117,8 +129,13 @@ mod tests {
             "cartLines": vec!["item"; 1000000] // value that would scale well beyond the max
         });
 
-        let result =
-            BluejaySchemaAnalyzer::analyze_schema_definition(schema_string, query, &input_json);
+        let result = BluejaySchemaAnalyzer::analyze_schema_definition(
+            schema_string,
+            Some("schema.graphql"),
+            query,
+            Some("query.graphql"),
+            &input_json,
+        );
         assert!(
             result.is_ok(),
             "Expected successful analysis but got an error: {:?}",
@@ -133,6 +150,8 @@ mod tests {
         );
     }
 
+    // add test for schema and query are invalid.
+
     #[test]
     fn test_no_double_counting_for_duplicate_fields_with_array() {
         let schema_string = r#"
@@ -146,8 +165,13 @@ mod tests {
             "field": vec!["value"; 200]
         });
 
-        let result =
-            BluejaySchemaAnalyzer::analyze_schema_definition(schema_string, query, &input_json);
+        let result = BluejaySchemaAnalyzer::analyze_schema_definition(
+            schema_string,
+            Some("schema.graphql"),
+            query,
+            Some("query.graphql"),
+            &input_json,
+        );
         assert!(
             result.is_ok(),
             "Expected successful analysis but got an error: {:?}",
@@ -180,8 +204,13 @@ mod tests {
             "field": vec![nested_field; 2]
         });
 
-        let result =
-            BluejaySchemaAnalyzer::analyze_schema_definition(schema_string, query, &input_json);
+        let result = BluejaySchemaAnalyzer::analyze_schema_definition(
+            schema_string,
+            Some("schema.graphql"),
+            query,
+            Some("query.graphql"),
+            &input_json,
+        );
         assert!(
             result.is_ok(),
             "Expected successful analysis but got an error: {:?}",

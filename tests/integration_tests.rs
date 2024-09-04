@@ -192,6 +192,17 @@ mod tests {
         Ok(())
     }
 
+    // output is expected
+    // pass in correct inputs
+    // add some with small input and use high scale rate (or just use a big one)
+    // test if there an easy way to see output and limits
+
+    // errors test
+    // test 1: schema file does not exist, do we get right error
+    // test 2: query error
+
+    // Nick: error or not in cases where one of query / schema are invalid or missing
+
     #[test]
     fn exports() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;

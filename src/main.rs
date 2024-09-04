@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
 
 use clap::{Parser, ValueEnum};
 use function_runner::{
@@ -67,11 +67,11 @@ struct Opts {
     codec: Codec,
 
     /// Path to graphql file containing Function schema; if omitted, defauls will be used to calculate limits.
-    #[clap(short = 's', long, default_value = "schema.graphql")]
+    #[clap(short = 's', long)]
     schema_path: Option<PathBuf>,
 
     /// Path to graphql file containing Function input query; if omitted, defauls will be used to calculate limits.
-    #[clap(short = 'q', long, default_value = "input.graphql")]
+    #[clap(short = 'q', long)]
     query_path: Option<PathBuf>,
 }
 
@@ -103,18 +103,12 @@ impl Opts {
         path
     }
 
-    pub fn read_schema_to_string(&self) -> Result<String> {
-        self.schema_path
-            .as_ref()
-            .ok_or_else(|| anyhow!("Schema file path is not provided"))
-            .and_then(read_file_to_string)
+    pub fn read_schema_to_string(&self) -> Option<Result<String>> {
+        self.schema_path.as_ref().map(read_file_to_string)
     }
 
-    pub fn read_query_to_string(&self) -> Result<String> {
-        self.query_path
-            .as_ref()
-            .ok_or_else(|| anyhow!("Query file path is not provided"))
-            .and_then(read_file_to_string)
+    pub fn read_query_to_string(&self) -> Option<Result<String>> {
+        self.query_path.as_ref().map(read_file_to_string)
     }
 }
 
@@ -147,46 +141,38 @@ fn main() -> Result<()> {
     let mut buffer = Vec::new();
     input.read_to_end(&mut buffer)?;
 
-    let schema_string = opts.read_schema_to_string().unwrap_or_else(|e| {
-        eprintln!("Failed to read schema: {}", e);
-        String::new()
-    });
+    let schema_string = opts.read_schema_to_string().transpose()?;
 
-    let query_string = opts.read_query_to_string().unwrap_or_else(|e| {
-        eprintln!("Failed to read query: {}", e);
-        String::new()
-    });
+    let query_string = opts.read_query_to_string().transpose()?;
 
-    let scale_factor = if !schema_string.is_empty() && !query_string.is_empty() {
-        let input_json: serde_json::Value = match serde_json::from_slice(&buffer) {
-            Ok(json) => json,
-            Err(e) => {
-                eprintln!("Failed to parse input as JSON: {}", e);
-                bail!("Invalid input JSON: {}", e)
-            }
-        };
-
-        BluejaySchemaAnalyzer::analyze_schema_definition(&schema_string, &query_string, &input_json)
-            .unwrap_or_else(
-                |_e| DEFAULT_SCALE_FACTOR, // Use default scale factor on error
-            )
-    } else {
-        DEFAULT_SCALE_FACTOR // Use default scale factor when schema or query is missing
-    };
-
-    let buffer = match opts.codec {
+    let (json_value, buffer) = match opts.codec {
         Codec::Json => {
-            let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
+            let json = serde_json::from_slice::<serde_json::Value>(&buffer)
                 .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
-            buffer
+            (Some(json), buffer)
         }
-        Codec::Raw => buffer,
+        Codec::Raw => (None, buffer),
         Codec::JsonToMessagepack => {
             let json: serde_json::Value = serde_json::from_slice(&buffer)
                 .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
-            rmp_serde::to_vec(&json)
-                .map_err(|e| anyhow!("Couldn't convert JSON to MessagePack: {}", e))?
+            let bytes = rmp_serde::to_vec(&json)
+                .map_err(|e| anyhow!("Couldn't convert JSON to MessagePack: {}", e))?;
+            (Some(json), bytes)
         }
+    };
+
+    let scale_factor = if let (Some(schema_string), Some(query_string), Some(json_value)) =
+        (schema_string, query_string, json_value)
+    {
+        BluejaySchemaAnalyzer::analyze_schema_definition(
+            &schema_string,
+            opts.schema_path.as_ref().and_then(|p| p.to_str()),
+            &query_string,
+            opts.query_path.as_ref().and_then(|p| p.to_str()),
+            &json_value,
+        )?
+    } else {
+        DEFAULT_SCALE_FACTOR // Use default scale factor when schema or query is missing
     };
 
     let profile_opts = opts.profile_opts();

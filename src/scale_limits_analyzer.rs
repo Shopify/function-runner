@@ -18,10 +18,16 @@ pub type ScaleLimitsAnalyzer<'a> = bluejay_validator::executable::operation::Orc
     ScaleLimits<'a>,
 >;
 
+#[derive(Hash, PartialEq, Eq, Debug)]
+struct PathWithIndex<'a> {
+    path: Vec<&'a str>,
+    index: usize,
+}
+
 pub struct ScaleLimits<'a> {
     value_stack: Vec<Vec<&'a Value>>,
     path_stack: Vec<&'a str>,
-    rates: HashMap<Vec<&'a str>, f64>,
+    rates: HashMap<PathWithIndex<'a>, f64>,
 }
 
 impl<'a>
@@ -63,7 +69,7 @@ impl<'a>
         let values = self.value_stack.last().unwrap();
         let mut nested_values = Vec::new();
 
-        values.iter().for_each(|value| {
+        values.iter().enumerate().for_each(|(index, value)| {
             let value_for_field = match value {
                 Value::Object(object) => object.get(field.response_key()),
                 Value::Null => None,
@@ -77,13 +83,14 @@ impl<'a>
                 };
                 let increment = length as f64 * rate;
 
-                if let Some(cumulative_rate_for_path) = self.rates.get_mut(&self.path_stack) {
-                    if increment > *cumulative_rate_for_path {
-                        *cumulative_rate_for_path = increment;
-                    }
-                } else {
-                    self.rates.insert(self.path_stack.clone(), increment);
-                }
+                let path_with_index = PathWithIndex {
+                    path: self.path_stack.clone(),
+                    index,
+                };
+
+                let entry = self.rates.entry(path_with_index).or_default();
+
+                *entry = entry.max(increment);
             }
 
             match value_for_field {
@@ -122,7 +129,15 @@ impl<'a>
     type Output = f64;
 
     fn into_output(self) -> Self::Output {
-        self.rates
+        let normalized_rates = self.rates.into_iter().fold(
+            HashMap::new(),
+            |mut normalized_rates, (PathWithIndex { path, .. }, rate)| {
+                *normalized_rates.entry(path).or_default() += rate;
+                normalized_rates
+            },
+        );
+
+        normalized_rates
             .into_values()
             .fold(Self::MIN_SCALE_FACTOR, f64::max)
             .clamp(Self::MIN_SCALE_FACTOR, Self::MAX_SCALE_FACTOR)

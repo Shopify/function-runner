@@ -232,7 +232,7 @@ dependencies = [
 [[package]]
 name = "bluejay-core"
 version = "0.1.0"
-source = "git+https://github.com/Shopify/bluejay.git?rev=895b3783e98bce4e6d9756133fb23351b635de38#895b3783e98bce4e6d9756133fb23351b635de38"
+source = "git+https://github.com/Shopify/bluejay.git?rev=c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf#c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf"
 dependencies = [
  "enum-as-inner",
  "itertools 0.13.0",
@@ -244,7 +244,7 @@ dependencies = [
 [[package]]
 name = "bluejay-parser"
 version = "0.1.0"
-source = "git+https://github.com/Shopify/bluejay.git?rev=895b3783e98bce4e6d9756133fb23351b635de38#895b3783e98bce4e6d9756133fb23351b635de38"
+source = "git+https://github.com/Shopify/bluejay.git?rev=c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf#c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf"
 dependencies = [
  "ariadne",
  "bluejay-core",
@@ -257,7 +257,7 @@ dependencies = [
 [[package]]
 name = "bluejay-validator"
 version = "0.1.0"
-source = "git+https://github.com/Shopify/bluejay.git?rev=895b3783e98bce4e6d9756133fb23351b635de38#895b3783e98bce4e6d9756133fb23351b635de38"
+source = "git+https://github.com/Shopify/bluejay.git?rev=c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf#c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf"
 dependencies = [
  "bluejay-core",
  "bluejay-parser",
