@@ -8,7 +8,6 @@ use bluejay_parser::{
     },
     Error,
 };
-use serde_json::to_string as to_json_string;
 
 pub struct BluejaySchemaAnalyzer;
 
@@ -30,8 +29,6 @@ impl BluejaySchemaAnalyzer {
         let cache =
             bluejay_validator::executable::Cache::new(&executable_document, &schema_definition);
 
-        let input_str = to_json_string(input)?;
-
         ScaleLimitsAnalyzer::analyze(
             &executable_document,
             &schema_definition,
@@ -40,11 +37,7 @@ impl BluejaySchemaAnalyzer {
             &cache,
             input,
         )
-        .map_err(|e| {
-            let error = Error::new(e.message(), None, vec![]);
-            let errors = vec![error];
-            anyhow!(Error::format_errors(&input_str, errors))
-        })
+        .map_err(|e| anyhow!(e.message()))
     }
 }
 
