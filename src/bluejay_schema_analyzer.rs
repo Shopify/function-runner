@@ -150,7 +150,61 @@ mod tests {
         );
     }
 
-    // add test for schema and query are invalid.
+    #[test]
+    fn test_invalid_schema() {
+        let invalid_schema_string = r#"
+            directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
+            type Query {
+                field: String @scaleLimits(rate: "invalid")  // Invalid rate type
+            }
+        "#;
+        let valid_query = "query { field }";
+        let input_json = json!({
+            "field": "value"
+        });
+
+        let result = BluejaySchemaAnalyzer::analyze_schema_definition(
+            invalid_schema_string,
+            Some("invalid_schema.graphql"),
+            valid_query,
+            Some("query.graphql"),
+            &input_json,
+        );
+
+        assert!(
+            result.is_err(),
+            "Expected an error due to invalid schema and query, but got success: {:?}",
+            result
+        );
+    }
+
+    #[test]
+    fn test_invalid_query() {
+        let schema_string = r#"
+            directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
+            type Query {
+                field: String @scaleLimits(rate: 0.005) 
+            }
+        "#;
+        let invalid_query = "query { field ";
+        let input_json = json!({
+            "field": "value"
+        });
+
+        let result = BluejaySchemaAnalyzer::analyze_schema_definition(
+            schema_string,
+            Some("schema.graphql"),
+            invalid_query,
+            Some("invalid_query.graphql"),
+            &input_json,
+        );
+
+        assert!(
+            result.is_err(),
+            "Expected an error due to invalid schema and query, but got success: {:?}",
+            result
+        );
+    }
 
     #[test]
     fn test_no_double_counting_for_duplicate_fields_with_array() {
