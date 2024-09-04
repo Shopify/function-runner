@@ -1,7 +1,0 @@
-query {
-  cart {
-    lines {
-      quantity
-    }
-  }
-}
