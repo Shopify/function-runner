@@ -257,4 +257,61 @@ mod tests {
 
         Ok(file)
     }
+
+    #[test]
+    fn test_scale_limits_analyzer_with_missing_paths() -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({"cart": {
+            "lines": [
+            {"quantity": 2}
+            ]
+        }}))?;
+
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+            .arg("--input")
+            .arg(input_file.as_os_str());
+        cmd.assert().success();
+
+        cmd.assert()
+            .success()
+            .stdout(contains("Input Size: 62.50KB"))
+            .stdout(contains("Output Size: 19.53KB"))
+            .stdout(contains("Instructions: 11.00M"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_scale_limits_analyzer_with_scaled_limits() -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+
+        let input_data = vec![json!({"quantity": 2}); 400];
+        let json_data = json!({
+            "cart": {
+                "lines": input_data
+            }
+        });
+        let input_file = temp_input(json_data)?;
+
+        // Define paths to the schema, query, and input JSON files
+        let schema_path = "tests/fixtures/schema/yolo-schema_willnotmerge.graphql";
+        let query_path = "tests/fixtures/query/query.graphql";
+
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .arg("--schema-path")
+            .arg(schema_path)
+            .arg("--query-path")
+            .arg(query_path);
+        cmd.assert().success();
+
+        cmd.assert()
+            .success()
+            .stdout(contains("Input Size: 125.00KB"))
+            .stdout(contains("Output Size: 39.06KB"))
+            .stdout(contains("Instructions: 22.00M"));
+
+        Ok(())
+    }
 }

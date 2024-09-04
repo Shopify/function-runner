@@ -1,0 +1,22 @@
+schema {
+  query: Query
+}
+
+directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
+
+type Attribute {
+  key: String!
+  value: String
+}
+
+type Cart {
+  lines: [CartLine!]! @scaleLimits(rate: 0.005)
+}
+
+type CartLine {
+  quantity: Int!
+}
+
+type Query {
+  cart: Cart
+}

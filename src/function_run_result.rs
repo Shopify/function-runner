@@ -141,6 +141,30 @@ impl fmt::Display for FunctionRunResult {
             }
         }
 
+        writeln!(
+            formatter,
+            "\n{}\n\n",
+            "        Resource Limits        "
+                .black()
+                .on_bright_magenta()
+        )?;
+
+        writeln!(
+            formatter,
+            "Input Size: {:.2}KB",
+            (DEFAULT_INPUT_SIZE_LIMIT as f64) * self.scale_factor / 1024.0
+        )?;
+        writeln!(
+            formatter,
+            "Output Size: {:.2}KB",
+            (DEFAULT_OUTPUT_SIZE_LIMIT as f64) * self.scale_factor / 1024.0
+        )?;
+        writeln!(
+            formatter,
+            "Instructions: {:.2}M",
+            (DEFAULT_INSTRUCTIONS_LIMIT as f64) * self.scale_factor / 1_000_000.0
+        )?;
+
         let title = "     Benchmark Results      "
             .black()
             .on_truecolor(150, 191, 72);
@@ -210,7 +234,10 @@ mod tests {
 
         let predicate = predicates::str::contains("Instructions: 1.001K")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains(expected_input_display));
+            .and(predicates::str::contains(expected_input_display))
+            .and(predicates::str::contains("Input Size: 62.50KB"))
+            .and(predicates::str::contains("Output Size: 19.53KB"))
+            .and(predicates::str::contains("Instructions: 11.00M"));
 
         assert!(predicate.eval(&function_run_result.to_string()));
         Ok(())
