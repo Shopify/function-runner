@@ -207,7 +207,7 @@ mod tests {
     }
 
     #[test]
-    fn test_accurate_scale_limits_for_nested_array() {
+    fn test_no_double_counting_for_duplicate_fields_with_array() {
         let schema_string = r#"
             directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
             type Query {
@@ -241,7 +241,7 @@ mod tests {
     }
 
     #[test]
-    fn test_no_double_counting_for_duplicate_fields_with_nested_array() {
+    fn test_scale_factor_with_nested_array() {
         let schema_string = r#"
             directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
             type Query {

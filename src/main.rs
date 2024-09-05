@@ -6,11 +6,15 @@ use std::{
 
 use anyhow::{anyhow, Result};
 use clap::{Parser, ValueEnum};
-use function_runner::engine::{run, FunctionRunParams, ProfileOpts};
+use function_runner::{
+    bluejay_schema_analyzer::BluejaySchemaAnalyzer,
+    engine::{run, FunctionRunParams, ProfileOpts},
+};
 
 use is_terminal::IsTerminal;
 
 const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
+const DEFAULT_SCALE_FACTOR: f64 = 1.0;
 
 /// Supported input flavors
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -60,6 +64,14 @@ struct Opts {
 
     #[clap(short = 'c', long, value_enum, default_value = "json")]
     codec: Codec,
+
+    /// Path to graphql file containing Function schema; if omitted, defaults will be used to calculate limits.
+    #[clap(short = 's', long)]
+    schema_path: Option<PathBuf>,
+
+    /// Path to graphql file containing Function input query; if omitted, defaults will be used to calculate limits.
+    #[clap(short = 'q', long)]
+    query_path: Option<PathBuf>,
 }
 
 impl Opts {
@@ -89,6 +101,25 @@ impl Opts {
 
         path
     }
+
+    pub fn read_schema_to_string(&self) -> Option<Result<String>> {
+        self.schema_path.as_ref().map(read_file_to_string)
+    }
+
+    pub fn read_query_to_string(&self) -> Option<Result<String>> {
+        self.query_path.as_ref().map(read_file_to_string)
+    }
+}
+
+fn read_file_to_string(file_path: &PathBuf) -> Result<String> {
+    let mut file = File::open(file_path)
+        .map_err(|e| anyhow!("Couldn't open file {}: {}", file_path.to_string_lossy(), e))?;
+
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)
+        .map_err(|e| anyhow!("Couldn't read file {}: {}", file_path.to_string_lossy(), e))?;
+
+    Ok(contents)
 }
 
 fn main() -> Result<()> {
@@ -109,27 +140,48 @@ fn main() -> Result<()> {
     let mut buffer = Vec::new();
     input.read_to_end(&mut buffer)?;
 
-    let buffer = match opts.codec {
+    let schema_string = opts.read_schema_to_string().transpose()?;
+
+    let query_string = opts.read_query_to_string().transpose()?;
+
+    let (json_value, buffer) = match opts.codec {
         Codec::Json => {
-            let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
+            let json = serde_json::from_slice::<serde_json::Value>(&buffer)
                 .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
-            buffer
+            (Some(json), buffer)
         }
-        Codec::Raw => buffer,
+        Codec::Raw => (None, buffer),
         Codec::JsonToMessagepack => {
             let json: serde_json::Value = serde_json::from_slice(&buffer)
                 .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
-            rmp_serde::to_vec(&json)
-                .map_err(|e| anyhow!("Couldn't convert JSON to MessagePack: {}", e))?
+            let bytes = rmp_serde::to_vec(&json)
+                .map_err(|e| anyhow!("Couldn't convert JSON to MessagePack: {}", e))?;
+            (Some(json), bytes)
         }
     };
 
+    let scale_factor = if let (Some(schema_string), Some(query_string), Some(json_value)) =
+        (schema_string, query_string, json_value)
+    {
+        BluejaySchemaAnalyzer::analyze_schema_definition(
+            &schema_string,
+            opts.schema_path.as_ref().and_then(|p| p.to_str()),
+            &query_string,
+            opts.query_path.as_ref().and_then(|p| p.to_str()),
+            &json_value,
+        )?
+    } else {
+        DEFAULT_SCALE_FACTOR // Use default scale factor when schema or query is missing
+    };
+
     let profile_opts = opts.profile_opts();
+
     let function_run_result = run(FunctionRunParams {
         function_path: opts.function,
         input: buffer,
         export: opts.export.as_ref(),
         profile_opts: profile_opts.as_ref(),
+        scale_factor,
     })?;
 
     if opts.json {
