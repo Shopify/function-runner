@@ -34,6 +34,9 @@ rust-embed = "8.5.0"
 rmp-serde = "1.3"
 is-terminal = "0.4.13"
 wasmprof = "0.7.0"
+bluejay-parser = { git = "https://github.com/Shopify/bluejay.git", rev = "c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf", features = ["format-errors"] }
+bluejay-core = { git = "https://github.com/Shopify/bluejay.git", rev = "c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf" }
+bluejay-validator = { git = "https://github.com/Shopify/bluejay.git", rev = "c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf" }
 
 [dev-dependencies]
 assert_cmd = "2.0"
