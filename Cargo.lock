@@ -231,8 +231,9 @@ dependencies = [
 
 [[package]]
 name = "bluejay-core"
-version = "0.1.0"
-source = "git+https://github.com/Shopify/bluejay.git?rev=c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf#c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a03c9b3ce5aa1393971fb135d27ece66a73661d88918e4464fa1ef588a8f92c8"
 dependencies = [
  "enum-as-inner",
  "itertools 0.13.0",
@@ -243,8 +244,9 @@ dependencies = [
 
 [[package]]
 name = "bluejay-parser"
-version = "0.1.0"
-source = "git+https://github.com/Shopify/bluejay.git?rev=c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf#c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc27971910f67bb01cf725ce7a1c3275c14a5b9a405f790e6e52f4d6f1b7c0e9"
 dependencies = [
  "ariadne",
  "bluejay-core",
@@ -256,8 +258,9 @@ dependencies = [
 
 [[package]]
 name = "bluejay-validator"
-version = "0.1.0"
-source = "git+https://github.com/Shopify/bluejay.git?rev=c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf#c7e7c2bfb73c7b4869aa8569c15cd3c4eb48b8bf"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "91d8ece464b30376d6179dc48d107a2d66d283bab986ce69f4eef1e370a40d7e"
 dependencies = [
  "bluejay-core",
  "bluejay-parser",
