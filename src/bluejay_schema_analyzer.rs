@@ -155,7 +155,7 @@ mod tests {
         let invalid_schema_string = r#"
             directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
             type Query {
-                field: String @scaleLimits(rate: "invalid")  // Invalid rate type
+                field: String @scaleLimits(rate: 0.005)  // Invalid comment
             }
         "#;
         let valid_query = "query { field }";
@@ -207,7 +207,7 @@ mod tests {
     }
 
     #[test]
-    fn test_no_double_counting_for_duplicate_fields_with_array() {
+    fn test_accurate_scale_limits_for_nested_array() {
         let schema_string = r#"
             directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
             type Query {

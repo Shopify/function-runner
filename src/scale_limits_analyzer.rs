@@ -62,7 +62,7 @@ impl<'a>
             '_,
             <SchemaDefinition<'_> as CoreSchemaDefinition>::TypeDefinition,
         >,
-        _included: bool,
+        _included: bool, // Ignoring `_included` as @include and @skip directives are not supported in Shopify Functions.
     ) {
         self.path_stack.push(field.response_key());
         let rate = Self::rate_for_field_definition(field_definition);
