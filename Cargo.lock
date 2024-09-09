@@ -979,7 +979,7 @@ dependencies = [
  "serde_json",
  "wasi-common",
  "wasmprof",
- "wasmtime 22.0.0",
+ "wasmtime 23.0.2",
  "wasmtime-wasi",
 ]
 
@@ -2497,13 +2497,13 @@ dependencies = [
  "wasm-encoder 0.209.1",
  "wasmparser 0.209.1",
  "wasmtime-asm-macros 22.0.0",
- "wasmtime-cache",
+ "wasmtime-cache 22.0.0",
  "wasmtime-component-macro 22.0.0",
  "wasmtime-component-util 22.0.0",
  "wasmtime-cranelift 22.0.0",
  "wasmtime-environ 22.0.0",
  "wasmtime-fiber 22.0.0",
- "wasmtime-jit-debug",
+ "wasmtime-jit-debug 22.0.0",
  "wasmtime-jit-icache-coherence 22.0.0",
  "wasmtime-slab 22.0.0",
  "wasmtime-versioned-export-macros 22.0.0",
@@ -2518,6 +2518,7 @@ version = "23.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "07232e0b473af36112da7348f51e73fa8b11047a6cb546096da3812930b7c93a"
 dependencies = [
+ "addr2line 0.21.0",
  "anyhow",
  "async-trait",
  "bitflags 2.6.0",
@@ -2525,8 +2526,11 @@ dependencies = [
  "cc",
  "cfg-if",
  "encoding_rs",
+ "fxprof-processed-profile",
+ "gimli 0.28.1",
  "hashbrown 0.14.5",
  "indexmap",
+ "ittapi",
  "libc",
  "libm",
  "log",
@@ -2537,24 +2541,30 @@ dependencies = [
  "paste",
  "postcard",
  "psm",
+ "rayon",
  "rustix",
  "semver",
  "serde",
  "serde_derive",
+ "serde_json",
  "smallvec",
  "sptr",
  "target-lexicon",
+ "wasm-encoder 0.212.0",
  "wasmparser 0.212.0",
  "wasmtime-asm-macros 23.0.2",
+ "wasmtime-cache 23.0.2",
  "wasmtime-component-macro 23.0.2",
  "wasmtime-component-util 23.0.2",
  "wasmtime-cranelift 23.0.2",
  "wasmtime-environ 23.0.2",
  "wasmtime-fiber 23.0.2",
+ "wasmtime-jit-debug 23.0.2",
  "wasmtime-jit-icache-coherence 23.0.2",
  "wasmtime-slab 23.0.2",
  "wasmtime-versioned-export-macros 23.0.2",
  "wasmtime-winch 23.0.2",
+ "wat",
  "windows-sys 0.52.0",
 ]
 
@@ -2581,6 +2591,26 @@ name = "wasmtime-cache"
 version = "22.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "916610f9ae9a6c22deb25bba2e6247ba9f00b093d30620875203b91328a1adfa"
+dependencies = [
+ "anyhow",
+ "base64",
+ "directories-next",
+ "log",
+ "postcard",
+ "rustix",
+ "serde",
+ "serde_derive",
+ "sha2",
+ "toml",
+ "windows-sys 0.52.0",
+ "zstd",
+]
+
+[[package]]
+name = "wasmtime-cache"
+version = "23.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38d5d5aac98c8ae87cf5244495da7722e3fa022aa6f3f4fcd5e3d6e5699ce422"
 dependencies = [
  "anyhow",
  "base64",
@@ -2718,6 +2748,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9bcaa3b42a0718e9123da7fb75e8e13fc95df7db2a7e32e2f2f4f0d3333b7d6f"
 dependencies = [
  "anyhow",
+ "cpp_demangle",
  "cranelift-bitset",
  "cranelift-entity 0.110.2",
  "gimli 0.28.1",
@@ -2725,6 +2756,7 @@ dependencies = [
  "log",
  "object",
  "postcard",
+ "rustc-demangle",
  "semver",
  "serde",
  "serde_derive",
@@ -2776,6 +2808,18 @@ dependencies = [
  "once_cell",
  "rustix",
  "wasmtime-versioned-export-macros 22.0.0",
+]
+
+[[package]]
+name = "wasmtime-jit-debug"
+version = "23.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "118e141e52f3898a531a612985bd09a5e05a1d646cad2f30a3020b675c21cd49"
+dependencies = [
+ "object",
+ "once_cell",
+ "rustix",
+ "wasmtime-versioned-export-macros 23.0.2",
 ]
 
 [[package]]
