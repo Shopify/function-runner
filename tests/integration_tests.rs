@@ -246,4 +246,89 @@ mod tests {
 
         Ok(file)
     }
+
+    #[test]
+    fn test_scale_limits_analyzer_use_defaults_when_query_and_schema_not_provided(
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({"cart": {
+            "lines": [
+            {"quantity": 2}
+            ]
+        }}))?;
+
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+            .arg("--input")
+            .arg(input_file.as_os_str());
+        cmd.assert().success();
+
+        cmd.assert()
+            .success()
+            .stdout(contains("Input Size: 62.50KB"))
+            .stdout(contains("Output Size: 19.53KB"))
+            .stdout(contains("Instructions: 11M"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_scale_limits_analyzer_use_defaults_when_query_or_schema_not_provided(
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({"cart": {
+            "lines": [
+            {"quantity": 2}
+            ]
+        }}))?;
+
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .arg("--schema-path")
+            .arg("tests/fixtures/schema/schema.graphql");
+        cmd.assert().success();
+
+        cmd.assert()
+            .success()
+            .stdout(contains("Input Size: 62.50KB"))
+            .stdout(contains("Output Size: 19.53KB"))
+            .stdout(contains("Instructions: 11M"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_scale_limits_analyzer_with_scaled_limits() -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+
+        let input_data = vec![json!({"quantity": 2}); 400];
+        let json_data = json!({
+            "cart": {
+                "lines": input_data
+            }
+        });
+        let input_file = temp_input(json_data)?;
+
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .arg("--schema-path")
+            .arg("tests/fixtures/schema/schema.graphql")
+            .arg("--query-path")
+            .arg("tests/fixtures/query/query.graphql");
+
+        let output = cmd.output()?;
+        println!("Status: {}", output.status);
+        println!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+        println!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
+        cmd.assert().success();
+
+        cmd.assert()
+            .success()
+            .stdout(contains("Input Size: 125.00KB"))
+            .stdout(contains("Output Size: 39.06KB"))
+            .stdout(contains("Instructions: 22M"));
+
+        Ok(())
+    }
 }
