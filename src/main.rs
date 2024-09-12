@@ -122,6 +122,23 @@ fn read_file_to_string(file_path: &PathBuf) -> Result<String> {
     Ok(contents)
 }
 
+fn minify_json(buffer: &[u8]) -> Result<serde_json::Value> {
+    // Deserialize the buffer into a serde_json::Value to ensure it's valid JSON - existing behaviour
+    let json_value: serde_json::Value =
+        serde_json::from_slice(buffer).map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
+
+    // (minified) byte vector
+    let minified_json_bytes =
+        serde_json::to_vec(&json_value).map_err(|e| anyhow!("Couldn't serialize JSON: {}", e))?;
+
+    // back into a serde_json::Value
+    let minified_json_value: serde_json::Value = serde_json::from_slice(&minified_json_bytes)
+        .map_err(|e| anyhow!("Couldn't deserialize minified JSON: {}", e))?;
+
+    // Return the minified serde_json::Value
+    Ok(minified_json_value)
+}
+
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
@@ -146,8 +163,7 @@ fn main() -> Result<()> {
 
     let (json_value, buffer) = match opts.codec {
         Codec::Json => {
-            let json = serde_json::from_slice::<serde_json::Value>(&buffer)
-                .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
+            let json = minify_json(&buffer)?;
             (Some(json), buffer)
         }
         Codec::Raw => (None, buffer),
