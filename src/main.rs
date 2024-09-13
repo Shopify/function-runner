@@ -148,7 +148,9 @@ fn main() -> Result<()> {
         Codec::Json => {
             let json = serde_json::from_slice::<serde_json::Value>(&buffer)
                 .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
-            (Some(json), buffer)
+            let minified_buffer =
+                serde_json::to_vec(&json).map_err(|e| anyhow!("Couldn't serialize JSON: {}", e))?;
+            (Some(json), minified_buffer)
         }
         Codec::Raw => (None, buffer),
         Codec::JsonToMessagepack => {
