@@ -21,7 +21,7 @@ lto = true
 opt-level = 3
 
 [dependencies]
-wasmtime = "=22.0.0"
+wasmtime = "=25.0.1"
 wasmtime-wasi = "=25.0.1"
 wasi-common = "=22.0.0"
 deterministic-wasi-ctx = "=0.1.24"
