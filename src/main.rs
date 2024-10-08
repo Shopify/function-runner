@@ -58,7 +58,7 @@ struct Opts {
     #[clap(long)]
     profile_out: Option<PathBuf>,
 
-    /// How many samples per seconds. Defaults to 500_000 (every 5us).
+    /// How many samples per seconds. Defaults to 500_000 (every 2us).
     #[clap(long)]
     profile_frequency: Option<u32>,
 
