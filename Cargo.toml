@@ -22,7 +22,7 @@ opt-level = 3
 
 [dependencies]
 wasmtime = "=22.0.0"
-wasmtime-wasi = "=25.0.1"
+wasmtime-wasi = "=25.0.2"
 wasi-common = "=22.0.0"
 deterministic-wasi-ctx = "=0.1.24"
 anyhow = "1.0"
