@@ -264,7 +264,7 @@ mod tests {
 
         cmd.assert()
             .success()
-            .stdout(contains("Input Size: 62.50KB"))
+            .stdout(contains("Input Size: 125.00KB"))
             .stdout(contains("Output Size: 19.53KB"))
             .stdout(contains("Instructions: 11M"));
 
@@ -290,7 +290,7 @@ mod tests {
 
         cmd.assert()
             .success()
-            .stdout(contains("Input Size: 62.50KB"))
+            .stdout(contains("Input Size: 125.00KB"))
             .stdout(contains("Output Size: 19.53KB"))
             .stdout(contains("Instructions: 11M"));
 
@@ -325,7 +325,7 @@ mod tests {
 
         cmd.assert()
             .success()
-            .stdout(contains("Input Size: 125.00KB"))
+            .stdout(contains("Input Size: 250.00KB"))
             .stdout(contains("Output Size: 39.06KB"))
             .stdout(contains("Instructions: 22M"));
 
