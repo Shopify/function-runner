@@ -33,7 +33,7 @@ pub struct FunctionRunResult {
 }
 
 const DEFAULT_INSTRUCTIONS_LIMIT: u64 = 11_000_000;
-const DEFAULT_INPUT_SIZE_LIMIT: u64 = 64_000;
+const DEFAULT_INPUT_SIZE_LIMIT: u64 = 128_000;
 const DEFAULT_OUTPUT_SIZE_LIMIT: u64 = 20_000;
 
 pub fn get_json_size_as_bytes(value: &serde_json::Value) -> usize {
