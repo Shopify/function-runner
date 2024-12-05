@@ -16,6 +16,16 @@ cargo wasi build --profile=wasm -p exit_code -p exports -p log_truncation_functi
 ```
 
 **JS examples:**
+js_function_v2.wasm:
+```
+javy compile -d -o tests/fixtures/build/js_function_v2.wasm tests/fixtures/js_function/src/functions.js
+```
+
+js_function_v3.wasm:
+```
+javy build -C dynamic -C plugin=providers/javy_quickjs_provider_v3.wasm -o tests/fixtures/build/js_function_v3.wasm tests/fixtures/js_function/src/functions.js
+```
+
 js_functions_javy_v1.wasm:
 ```
 javy build -C dynamic -C plugin=providers/shopify_functions_javy_v1.wasm -o tests/fixtures/build/js_functions_javy_v1.wasm tests/fixtures/js_function/src/functions.js

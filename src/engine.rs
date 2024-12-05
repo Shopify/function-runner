@@ -264,6 +264,34 @@ mod tests {
     }
 
     #[test]
+    fn test_js_v2_function() {
+        let input = include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec();
+        let function_run_result = run(FunctionRunParams {
+            function_path: Path::new("tests/fixtures/build/js_function_v2.wasm").to_path_buf(),
+            input,
+            export: DEFAULT_EXPORT,
+            ..Default::default()
+        });
+
+        assert!(function_run_result.is_ok());
+        assert_eq!(function_run_result.unwrap().memory_usage, 1344);
+    }
+
+    #[test]
+    fn test_js_v3_function() {
+        let input = include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec();
+        let function_run_result = run(FunctionRunParams {
+            function_path: Path::new("tests/fixtures/build/js_function_v3.wasm").to_path_buf(),
+            input,
+            export: DEFAULT_EXPORT,
+            ..Default::default()
+        });
+
+        assert!(function_run_result.is_ok());
+        assert_eq!(function_run_result.unwrap().memory_usage, 1344);
+    }
+
+    #[test]
     fn test_js_functions_javy_v1() {
         let input = include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec();
         let function_run_result = run(FunctionRunParams {
