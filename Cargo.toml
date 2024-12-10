@@ -7,7 +7,7 @@ members = [
 
 [package]
 name = "function-runner"
-version = "6.4.0"
+version = "6.5.0"
 edition = "2021"
 
 
