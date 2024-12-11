@@ -30,6 +30,7 @@ pub struct FunctionRunResult {
     pub profile: Option<String>,
     #[serde(skip)]
     pub scale_factor: f64,
+    pub success: bool,
 }
 
 const DEFAULT_INSTRUCTIONS_LIMIT: u64 = 11_000_000;
@@ -253,6 +254,7 @@ mod tests {
             })),
             profile: None,
             scale_factor: 1.0,
+            success: true,
         };
 
         let predicate = predicates::str::contains("Instructions: 1.001K")
@@ -284,6 +286,7 @@ mod tests {
             })),
             profile: None,
             scale_factor: 1.0,
+            success: true,
         };
 
         let predicate = predicates::str::contains("Instructions: 1")
@@ -311,6 +314,7 @@ mod tests {
             })),
             profile: None,
             scale_factor: 1.0,
+            success: true,
         };
 
         let predicate = predicates::str::contains("Instructions: 999")
