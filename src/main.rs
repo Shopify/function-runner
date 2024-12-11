@@ -196,5 +196,9 @@ fn main() -> Result<()> {
         std::fs::write(profile_opts.unwrap().out, profile)?;
     }
 
-    Ok(())
+    if function_run_result.success {
+        Ok(())
+    } else {
+        anyhow::bail!("The Function execution failed. Review the logs for more information.")
+    }
 }
