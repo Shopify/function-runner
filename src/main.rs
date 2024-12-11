@@ -72,6 +72,10 @@ struct Opts {
     /// Path to graphql file containing Function input query; if omitted, defaults will be used to calculate limits.
     #[clap(short = 'q', long)]
     query_path: Option<PathBuf>,
+
+    /// Return a non-zero exit code when a module error occurs during the function run.
+    #[clap(short = 'n', long)]
+    non_zero_exit_code_for_module_errors: bool,
 }
 
 impl Opts {
@@ -196,5 +200,9 @@ fn main() -> Result<()> {
         std::fs::write(profile_opts.unwrap().out, profile)?;
     }
 
-    Ok(())
+    if function_run_result.success || !opts.non_zero_exit_code_for_module_errors {
+        Ok(())
+    } else {
+        anyhow::bail!("The Function execution failed. Review the logs for more information.")
+    }
 }

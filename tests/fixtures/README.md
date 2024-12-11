@@ -31,6 +31,11 @@ js_functions_javy_v1.wasm:
 javy build -C dynamic -C plugin=providers/shopify_functions_javy_v1.wasm -o tests/fixtures/build/js_functions_javy_v1.wasm tests/fixtures/js_function/src/functions.js
 ```
 
+js_function_that_throws.wasm:
+```
+javy build -C dynamic -C plugin=providers/javy_quickjs_provider_v3.wasm -o tests/fixtures/build/js_function_that_throws.wasm tests/fixtures/js_function_that_throws/src/functions.js
+```
+
 **`*.wat` examples:**
 ```
 find tests/fixtures -maxdepth 1 -type f -name "*.wat" \

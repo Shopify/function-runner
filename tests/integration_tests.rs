@@ -221,6 +221,43 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn failing_function_without_non_zero_exit_code_for_module_errors_flag(
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({}))?;
+        cmd.args([
+            "--function",
+            "tests/fixtures/build/js_function_that_throws.wasm",
+        ])
+        .arg("--input")
+        .arg(input_file.as_os_str());
+
+        cmd.assert().success();
+
+        Ok(())
+    }
+
+    #[test]
+    fn failing_function_with_non_zero_exit_code_for_module_errors_flag(
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({}))?;
+        cmd.args([
+            "--function",
+            "tests/fixtures/build/js_function_that_throws.wasm",
+        ])
+        .arg("--non-zero-exit-code-for-module-errors")
+        .arg("--input")
+        .arg(input_file.as_os_str());
+
+        cmd.assert().failure().stderr(contains(
+            "The Function execution failed. Review the logs for more information.",
+        ));
+
+        Ok(())
+    }
+
     fn profile_base_cmd_in_temp_dir(
     ) -> Result<(Command, assert_fs::TempDir), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
