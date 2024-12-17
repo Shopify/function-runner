@@ -3,6 +3,7 @@ members = [
   "tests/fixtures/exit_code",
   "tests/fixtures/log_truncation_function",
   "tests/fixtures/exports",
+  "tests/fixtures/noop",
 ]
 
 [package]

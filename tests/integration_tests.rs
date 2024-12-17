@@ -15,9 +15,9 @@ mod tests {
     #[test]
     fn run() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
-        let input_file = temp_input(json!({"exit_code": 0}))?;
+        let input_file = temp_input(json!({"count": 0}))?;
 
-        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+        cmd.args(["--function", "tests/fixtures/build/noop.wasm"])
             .arg("--input")
             .arg(input_file.as_os_str());
         cmd.assert().success();
@@ -100,9 +100,9 @@ mod tests {
     #[test]
     fn run_json() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("function-runner")?;
-        let input_file = temp_input(json!({"exit_code": 0}))?;
+        let input_file = temp_input(json!({"count": 0}))?;
 
-        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+        cmd.args(["--function", "tests/fixtures/build/noop.wasm"])
             .arg("--json")
             .arg("--input")
             .arg(input_file.as_os_str());
@@ -146,8 +146,7 @@ mod tests {
     fn profile_writes_file() -> Result<(), Box<dyn std::error::Error>> {
         let (mut cmd, temp) = profile_base_cmd_in_temp_dir()?;
         cmd.arg("--profile").assert().success();
-        temp.child("exit_code.perf")
-            .assert(predicate::path::exists());
+        temp.child("noop.perf").assert(predicate::path::exists());
 
         Ok(())
     }
@@ -167,8 +166,7 @@ mod tests {
         cmd.args(["--profile-frequency", "80000"])
             .assert()
             .success();
-        temp.child("exit_code.perf")
-            .assert(predicate::path::exists());
+        temp.child("noop.perf").assert(predicate::path::exists());
 
         Ok(())
     }
@@ -183,10 +181,13 @@ mod tests {
             .arg(input_file.as_os_str());
 
         cmd.assert()
-            .success()
+            .failure()
             .stdout(contains("Key not found code"))
             .stdout(contains("Invalid Output"))
             .stdout(contains("JSON Error"))
+            .stderr(contains(
+                "Error: The Function execution failed. Review the logs for more information.",
+            ))
             .stderr(contains(""));
 
         Ok(())
@@ -246,11 +247,11 @@ mod tests {
         let cwd = std::env::current_dir()?;
         let temp = assert_fs::TempDir::new()?;
         let input_file = temp.child("input.json");
-        input_file.write_str(json!({"exit_code": 0}).to_string().as_str())?;
+        input_file.write_str(json!({"count": 0}).to_string().as_str())?;
 
         cmd.current_dir(temp.path())
             .arg("--function")
-            .arg(cwd.join("tests/fixtures/build/exit_code.wasm"))
+            .arg(cwd.join("tests/fixtures/build/noop.wasm"))
             .arg("--input")
             .arg(input_file.as_os_str());
 
@@ -276,7 +277,7 @@ mod tests {
             ]
         }}))?;
 
-        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+        cmd.args(["--function", "tests/fixtures/build/noop.wasm"])
             .arg("--input")
             .arg(input_file.as_os_str());
         cmd.assert().success();
@@ -300,7 +301,7 @@ mod tests {
             ]
         }}))?;
 
-        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+        cmd.args(["--function", "tests/fixtures/build/noop.wasm"])
             .arg("--input")
             .arg(input_file.as_os_str())
             .arg("--schema-path")
@@ -328,7 +329,7 @@ mod tests {
         });
         let input_file = temp_input(json_data)?;
 
-        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+        cmd.args(["--function", "tests/fixtures/build/noop.wasm"])
             .arg("--input")
             .arg(input_file.as_os_str())
             .arg("--schema-path")

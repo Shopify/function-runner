@@ -11,8 +11,8 @@ Example Functions used as test fixtures.
 
 **Rust examples:**
 ```
-cargo wasi build --profile=wasm -p exit_code -p exports -p log_truncation_function &&
-  cp target/wasm32-wasi/wasm/{exit_code.wasm,exports.wasm,log_truncation_function.wasm} tests/fixtures/build
+cargo wasi build --profile=wasm -p exit_code -p exports -p log_truncation_function -p noop &&
+  cp target/wasm32-wasi/wasm/{exit_code.wasm,exports.wasm,log_truncation_function.wasm,noop.wasm} tests/fixtures/build
 ```
 
 **JS examples:**
