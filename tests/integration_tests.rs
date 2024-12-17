@@ -124,7 +124,7 @@ mod tests {
             .arg(input_file.as_os_str());
         cmd.assert()
             .failure()
-            .stderr("Error: Couldn\'t load the Function \"test/file/doesnt/exist\": failed to read input file: test/file/doesnt/exist\n");
+            .stderr("Error: Couldn\'t load the Function \"test/file/doesnt/exist\": failed to read from `test/file/doesnt/exist`\n");
 
         Ok(())
     }
