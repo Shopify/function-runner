@@ -136,6 +136,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let memory_usage: u64;
     let instructions: u64;
     let mut error_logs: String = String::new();
+    let mut module_result: Result<(), anyhow::Error>;
     let profile_data: Option<String>;
 
     {
@@ -158,7 +159,6 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
         let func = instance.get_typed_func::<(), ()>(store.as_context_mut(), export)?;
 
-        let module_result;
         (module_result, profile_data) = if let Some(profile_opts) = profile_opts {
             let (result, profile_data) = wasmprof::ProfilerBuilder::new(&mut store)
                 .frequency(profile_opts.interval)
@@ -176,7 +176,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         // modules may exit with a specific exit code, an exit code of 0 is considered success but is reported as
         // a GuestFault by wasmtime, so we need to map it to a success result. Any other exit code is considered
         // a failure.
-        let module_result =
+        module_result =
             module_result.or_else(|error| match error.downcast_ref::<wasi_common::I32Exit>() {
                 Some(I32Exit(0)) => Ok(()),
                 Some(I32Exit(code)) => Err(anyhow!("module exited with code: {}", code)),
@@ -188,7 +188,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
         match module_result {
             Ok(_) => {}
-            Err(e) => {
+            Err(ref e) => {
                 error_logs = e.to_string();
             }
         }
@@ -234,6 +234,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         output,
         profile: profile_data,
         scale_factor,
+        success: module_result.is_ok(),
     };
 
     Ok(function_run_result)

@@ -11,8 +11,8 @@ Example Functions used as test fixtures.
 
 **Rust examples:**
 ```
-cargo wasi build --profile=wasm -p exit_code -p exports -p log_truncation_function &&
-  cp target/wasm32-wasi/wasm/{exit_code.wasm,exports.wasm,log_truncation_function.wasm} tests/fixtures/build
+cargo wasi build --profile=wasm -p exit_code -p exports -p log_truncation_function -p noop &&
+  cp target/wasm32-wasi/wasm/{exit_code.wasm,exports.wasm,log_truncation_function.wasm,noop.wasm} tests/fixtures/build
 ```
 
 **JS examples:**
@@ -29,6 +29,11 @@ javy build -C dynamic -C plugin=providers/javy_quickjs_provider_v3.wasm -o tests
 js_functions_javy_v1.wasm:
 ```
 javy build -C dynamic -C plugin=providers/shopify_functions_javy_v1.wasm -o tests/fixtures/build/js_functions_javy_v1.wasm tests/fixtures/js_function/src/functions.js
+```
+
+js_function_that_throws.wasm:
+```
+javy build -C dynamic -C plugin=providers/javy_quickjs_provider_v3.wasm -o tests/fixtures/build/js_function_that_throws.wasm tests/fixtures/js_function_that_throws/src/functions.js
 ```
 
 **`*.wat` examples:**
