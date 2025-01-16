@@ -144,7 +144,7 @@ impl<'a>
     }
 }
 
-impl<'a> ScaleLimits<'a> {
+impl ScaleLimits<'_> {
     const MIN_SCALE_FACTOR: f64 = 1.0;
     const MAX_SCALE_FACTOR: f64 = 10.0;
 
