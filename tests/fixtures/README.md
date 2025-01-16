@@ -5,14 +5,14 @@ Example Functions used as test fixtures.
 ## Recompiling
 
 **Prereqs:**
-- Cargo WASI: `cargo install cargo-wasi`
+- wasm-opt from [binaryen](https://github.com/WebAssembly/binaryen)
 - wat2wasm from [WABT](https://github.com/WebAssembly/wabt)
 
 
 **Rust examples:**
 ```
-cargo wasi build --profile=wasm -p exit_code -p exports -p log_truncation_function -p noop &&
-  cp target/wasm32-wasi/wasm/{exit_code.wasm,exports.wasm,log_truncation_function.wasm,noop.wasm} tests/fixtures/build
+cargo build --target wasm32-wasip1 --profile=wasm -p exit_code -p exports -p log_truncation_function -p noop &&
+  find target/wasm32-wasip1/wasm/{exit_code.wasm,exports.wasm,log_truncation_function.wasm,noop.wasm} | xargs -I {} sh -c 'name=$(basename {}); wasm-opt {} -Oz --enable-bulk-memory --strip-debug -o "tests/fixtures/build/$name"'
 ```
 
 **JS examples:**
