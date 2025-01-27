@@ -52,7 +52,7 @@ colored = "3.0"
 serde = "1.0"
 rust-embed = "8.5.0"
 rmp-serde = "1.3"
-is-terminal = "0.4.13"
+is-terminal = "0.4.15"
 wasmprof = "0.9.0"
 bluejay-core = { version = "=0.2.0" }
 bluejay-parser = { version = "=0.2.0", features = ["format-errors"] }
