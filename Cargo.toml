@@ -42,7 +42,7 @@ wasmtime = { version = "=28.0.1", default-features = false, features = [
     "wat",
     "winch",
 ] }
-wasmtime-wasi = "=28.0.0"
+wasmtime-wasi = "=29.0.1"
 wasi-common = "=28.0.0"
 deterministic-wasi-ctx = "=0.1.28"
 anyhow = "1.0"
