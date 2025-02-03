@@ -2461,9 +2461,9 @@ checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
 
 [[package]]
 name = "wasi-common"
-version = "28.0.0"
+version = "29.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6cb8b6f1ca9cc40aeca0f398163ce2c1305d0661f3311a25abcda1fc6012d8f2"
+checksum = "fe3101bd34deeb64225431f8b1b1793c87e7cad94383464878b3f90da6995977"
 dependencies = [
  "anyhow",
  "bitflags 2.6.0",
@@ -2479,8 +2479,8 @@ dependencies = [
  "system-interface",
  "thiserror",
  "tracing",
- "wasmtime 28.0.1",
- "wiggle 28.0.0",
+ "wasmtime 29.0.1",
+ "wiggle",
  "windows-sys 0.59.0",
 ]
 
@@ -3009,7 +3009,7 @@ dependencies = [
  "trait-variant",
  "url",
  "wasmtime 29.0.1",
- "wiggle 29.0.1",
+ "wiggle",
  "windows-sys 0.59.0",
 ]
 
@@ -3104,21 +3104,6 @@ dependencies = [
 
 [[package]]
 name = "wiggle"
-version = "28.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17bccfa2095b348aa6de0efcc4c621ba14d6ecc2371433232f337b1d2f089fa3"
-dependencies = [
- "anyhow",
- "async-trait",
- "bitflags 2.6.0",
- "thiserror",
- "tracing",
- "wasmtime 28.0.1",
- "wiggle-macro 28.0.0",
-]
-
-[[package]]
-name = "wiggle"
 version = "29.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4b9af35bc9629c52c261465320a9a07959164928b4241980ba1cf923b9e6751d"
@@ -3129,22 +3114,7 @@ dependencies = [
  "thiserror",
  "tracing",
  "wasmtime 29.0.1",
- "wiggle-macro 29.0.1",
-]
-
-[[package]]
-name = "wiggle-generate"
-version = "28.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a1fda112fc9de89fc4af51ea8b4c8e745ce1f01cd19f08c36c37aa11563ad41"
-dependencies = [
- "anyhow",
- "heck",
- "proc-macro2",
- "quote",
- "shellexpand",
- "syn",
- "witx",
+ "wiggle-macro",
 ]
 
 [[package]]
@@ -3164,18 +3134,6 @@ dependencies = [
 
 [[package]]
 name = "wiggle-macro"
-version = "28.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc9a143339de27ff05ce30366c58b741afb38c803b5ffb68e9546fd2e0629c4a"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
- "wiggle-generate 28.0.0",
-]
-
-[[package]]
-name = "wiggle-macro"
 version = "29.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08c5c473d4198e6c2d377f3809f713ff0c110cab88a0805ae099a82119ee250c"
@@ -3183,7 +3141,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
- "wiggle-generate 29.0.1",
+ "wiggle-generate",
 ]
 
 [[package]]
