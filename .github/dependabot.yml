@@ -7,6 +7,13 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 100
+    groups:
+      wasmtime-dependencies:
+        patterns:
+          - "wasmtime"
+          - "wasmtime-wasi"
+          - "wasi-common"
+          - "deterministic-wasi-ctx"
   - package-ecosystem: "github-actions"
     directory: "/"
     reviewers:
