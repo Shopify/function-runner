@@ -1,15 +1,13 @@
 use anyhow::{anyhow, Result};
 use rust_embed::RustEmbed;
+use std::string::String;
 use std::{collections::HashSet, io::Cursor, path::PathBuf};
 use wasi_common::{I32Exit, WasiCtx};
 use wasmtime::{AsContextMut, Config, Engine, Linker, Module, ResourceLimiter, Store};
 
-use crate::{
-    function_run_result::{
-        FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
-        FunctionRunResult, InvalidOutput,
-    },
-    logs::LogStream,
+use crate::function_run_result::{
+    FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
+    FunctionRunResult, InvalidOutput,
 };
 
 #[derive(Clone)]
@@ -130,7 +128,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input.clone()));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
-    let error_stream = wasi_common::pipe::WritePipe::new(LogStream::default());
+    let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
     let memory_usage: u64;
     let instructions: u64;
@@ -195,9 +193,10 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     let mut logs = error_stream
         .try_into_inner()
-        .expect("Log stream reference still exists");
+        .expect("Log stream reference still exists")
+        .into_inner();
 
-    logs.append(error_logs.as_bytes());
+    logs.extend_from_slice(error_logs.as_bytes());
 
     let raw_output = output_stream
         .try_into_inner()
@@ -228,7 +227,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         size,
         memory_usage,
         instructions,
-        logs: logs.to_string(),
+        logs: String::from_utf8_lossy(&logs).into(),
         input: function_run_input,
         output,
         profile: profile_data,
