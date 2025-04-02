@@ -292,7 +292,6 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 fn try_parse_as_msgpack(raw_output: &[u8]) -> FunctionOutput {
     match rmp_serde::from_slice::<serde_json::Value>(raw_output) {
         Ok(json_output) => {
-            // If we get a number that matches the first byte's ASCII value, it's likely text
             if let Some(n) = json_output.as_u64() {
                 if n < 127 && raw_output.len() > 1 && raw_output[0] as u64 == n {
                     // This is likely text being misinterpreted as a number
@@ -477,10 +476,8 @@ mod tests {
         let module = Module::from_file(&Engine::default(), module_path).unwrap();
         assert!(!uses_wasm_api_provider(&module));
         
-        // This test will only pass if you have a test function compiled with the wasm api provider
-        // If this test fails, you may need to create such a test fixture.
-        // let wasm_api_module_path = Path::new("tests/fixtures/build/wasm_api_function.wasm");
-        // let wasm_api_module = Module::from_file(&Engine::default(), wasm_api_module_path).unwrap();
-        // assert!(uses_wasm_api_provider(&wasm_api_module));
+        let wasm_api_module_path = Path::new("tests/fixtures/build/wasm_api_function.merged.wasm");
+        let wasm_api_module = Module::from_file(&Engine::default(), wasm_api_module_path).unwrap();
+        assert!(uses_wasm_api_provider(&wasm_api_module));
     }
 }

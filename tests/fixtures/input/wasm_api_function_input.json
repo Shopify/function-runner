@@ -1,0 +1,24 @@
+{
+  "cart": {
+    "lines": [
+      {
+        "merchandise": {
+          "id": "gid://shopify/ProductVariant/1",
+          "title": "Sample Product"
+        },
+        "quantity": 2,
+        "cost": {
+          "totalAmount": {
+            "amount": "24.99",
+            "currencyCode": "USD"
+          }
+        }
+      }
+    ]
+  },
+  "discounts": {
+    "metafield": {
+      "value": "{\"percentage\":20,\"applicable_items\":[\"gid://shopify/ProductVariant/1\"]}"
+    }
+  }
+}
