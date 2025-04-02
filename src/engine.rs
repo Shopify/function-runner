@@ -227,34 +227,38 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         .into_inner();
 
     let output: FunctionOutput = if uses_msgpack {
-        // If using MessagePack, decode the output from MessagePack to JSON
-        match rmp_serde::from_slice::<serde_json::Value>(&raw_output) {
-            Ok(json_output) => JsonOutput(json_output),
-            Err(error) => {
-                // If MessagePack decoding fails, try direct JSON decode as a fallback
-                match serde_json::from_slice(&raw_output) {
-                    Ok(json_output) => JsonOutput(json_output),
-                    Err(_) => InvalidJsonOutput(InvalidOutput {
-                        stdout: std::str::from_utf8(&raw_output)
-                            .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
-                            .unwrap()
-                            .to_owned(),
-                        error: error.to_string(),
-                    }),
+        if !raw_output.is_empty() {
+            let might_be_text = raw_output.iter().all(|&b| b >= 32 && b <= 126);
+            let text_starts_with_letter = raw_output.get(0).map_or(false, |&b| (b >= b'a' && b <= b'z') || (b >= b'A' && b <= b'Z'));
+            
+            if might_be_text && text_starts_with_letter {
+                match std::str::from_utf8(&raw_output) {
+                    Ok(text) => JsonOutput(serde_json::Value::String(text.to_owned())),
+                    Err(_) => try_parse_as_msgpack(&raw_output)
                 }
+            } else {
+                try_parse_as_msgpack(&raw_output)
             }
+        } else {
+            JsonOutput(serde_json::Value::Null)
         }
     } else {
-        // If not using MessagePack, handle as normal JSON
         match serde_json::from_slice(&raw_output) {
             Ok(json_output) => JsonOutput(json_output),
-            Err(error) => InvalidJsonOutput(InvalidOutput {
-                stdout: std::str::from_utf8(&raw_output)
-                    .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
-                    .unwrap()
-                    .to_owned(),
-                error: error.to_string(),
-            }),
+            Err(error) => {
+                let text_output = std::str::from_utf8(&raw_output);
+                match text_output {
+                    Ok(text) if !text.is_empty() => {
+                        JsonOutput(serde_json::Value::String(text.to_owned()))
+                    },
+                    _ => {
+                        InvalidJsonOutput(InvalidOutput {
+                            stdout: String::from_utf8_lossy(&raw_output).into_owned(),
+                            error: error.to_string(),
+                        })
+                    }
+                }
+            }
         }
     };
 
@@ -262,7 +266,6 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let size = function_path.metadata()?.len() / 1024;
 
     let function_run_input = if uses_msgpack {
-        // For display purposes, we want to show the original JSON input
         serde_json::from_slice(&input)?
     } else {
         String::from_utf8(input)
@@ -284,6 +287,42 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     };
 
     Ok(function_run_result)
+}
+
+fn try_parse_as_msgpack(raw_output: &[u8]) -> FunctionOutput {
+    match rmp_serde::from_slice::<serde_json::Value>(raw_output) {
+        Ok(json_output) => {
+            // If we get a number that matches the first byte's ASCII value, it's likely text
+            if let Some(n) = json_output.as_u64() {
+                if n < 127 && raw_output.len() > 1 && raw_output[0] as u64 == n {
+                    // This is likely text being misinterpreted as a number
+                    return JsonOutput(serde_json::Value::String(
+                        String::from_utf8_lossy(raw_output).into_owned()
+                    ));
+                }
+            }
+            JsonOutput(json_output)
+        },
+        Err(error) => {
+            match serde_json::from_slice(raw_output) {
+                Ok(json_output) => JsonOutput(json_output),
+                Err(_) => {
+                    let text_output = std::str::from_utf8(raw_output);
+                    match text_output {
+                        Ok(text) => {
+                            JsonOutput(serde_json::Value::String(text.to_owned()))
+                        },
+                        Err(_) => {
+                            InvalidJsonOutput(InvalidOutput {
+                                stdout: String::from_utf8_lossy(raw_output).into_owned(),
+                                error: error.to_string(),
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 #[cfg(test)]
