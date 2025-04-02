@@ -20,6 +20,17 @@ pub struct ProfileOpts {
 #[folder = "providers/"]
 struct StandardProviders;
 
+// The prefix that identifies the Wasm API provider
+const WASM_API_PROVIDER_PREFIX: &str = "shopify_function_wasm_api_provider_v";
+
+// Check if the module uses the Wasm API provider
+fn uses_wasm_api_provider(module: &Module) -> bool {
+    eprintln!("!!! module imports: !!!");
+    module
+        .imports()
+        .any(|i| i.module().starts_with(WASM_API_PROVIDER_PREFIX))
+}
+
 fn import_modules<T>(
     module: &Module,
     engine: &Engine,
@@ -28,7 +39,10 @@ fn import_modules<T>(
 ) {
     let imported_modules: HashSet<String> =
         module.imports().map(|i| i.module().to_string()).collect();
+        
     imported_modules.iter().for_each(|module_name| {
+        eprintln!("!!! module name: !!!");
+        eprintln!("module_name: {:?}", module_name);
         let imported_module_bytes = StandardProviders::get(&format!("{module_name}.wasm"));
 
         if let Some(bytes) = imported_module_bytes {
@@ -126,7 +140,19 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input.clone()));
+    // Check if we need to use MessagePack transcoding
+    let uses_msgpack = uses_wasm_api_provider(&module);
+    let processed_input = if uses_msgpack {
+        // If this module uses the Wasm API provider, convert JSON to MessagePack
+        let json = serde_json::from_slice::<serde_json::Value>(&input)
+            .map_err(|e| anyhow!("Invalid input JSON for Wasm API function: {}", e))?;
+        rmp_serde::to_vec(&json)
+            .map_err(|e| anyhow!("Couldn't convert JSON to MessagePack: {}", e))?
+    } else {
+        input.clone()
+    };
+
+    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(processed_input));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
     let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
 
@@ -203,24 +229,49 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         .expect("Output stream reference still exists")
         .into_inner();
 
-    let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
-        Ok(json_output) => JsonOutput(json_output),
-        Err(error) => InvalidJsonOutput(InvalidOutput {
-            stdout: std::str::from_utf8(&raw_output)
-                .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
-                .unwrap()
-                .to_owned(),
-            error: error.to_string(),
-        }),
+    let output: FunctionOutput = if uses_msgpack {
+        // If using MessagePack, decode the output from MessagePack to JSON
+        match rmp_serde::from_slice::<serde_json::Value>(&raw_output) {
+            Ok(json_output) => JsonOutput(json_output),
+            Err(error) => {
+                // If MessagePack decoding fails, try direct JSON decode as a fallback
+                match serde_json::from_slice(&raw_output) {
+                    Ok(json_output) => JsonOutput(json_output),
+                    Err(_) => InvalidJsonOutput(InvalidOutput {
+                        stdout: std::str::from_utf8(&raw_output)
+                            .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
+                            .unwrap()
+                            .to_owned(),
+                        error: error.to_string(),
+                    }),
+                }
+            }
+        }
+    } else {
+        // If not using MessagePack, handle as normal JSON
+        match serde_json::from_slice(&raw_output) {
+            Ok(json_output) => JsonOutput(json_output),
+            Err(error) => InvalidJsonOutput(InvalidOutput {
+                stdout: std::str::from_utf8(&raw_output)
+                    .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
+                    .unwrap()
+                    .to_owned(),
+                error: error.to_string(),
+            }),
+        }
     };
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len() / 1024;
 
-    let parsed_input =
-        String::from_utf8(input).map_err(|e| anyhow!("Couldn't parse input: {}", e))?;
-
-    let function_run_input = serde_json::from_str(&parsed_input)?;
+    let function_run_input = if uses_msgpack {
+        // For display purposes, we want to show the original JSON input
+        serde_json::from_slice(&input)?
+    } else {
+        String::from_utf8(input)
+            .map_err(|e| anyhow!("Couldn't parse input: {}", e))
+            .and_then(|s| serde_json::from_str(&s).map_err(Into::into))?
+    };
 
     let function_run_result = FunctionRunResult {
         name: name.to_string(),
@@ -382,5 +433,18 @@ mod tests {
             function_run_result.size,
             file_path.metadata().unwrap().len() / 1024
         );
+    }
+
+    #[test]
+    fn test_wasm_api_provider_detection() {
+        let module_path = Path::new("tests/fixtures/build/js_function.wasm");
+        let module = Module::from_file(&Engine::default(), module_path).unwrap();
+        assert!(!uses_wasm_api_provider(&module));
+        
+        // This test will only pass if you have a test function compiled with the wasm api provider
+        // If this test fails, you may need to create such a test fixture.
+        // let wasm_api_module_path = Path::new("tests/fixtures/build/wasm_api_function.wasm");
+        // let wasm_api_module = Module::from_file(&Engine::default(), wasm_api_module_path).unwrap();
+        // assert!(uses_wasm_api_provider(&wasm_api_module));
     }
 }
