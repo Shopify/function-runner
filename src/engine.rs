@@ -20,13 +20,14 @@ pub struct ProfileOpts {
 #[folder = "providers/"]
 struct StandardProviders;
 
-const WASM_API_PROVIDER_PREFIX: &str = "shopify_function_wasm_api_provider_v";
+const WASM_API_PROVIDER_PREFIX: &str = "shopify_function_v";
 
 fn uses_wasm_api_provider(module: &Module) -> bool {
-    eprintln!("!!! module imports: !!!");
     module
         .imports()
-        .any(|i| i.module().starts_with(WASM_API_PROVIDER_PREFIX))
+        .any(|i| {
+            i.module().starts_with(WASM_API_PROVIDER_PREFIX)
+        })
 }
 
 fn import_modules<T>(
@@ -39,8 +40,6 @@ fn import_modules<T>(
         module.imports().map(|i| i.module().to_string()).collect();
         
     imported_modules.iter().for_each(|module_name| {
-        eprintln!("!!! module name: !!!");
-        eprintln!("module_name: {:?}", module_name);
         let imported_module_bytes = StandardProviders::get(&format!("{module_name}.wasm"));
 
         if let Some(bytes) = imported_module_bytes {
@@ -138,15 +137,15 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    // Check if we need to use MessagePack transcoding
     let uses_msgpack = uses_wasm_api_provider(&module);
+    
     let processed_input = if uses_msgpack {
-        // If this module uses the Wasm API provider, convert JSON to MessagePack
         let json = serde_json::from_slice::<serde_json::Value>(&input)
-            .map_err(|e| anyhow!("Invalid input JSON for Wasm API function: {}", e))?;
+            .map_err(|e| anyhow!("Invalid input JSON for function: {}", e))?;
+            
         rmp_serde::to_vec(&json)
             .map_err(|e| anyhow!("Couldn't convert JSON to MessagePack: {}", e))?
-    } else {
+    }  else {
         input.clone()
     };
 
