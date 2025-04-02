@@ -20,10 +20,8 @@ pub struct ProfileOpts {
 #[folder = "providers/"]
 struct StandardProviders;
 
-// The prefix that identifies the Wasm API provider
 const WASM_API_PROVIDER_PREFIX: &str = "shopify_function_wasm_api_provider_v";
 
-// Check if the module uses the Wasm API provider
 fn uses_wasm_api_provider(module: &Module) -> bool {
     eprintln!("!!! module imports: !!!");
     module
