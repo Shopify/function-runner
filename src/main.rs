@@ -184,6 +184,7 @@ fn main() -> Result<()> {
         export: opts.export.as_ref(),
         profile_opts: profile_opts.as_ref(),
         scale_factor,
+        use_msgpack: opts.codec == Codec::JsonToMessagepack,
     })?;
 
     if opts.json {

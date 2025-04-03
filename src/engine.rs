@@ -63,6 +63,7 @@ pub struct FunctionRunParams<'a> {
     pub export: &'a str,
     pub profile_opts: Option<&'a ProfileOpts>,
     pub scale_factor: f64,
+    pub use_msgpack: bool,
 }
 
 const STARTING_FUEL: u64 = u64::MAX;
@@ -125,6 +126,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         export,
         profile_opts,
         scale_factor,
+        use_msgpack,
     } = params;
 
     let engine = Engine::new(
@@ -137,15 +139,19 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let uses_msgpack = uses_wasm_api_provider(&module);
+    let uses_wasm_api = if use_msgpack {
+        true
+    } else {
+        uses_wasm_api_provider(&module)
+    };
     
-    let processed_input = if uses_msgpack {
+    let processed_input = if use_msgpack {
         let json = serde_json::from_slice::<serde_json::Value>(&input)
             .map_err(|e| anyhow!("Invalid input JSON for function: {}", e))?;
-            
+                
         rmp_serde::to_vec(&json)
             .map_err(|e| anyhow!("Couldn't convert JSON to MessagePack: {}", e))?
-    }  else {
+    } else {
         input.clone()
     };
 
@@ -226,37 +232,22 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         .expect("Output stream reference still exists")
         .into_inner();
 
-    let output: FunctionOutput = if uses_msgpack {
-        if !raw_output.is_empty() {
-            let might_be_text = raw_output.iter().all(|&b| b >= 32 && b <= 126);
-            let text_starts_with_letter = raw_output.get(0).map_or(false, |&b| (b >= b'a' && b <= b'z') || (b >= b'A' && b <= b'Z'));
-            
-            if might_be_text && text_starts_with_letter {
-                match std::str::from_utf8(&raw_output) {
-                    Ok(text) => JsonOutput(serde_json::Value::String(text.to_owned())),
-                    Err(_) => try_parse_as_msgpack(&raw_output)
-                }
-            } else {
-                try_parse_as_msgpack(&raw_output)
-            }
-        } else {
+    let output: FunctionOutput = if uses_wasm_api {
+        if raw_output.is_empty() {
             JsonOutput(serde_json::Value::Null)
+        } else {
+            try_parse_as_msgpack(&raw_output)
         }
     } else {
         match serde_json::from_slice(&raw_output) {
             Ok(json_output) => JsonOutput(json_output),
             Err(error) => {
-                let text_output = std::str::from_utf8(&raw_output);
-                match text_output {
-                    Ok(text) if !text.is_empty() => {
-                        JsonOutput(serde_json::Value::String(text.to_owned()))
-                    },
-                    _ => {
-                        InvalidJsonOutput(InvalidOutput {
-                            stdout: String::from_utf8_lossy(&raw_output).into_owned(),
-                            error: error.to_string(),
-                        })
-                    }
+                match std::str::from_utf8(&raw_output) {
+                    Ok(text) if !text.is_empty() => JsonOutput(serde_json::Value::String(text.to_owned())),
+                    _ => InvalidJsonOutput(InvalidOutput {
+                        stdout: String::from_utf8_lossy(&raw_output).into_owned(),
+                        error: error.to_string(),
+                    })
                 }
             }
         }
@@ -265,7 +256,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len() / 1024;
 
-    let function_run_input = if uses_msgpack {
+    let function_run_input = if uses_wasm_api {
         serde_json::from_slice(&input)?
     } else {
         String::from_utf8(input)
@@ -290,11 +281,19 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 }
 
 fn try_parse_as_msgpack(raw_output: &[u8]) -> FunctionOutput {
+    if !raw_output.is_empty() {
+        let first_char = raw_output[0] as char;
+        if first_char == '{' || first_char == '[' {
+            if let Ok(json_output) = serde_json::from_slice(raw_output) {
+                return JsonOutput(json_output);
+            }
+        }
+    }
+    
     match rmp_serde::from_slice::<serde_json::Value>(raw_output) {
         Ok(json_output) => {
             if let Some(n) = json_output.as_u64() {
                 if n < 127 && raw_output.len() > 1 && raw_output[0] as u64 == n {
-                    // This is likely text being misinterpreted as a number
                     return JsonOutput(serde_json::Value::String(
                         String::from_utf8_lossy(raw_output).into_owned()
                     ));
@@ -302,24 +301,11 @@ fn try_parse_as_msgpack(raw_output: &[u8]) -> FunctionOutput {
             }
             JsonOutput(json_output)
         },
-        Err(error) => {
-            match serde_json::from_slice(raw_output) {
-                Ok(json_output) => JsonOutput(json_output),
-                Err(_) => {
-                    let text_output = std::str::from_utf8(raw_output);
-                    match text_output {
-                        Ok(text) => {
-                            JsonOutput(serde_json::Value::String(text.to_owned()))
-                        },
-                        Err(_) => {
-                            InvalidJsonOutput(InvalidOutput {
-                                stdout: String::from_utf8_lossy(raw_output).into_owned(),
-                                error: error.to_string(),
-                            })
-                        }
-                    }
-                }
-            }
+        Err(msgpack_error) => {
+            InvalidJsonOutput(InvalidOutput {
+                stdout: String::from_utf8_lossy(raw_output).into_owned(),
+                error: msgpack_error.to_string(),
+            })
         }
     }
 }
@@ -479,5 +465,19 @@ mod tests {
         let wasm_api_module_path = Path::new("tests/fixtures/build/wasm_api_function.merged.wasm");
         let wasm_api_module = Module::from_file(&Engine::default(), wasm_api_module_path).unwrap();
         assert!(uses_wasm_api_provider(&wasm_api_module));
+    }
+
+    #[test]
+    fn test_wasm_api_function() {
+        let input = include_bytes!("../tests/fixtures/input/wasm_api_function_input.json").to_vec();
+        let function_run_result = run(FunctionRunParams {
+            function_path: Path::new("tests/fixtures/build/wasm_api_function.merged.wasm").to_path_buf(),
+            input,
+            export: DEFAULT_EXPORT,
+            use_msgpack: true,
+            ..Default::default()
+        });
+
+        assert!(function_run_result.is_ok());
     }
 }
