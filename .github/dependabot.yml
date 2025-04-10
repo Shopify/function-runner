@@ -12,7 +12,6 @@ updates:
         patterns:
           - "wasmtime"
           - "wasmtime-wasi"
-          - "wasi-common"
           - "deterministic-wasi-ctx"
   - package-ecosystem: "github-actions"
     directory: "/"
