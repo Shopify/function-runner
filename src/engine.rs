@@ -1,9 +1,11 @@
 use anyhow::{anyhow, Result};
 use rust_embed::RustEmbed;
 use std::string::String;
-use std::{collections::HashSet, io::Cursor, path::PathBuf};
-use wasi_common::{I32Exit, WasiCtx};
+use std::{collections::HashSet, path::PathBuf};
 use wasmtime::{AsContextMut, Config, Engine, Linker, Module, ResourceLimiter, Store};
+use wasmtime_wasi::pipe::{MemoryInputPipe, MemoryOutputPipe};
+use wasmtime_wasi::preview1::WasiP1Ctx;
+use wasmtime_wasi::{I32Exit, WasiCtxBuilder};
 
 use crate::function_run_result::{
     FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
@@ -58,12 +60,12 @@ const STARTING_FUEL: u64 = u64::MAX;
 const MAXIMUM_MEMORIES: usize = 2; // 1 for the module, 1 for Javy's provider
 
 struct FunctionContext {
-    wasi: WasiCtx,
+    wasi: WasiP1Ctx,
     limiter: MemoryLimiter,
 }
 
 impl FunctionContext {
-    fn new(wasi: WasiCtx) -> Self {
+    fn new(wasi: WasiP1Ctx) -> Self {
         Self {
             wasi,
             limiter: Default::default(),
@@ -126,9 +128,9 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input.clone()));
-    let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
-    let error_stream = wasi_common::pipe::WritePipe::new_in_memory();
+    let input_stream = MemoryInputPipe::new(input.clone());
+    let output_stream = MemoryOutputPipe::new(usize::MAX);
+    let error_stream = MemoryOutputPipe::new(usize::MAX);
 
     let memory_usage: u64;
     let instructions: u64;
@@ -138,11 +140,16 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     {
         let mut linker = Linker::new(&engine);
-        wasi_common::sync::add_to_linker(&mut linker, |ctx: &mut FunctionContext| &mut ctx.wasi)?;
-        let wasi = deterministic_wasi_ctx::build_wasi_ctx();
-        wasi.set_stdin(Box::new(input_stream));
-        wasi.set_stdout(Box::new(output_stream.clone()));
-        wasi.set_stderr(Box::new(error_stream.clone()));
+        wasmtime_wasi::preview1::add_to_linker_sync(&mut linker, |ctx: &mut FunctionContext| {
+            &mut ctx.wasi
+        })?;
+        deterministic_wasi_ctx::replace_scheduling_functions(&mut linker)?;
+        let mut wasi_builder = WasiCtxBuilder::new();
+        wasi_builder.stdin(input_stream);
+        wasi_builder.stdout(output_stream.clone());
+        wasi_builder.stderr(error_stream.clone());
+        deterministic_wasi_ctx::add_determinism_to_wasi_ctx_builder(&mut wasi_builder);
+        let wasi = wasi_builder.build_p1();
         let function_context = FunctionContext::new(wasi);
         let mut store = Store::new(&engine, function_context);
         store.limiter(|s| &mut s.limiter);
@@ -173,12 +180,11 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         // modules may exit with a specific exit code, an exit code of 0 is considered success but is reported as
         // a GuestFault by wasmtime, so we need to map it to a success result. Any other exit code is considered
         // a failure.
-        module_result =
-            module_result.or_else(|error| match error.downcast_ref::<wasi_common::I32Exit>() {
-                Some(I32Exit(0)) => Ok(()),
-                Some(I32Exit(code)) => Err(anyhow!("module exited with code: {}", code)),
-                None => Err(error),
-            });
+        module_result = module_result.or_else(|error| match error.downcast_ref::<I32Exit>() {
+            Some(I32Exit(0)) => Ok(()),
+            Some(I32Exit(code)) => Err(anyhow!("module exited with code: {}", code)),
+            None => Err(error),
+        });
 
         memory_usage = store.data().max_memory_bytes() as u64 / 1024;
         instructions = STARTING_FUEL.saturating_sub(store.get_fuel().unwrap_or_default());
@@ -193,15 +199,13 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     let mut logs = error_stream
         .try_into_inner()
-        .expect("Log stream reference still exists")
-        .into_inner();
+        .expect("Log stream reference still exists");
 
     logs.extend_from_slice(error_logs.as_bytes());
 
     let raw_output = output_stream
         .try_into_inner()
-        .expect("Output stream reference still exists")
-        .into_inner();
+        .expect("Output stream reference still exists");
 
     let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
         Ok(json_output) => JsonOutput(json_output),

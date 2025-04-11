@@ -23,28 +23,27 @@ opt-level = 3
 
 [dependencies]
 wasmtime = { version = "=28.0.1", default-features = false, features = [
-    "addr2line",
-    "all-arch",
-    "async",
-    "cache",
-    "component-model",
-    "coredump",
-    "cranelift",
-    "debug-builtins",
-    "demangle",
-    "parallel-compilation",
-    "pooling-allocator",
-    "profiling",
-    "runtime",
-    "signals-based-traps",
-    "std",
-    "threads",
-    "wat",
-    "winch",
+  "addr2line",
+  "all-arch",
+  "async",
+  "cache",
+  "component-model",
+  "coredump",
+  "cranelift",
+  "debug-builtins",
+  "demangle",
+  "parallel-compilation",
+  "pooling-allocator",
+  "profiling",
+  "runtime",
+  "signals-based-traps",
+  "std",
+  "threads",
+  "wat",
+  "winch",
 ] }
-wasmtime-wasi = "=29.0.1"
-wasi-common = "=28.0.0"
-deterministic-wasi-ctx = "=0.1.29"
+wasmtime-wasi = "=28.0.1"
+deterministic-wasi-ctx = "=0.1.31"
 anyhow = "1.0"
 clap = { version = "4.5", features = ["derive"] }
 serde_json = "1.0"
