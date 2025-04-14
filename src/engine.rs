@@ -20,6 +20,12 @@ pub struct ProfileOpts {
 #[folder = "providers/"]
 struct StandardProviders;
 
+pub fn uses_msgpack_provider(module: &Module) -> bool {
+    module.imports().map(|i| i.module()).any(|module| {
+        module.starts_with("shopify_function_v") || module == "shopify_functions_javy_v2"
+    })
+}
+
 fn import_modules<T>(
     module: &Module,
     engine: &Engine,
@@ -28,8 +34,10 @@ fn import_modules<T>(
 ) {
     let imported_modules: HashSet<String> =
         module.imports().map(|i| i.module().to_string()).collect();
+
     imported_modules.iter().for_each(|module_name| {
-        let imported_module_bytes = StandardProviders::get(&format!("{module_name}.wasm"));
+        let provider_path = format!("{module_name}.wasm");
+        let imported_module_bytes = StandardProviders::get(&provider_path);
 
         if let Some(bytes) = imported_module_bytes {
             let imported_module = Module::from_binary(engine, &bytes.data)
@@ -38,6 +46,7 @@ fn import_modules<T>(
             let imported_module_instance = linker
                 .instantiate(&mut store, &imported_module)
                 .expect("Failed to instantiate imported instance");
+
             linker
                 .instance(&mut store, module_name, imported_module_instance)
                 .expect("Failed to import module");
@@ -45,13 +54,14 @@ fn import_modules<T>(
     });
 }
 
-#[derive(Default)]
 pub struct FunctionRunParams<'a> {
     pub function_path: PathBuf,
     pub input: BytesContainer,
     pub export: &'a str,
     pub profile_opts: Option<&'a ProfileOpts>,
     pub scale_factor: f64,
+    pub module: Module,
+    pub engine: Engine,
 }
 
 const STARTING_FUEL: u64 = u64::MAX;
@@ -114,17 +124,9 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         export,
         profile_opts,
         scale_factor,
+        engine,
+        module,
     } = params;
-
-    let engine = Engine::new(
-        Config::new()
-            .wasm_multi_memory(true)
-            .wasm_threads(false)
-            .consume_fuel(true)
-            .epoch_interruption(true),
-    )?;
-    let module = Module::from_file(&engine, &function_path)
-        .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
     let input_stream = MemoryInputPipe::new(input.raw.clone());
     let output_stream = MemoryOutputPipe::new(usize::MAX);
@@ -201,11 +203,15 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     logs.extend_from_slice(error_logs.as_bytes());
 
+    let output_codec = input.codec;
     let raw_output = output_stream
         .try_into_inner()
         .expect("Output stream reference still exists");
-
-    let output = BytesContainer::new(BytesContainerType::Output, input.codec, raw_output.to_vec())?;
+    let output = BytesContainer::new(
+        BytesContainerType::Output,
+        output_codec,
+        raw_output.to_vec(),
+    )?;
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len() / 1024;
@@ -226,6 +232,21 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     Ok(function_run_result)
 }
 
+/// Creates a new Engine with our standard configuration.
+/// We use a dedicated function instead of making this the default configuration because:
+/// 1. It's more explicit about what configuration we're using
+/// 2. It keeps the door open for different configurations in the future without breaking changes
+/// 3. It makes it easier to find all places where we create an Engine
+pub fn new_engine() -> Result<Engine> {
+    Engine::new(
+        Config::new()
+            .wasm_multi_memory(true)
+            .wasm_threads(false)
+            .consume_fuel(true)
+            .epoch_interruption(true),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use colored::Colorize;
@@ -244,6 +265,9 @@ mod tests {
 
     #[test]
     fn test_js_function() -> Result<()> {
+        let engine = new_engine()?;
+        let module =
+            Module::from_file(&engine, Path::new("tests/fixtures/build/js_function.wasm"))?;
         let input = json_input(include_bytes!(
             "../tests/fixtures/input/js_function_input.json"
         ))?;
@@ -252,7 +276,10 @@ mod tests {
             function_path: Path::new("tests/fixtures/build/js_function.wasm").to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
-            ..Default::default()
+            module,
+            engine,
+            scale_factor: 1.0,
+            profile_opts: None,
         })?;
 
         assert_eq!(function_run_result.memory_usage, 1280);
@@ -262,6 +289,11 @@ mod tests {
 
     #[test]
     fn test_js_v2_function() -> Result<()> {
+        let engine = new_engine()?;
+        let module = Module::from_file(
+            &engine,
+            Path::new("tests/fixtures/build/js_function_v2.wasm"),
+        )?;
         let input = json_input(include_bytes!(
             "../tests/fixtures/input/js_function_input.json"
         ))?;
@@ -269,7 +301,10 @@ mod tests {
             function_path: Path::new("tests/fixtures/build/js_function_v2.wasm").to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
-            ..Default::default()
+            module,
+            engine,
+            scale_factor: 1.0,
+            profile_opts: None,
         })?;
 
         assert_eq!(function_run_result.memory_usage, 1344);
@@ -278,6 +313,11 @@ mod tests {
 
     #[test]
     fn test_js_v3_function() -> Result<()> {
+        let engine = new_engine()?;
+        let module = Module::from_file(
+            &engine,
+            Path::new("tests/fixtures/build/js_function_v3.wasm"),
+        )?;
         let input = json_input(include_bytes!(
             "../tests/fixtures/input/js_function_input.json"
         ))?;
@@ -286,7 +326,10 @@ mod tests {
             function_path: Path::new("tests/fixtures/build/js_function_v3.wasm").to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
-            ..Default::default()
+            module,
+            engine,
+            scale_factor: 1.0,
+            profile_opts: None,
         })?;
 
         assert_eq!(function_run_result.memory_usage, 1344);
@@ -295,6 +338,11 @@ mod tests {
 
     #[test]
     fn test_js_functions_javy_v1() -> Result<()> {
+        let engine = new_engine()?;
+        let module = Module::from_file(
+            &engine,
+            Path::new("tests/fixtures/build/js_functions_javy_v1.wasm"),
+        )?;
         let input = json_input(include_bytes!(
             "../tests/fixtures/input/js_function_input.json"
         ))?;
@@ -304,7 +352,10 @@ mod tests {
                 .to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
-            ..Default::default()
+            module,
+            engine,
+            scale_factor: 1.0,
+            profile_opts: None,
         })?;
 
         assert_eq!(function_run_result.memory_usage, 1344);
@@ -313,11 +364,16 @@ mod tests {
 
     #[test]
     fn test_exit_code_zero() -> Result<()> {
+        let engine = new_engine()?;
+        let module = Module::from_file(&engine, Path::new("tests/fixtures/build/exit_code.wasm"))?;
         let function_run_result = run(FunctionRunParams {
             function_path: Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
             input: json_input(&serde_json::to_vec(&json!({ "code": 0 }))?)?,
             export: DEFAULT_EXPORT,
-            ..Default::default()
+            module,
+            engine,
+            scale_factor: 1.0,
+            profile_opts: None,
         })?;
 
         assert_eq!(function_run_result.logs, "");
@@ -326,11 +382,16 @@ mod tests {
 
     #[test]
     fn test_exit_code_one() -> Result<()> {
+        let engine = new_engine()?;
+        let module = Module::from_file(&engine, Path::new("tests/fixtures/build/exit_code.wasm"))?;
         let function_run_result = run(FunctionRunParams {
             function_path: Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
             input: json_input(&serde_json::to_vec(&json!({ "code": 1 }))?)?,
             export: DEFAULT_EXPORT,
-            ..Default::default()
+            module,
+            engine,
+            scale_factor: 1.0,
+            profile_opts: None,
         })?;
 
         assert_eq!(function_run_result.logs, "module exited with code: 1");
@@ -339,11 +400,19 @@ mod tests {
 
     #[test]
     fn test_linear_memory_usage_in_kb() -> Result<()> {
+        let engine = new_engine()?;
+        let module = Module::from_file(
+            &engine,
+            Path::new("tests/fixtures/build/linear_memory.wasm"),
+        )?;
         let function_run_result = run(FunctionRunParams {
             function_path: Path::new("tests/fixtures/build/linear_memory.wasm").to_path_buf(),
             input: json_input(&serde_json::to_vec(&json!({}))?)?,
             export: DEFAULT_EXPORT,
-            ..Default::default()
+            module,
+            engine,
+            scale_factor: 1.0,
+            profile_opts: None,
         })?;
 
         assert_eq!(function_run_result.memory_usage, 12800); // 200 * 64KiB pages
@@ -352,12 +421,20 @@ mod tests {
 
     #[test]
     fn test_logs_truncation() -> Result<()> {
+        let engine = new_engine()?;
+        let module = Module::from_file(
+            &engine,
+            Path::new("tests/fixtures/build/log_truncation_function.wasm"),
+        )?;
         let function_run_result = run(FunctionRunParams {
             input: json_input("{}".as_bytes())?,
             function_path: Path::new("tests/fixtures/build/log_truncation_function.wasm")
                 .to_path_buf(),
             export: DEFAULT_EXPORT,
-            ..Default::default()
+            module,
+            engine,
+            scale_factor: 1.0,
+            profile_opts: None,
         })?;
 
         assert!(
@@ -374,17 +451,50 @@ mod tests {
     #[test]
     fn test_file_size_in_kb() -> Result<()> {
         let file_path = Path::new("tests/fixtures/build/exit_code.wasm");
-
+        let engine = new_engine()?;
+        let module = Module::from_file(&engine, file_path)?;
         let function_run_result = run(FunctionRunParams {
             function_path: file_path.to_path_buf(),
             input: json_input(&serde_json::to_vec(&json!({ "code": 0 }))?)?,
             export: DEFAULT_EXPORT,
-            ..Default::default()
+            module,
+            engine,
+            scale_factor: 1.0,
+            profile_opts: None,
         })?;
 
         assert_eq!(
             function_run_result.size,
             file_path.metadata().unwrap().len() / 1024
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_wasm_api_function() -> Result<()> {
+        let engine = new_engine()?;
+        let module = Module::from_file(
+            &engine,
+            Path::new("tests/fixtures/build/echo.trampolined.wasm"),
+        )?;
+        let expected_input_value = json!({"foo": "echo", "bar": "test"});
+        let input = serde_json::to_vec(&expected_input_value).unwrap();
+        let input_bytes = BytesContainer::new(BytesContainerType::Input, Codec::Json, input);
+        let function_run_result = run(FunctionRunParams {
+            function_path: Path::new("tests/fixtures/build/echo.trampolined.wasm").to_path_buf(),
+            input: input_bytes.unwrap(),
+            export: DEFAULT_EXPORT,
+            module,
+            engine,
+            scale_factor: 1.0,
+            profile_opts: None,
+        });
+
+        assert!(function_run_result.is_ok());
+        let result = function_run_result.unwrap();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&result.input.raw).unwrap(),
+            expected_input_value
         );
         Ok(())
     }
