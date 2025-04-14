@@ -351,4 +351,19 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn run_wasm_api_function() -> Result<(), Box<dyn std::error::Error>> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+
+        cmd.args(["--function", "tests/fixtures/build/echo.trampolined.wasm"])
+            .args([
+                "--input",
+                "tests/fixtures/input/wasm_api_function_input.json",
+            ]);
+
+        cmd.assert().success();
+
+        Ok(())
+    }
 }

@@ -22,6 +22,14 @@ pub struct ProfileOpts {
 #[folder = "providers/"]
 struct StandardProviders;
 
+fn uses_wasm_api_provider(module: &Module) -> bool {
+    let imported_modules: HashSet<String> =
+        module.imports().map(|i| i.module().to_string()).collect();
+    imported_modules
+        .iter()
+        .any(|name| name.starts_with("shopify_function_v"))
+}
+
 fn import_modules<T>(
     module: &Module,
     engine: &Engine,
@@ -30,8 +38,10 @@ fn import_modules<T>(
 ) {
     let imported_modules: HashSet<String> =
         module.imports().map(|i| i.module().to_string()).collect();
+
     imported_modules.iter().for_each(|module_name| {
-        let imported_module_bytes = StandardProviders::get(&format!("{module_name}.wasm"));
+        let provider_path = format!("{module_name}.wasm");
+        let imported_module_bytes = StandardProviders::get(&provider_path);
 
         if let Some(bytes) = imported_module_bytes {
             let imported_module = Module::from_binary(engine, &bytes.data)
@@ -40,6 +50,7 @@ fn import_modules<T>(
             let imported_module_instance = linker
                 .instantiate(&mut store, &imported_module)
                 .expect("Failed to instantiate imported instance");
+
             linker
                 .instance(&mut store, module_name, imported_module_instance)
                 .expect("Failed to import module");
@@ -128,7 +139,22 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let input_stream = MemoryInputPipe::new(input.clone());
+    let uses_wasm_api = uses_wasm_api_provider(&module);
+
+    let input_bytes = if uses_wasm_api {
+        let json_value: serde_json::Value = serde_json::from_slice(&input)
+            .map_err(|e| anyhow!("Invalid input JSON for Wasm API function: {}", e))?;
+        rmp_serde::to_vec(&json_value).map_err(|e| {
+            anyhow!(
+                "Couldn't convert JSON to MessagePack for Wasm API function: {}",
+                e
+            )
+        })?
+    } else {
+        input.clone()
+    };
+
+    let input_stream = MemoryInputPipe::new(input_bytes);
     let output_stream = MemoryOutputPipe::new(usize::MAX);
     let error_stream = MemoryOutputPipe::new(usize::MAX);
 
@@ -207,15 +233,28 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         .try_into_inner()
         .expect("Output stream reference still exists");
 
-    let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
-        Ok(json_output) => JsonOutput(json_output),
-        Err(error) => InvalidJsonOutput(InvalidOutput {
-            stdout: std::str::from_utf8(&raw_output)
-                .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
-                .unwrap()
-                .to_owned(),
-            error: error.to_string(),
-        }),
+    let output: FunctionOutput = if uses_wasm_api {
+        match rmp_serde::from_slice::<serde_json::Value>(&raw_output) {
+            Ok(json_output) => JsonOutput(json_output),
+            Err(error) => InvalidJsonOutput(InvalidOutput {
+                stdout: std::str::from_utf8(&raw_output)
+                    .map_err(|e| anyhow!("Couldn't print Function MessagePack Output: {}", e))
+                    .unwrap_or_default()
+                    .to_owned(),
+                error: format!("Invalid MessagePack output: {}", error),
+            }),
+        }
+    } else {
+        match serde_json::from_slice(&raw_output) {
+            Ok(json_output) => JsonOutput(json_output),
+            Err(error) => InvalidJsonOutput(InvalidOutput {
+                stdout: std::str::from_utf8(&raw_output)
+                    .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
+                    .unwrap()
+                    .to_owned(),
+                error: error.to_string(),
+            }),
+        }
     };
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
@@ -386,5 +425,18 @@ mod tests {
             function_run_result.size,
             file_path.metadata().unwrap().len() / 1024
         );
+    }
+
+    #[test]
+    fn test_wasm_api_function() {
+        let input = include_bytes!("../tests/fixtures/input/wasm_api_function_input.json").to_vec();
+        let function_run_result = run(FunctionRunParams {
+            function_path: Path::new("tests/fixtures/build/echo.trampolined.wasm").to_path_buf(),
+            input,
+            export: DEFAULT_EXPORT,
+            ..Default::default()
+        });
+
+        assert!(function_run_result.is_ok());
     }
 }
