@@ -233,16 +233,63 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         .try_into_inner()
         .expect("Output stream reference still exists");
 
+    // For Wasm API functions, we need to find the actual MessagePack part after the stdout text
+    let actual_output = if uses_wasm_api {
+        // Find the actual MessagePack data, which starts with 0x81 (map with 1 item)
+        if let Some(mp_start) = raw_output.iter().position(|&b| b == 0x81) {
+            eprintln!(
+                "DEBUG: Found MessagePack data starting at position {}",
+                mp_start
+            );
+            // Extract just the MessagePack part
+            raw_output[mp_start..].to_vec()
+        } else {
+            eprintln!("DEBUG: No MessagePack data found, using full output");
+            raw_output.to_vec()
+        }
+    } else {
+        raw_output.to_vec()
+    };
+
+    // Debug output
+    if uses_wasm_api {
+        eprintln!("DEBUG: Raw output bytes: {:?}", raw_output);
+        eprintln!("DEBUG: MessagePack part: {:?}", actual_output);
+
+        // Analyze MessagePack bytes
+        for (i, &byte) in actual_output.iter().enumerate() {
+            eprintln!(
+                "DEBUG: MP Byte {}: {} (0x{:02x}, {})",
+                i,
+                byte,
+                byte,
+                if byte.is_ascii() && !byte.is_ascii_control() {
+                    format!("'{}'", byte as char)
+                } else {
+                    "non-printable".to_string()
+                }
+            );
+        }
+    }
+
     let output: FunctionOutput = if uses_wasm_api {
-        match rmp_serde::from_slice::<serde_json::Value>(&raw_output) {
-            Ok(json_output) => JsonOutput(json_output),
-            Err(error) => InvalidJsonOutput(InvalidOutput {
-                stdout: std::str::from_utf8(&raw_output)
-                    .map_err(|e| anyhow!("Couldn't print Function MessagePack Output: {}", e))
-                    .unwrap_or_default()
-                    .to_owned(),
-                error: format!("Invalid MessagePack output: {}", error),
-            }),
+        // Try to parse the actual MessagePack part
+        match rmp_serde::from_slice::<serde_json::Value>(&actual_output) {
+            Ok(json_output) => {
+                eprintln!(
+                    "DEBUG: Successfully parsed MessagePack to JSON: {:?}",
+                    json_output
+                );
+                JsonOutput(json_output)
+            }
+            Err(error) => {
+                eprintln!("DEBUG: Error parsing MessagePack: {}", error);
+                // The MessagePack didn't parse correctly, treat as error
+                InvalidJsonOutput(InvalidOutput {
+                    stdout: String::from_utf8_lossy(&raw_output).into_owned(),
+                    error: format!("Invalid MessagePack output: {}", error),
+                })
+            }
         }
     } else {
         match serde_json::from_slice(&raw_output) {
@@ -250,7 +297,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
             Err(error) => InvalidJsonOutput(InvalidOutput {
                 stdout: std::str::from_utf8(&raw_output)
                     .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
-                    .unwrap()
+                    .unwrap_or_default() // Make this consistent with the MessagePack case
                     .to_owned(),
                 error: error.to_string(),
             }),
