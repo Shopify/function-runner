@@ -7,11 +7,8 @@ use wasmtime_wasi::pipe::{MemoryInputPipe, MemoryOutputPipe};
 use wasmtime_wasi::preview1::WasiP1Ctx;
 use wasmtime_wasi::{I32Exit, WasiCtxBuilder};
 
-use crate::function_run_result::{
-    FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
-    FunctionRunResult, InvalidOutput,
-};
-
+use crate::function_run_result::FunctionRunResult;
+use crate::codec::Codec;
 #[derive(Clone)]
 pub struct ProfileOpts {
     pub interval: u32,
@@ -140,19 +137,10 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
     let uses_wasm_api = uses_wasm_api_provider(&module);
-
-    let input_bytes = if uses_wasm_api {
-        let json_value: serde_json::Value = serde_json::from_slice(&input)
-            .map_err(|e| anyhow!("Invalid input JSON for Wasm API function: {}", e))?;
-        rmp_serde::to_vec(&json_value).map_err(|e| {
-            anyhow!(
-                "Couldn't convert JSON to MessagePack for Wasm API function: {}",
-                e
-            )
-        })?
-    } else {
-        input.clone()
-    };
+    let codec = Codec::for_io_format(uses_wasm_api);
+    
+    // Convert input to the appropriate format based on the codec
+    let input_bytes = codec.transcode_from_json_bytes(input.clone())?;
 
     let input_stream = MemoryInputPipe::new(input_bytes);
     let output_stream = MemoryOutputPipe::new(usize::MAX);
@@ -233,30 +221,8 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         .try_into_inner()
         .expect("Output stream reference still exists");
 
-    let actual_output = raw_output.to_vec();
-    
-    let output: FunctionOutput = if uses_wasm_api {
-        match rmp_serde::from_slice::<serde_json::Value>(&actual_output) {
-            Ok(json_output) => JsonOutput(json_output),
-            Err(error) => {
-                InvalidJsonOutput(InvalidOutput {
-                    stdout: String::from_utf8_lossy(&raw_output).into_owned(),
-                    error: format!("Invalid MessagePack output: {}", error),
-                })
-            }
-        }
-    } else {
-        match serde_json::from_slice(&raw_output) {
-            Ok(json_output) => JsonOutput(json_output),
-            Err(error) => InvalidJsonOutput(InvalidOutput {
-                stdout: std::str::from_utf8(&raw_output)
-                    .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
-                    .unwrap_or_default() // Make this consistent with the MessagePack case
-                    .to_owned(),
-                error: error.to_string(),
-            }),
-        }
-    };
+    // Parse the output using the appropriate codec
+    let output = codec.parse_output(&raw_output);
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len() / 1024;
