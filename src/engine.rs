@@ -7,8 +7,8 @@ use wasmtime_wasi::pipe::{MemoryInputPipe, MemoryOutputPipe};
 use wasmtime_wasi::preview1::WasiP1Ctx;
 use wasmtime_wasi::{I32Exit, WasiCtxBuilder};
 
-use crate::function_run_result::FunctionRunResult;
 use crate::codec::Codec;
+use crate::function_run_result::FunctionRunResult;
 #[derive(Clone)]
 pub struct ProfileOpts {
     pub interval: u32,
@@ -138,7 +138,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     let uses_wasm_api = uses_wasm_api_provider(&module);
     let codec = Codec::for_io_format(uses_wasm_api);
-    
+
     // Convert input to the appropriate format based on the codec
     let input_bytes = codec.transcode_from_json_bytes(input.clone())?;
 

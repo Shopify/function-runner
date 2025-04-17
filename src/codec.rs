@@ -1,8 +1,8 @@
-use anyhow::{anyhow, Result};
 use crate::function_run_result::{
     FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
     InvalidOutput,
 };
+use anyhow::{anyhow, Result};
 
 /// Codec represents the different serialization formats supported for function input/output
 #[derive(Debug, Clone, Copy)]
@@ -19,7 +19,7 @@ impl Codec {
             Self::Json
         }
     }
-    
+
     pub fn transcode_from_json_bytes(&self, bytes: Vec<u8>) -> Result<Vec<u8>> {
         match self {
             Self::Json => Ok(bytes),
@@ -35,7 +35,7 @@ impl Codec {
             }
         }
     }
-    
+
     pub fn parse_output(&self, output_bytes: &[u8]) -> FunctionOutput {
         match self {
             Self::Json => match serde_json::from_slice(output_bytes) {
