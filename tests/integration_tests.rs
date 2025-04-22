@@ -65,6 +65,31 @@ mod tests {
     }
 
     #[test]
+    fn run_javy_plugin_v2() -> Result<()> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+
+        let input_file = temp_input(json!({"cart": { "lines" : ["alex"]}}))?;
+        let file = File::open(input_file.path())?;
+
+        let output = cmd
+            .args([
+                "--function",
+                "tests/fixtures/build/js_functions_javy_v2.wasm",
+            ])
+            .arg("--json")
+            .stdin(Stdio::from(file))
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Failed to spawn child process")
+            .wait_with_output()
+            .expect("Failed waiting for output");
+
+        output.clone().assert().success();
+
+        Ok(())
+    }
+
+    #[test]
     fn run_no_opts() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let output = cmd
