@@ -10,10 +10,10 @@ pub use container::*;
 /// Supported input encoding.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Default)]
 pub enum Codec {
+    #[default]
     /// JSON input.
     Json,
     /// Raw input, no validation, passed as-is.
-    #[default]
     Raw,
     /// JSON input encoded as Messagepack.
     Messagepack,
