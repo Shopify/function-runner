@@ -65,31 +65,6 @@ mod tests {
     }
 
     #[test]
-    fn run_javy_plugin_v2() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
-
-        let input_file = temp_input(json!({"cart": { "lines" : ["alex"]}}))?;
-        let file = File::open(input_file.path())?;
-
-        let output = cmd
-            .args([
-                "--function",
-                "tests/fixtures/build/js_functions_javy_v2.wasm",
-            ])
-            .arg("--json")
-            .stdin(Stdio::from(file))
-            .stdout(Stdio::piped())
-            .spawn()
-            .expect("Failed to spawn child process")
-            .wait_with_output()
-            .expect("Failed waiting for output");
-
-        output.clone().assert().success();
-
-        Ok(())
-    }
-
-    #[test]
     fn run_no_opts() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let output = cmd
@@ -446,6 +421,38 @@ mod tests {
         cmd.assert().success();
         cmd.assert().stdout(contains("7b 7d"));
 
+        Ok(())
+    }
+
+    #[test]
+    fn run_javy_plugin_v2() -> Result<()> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input = temp_input(json!({"hello": "world"}))?;
+
+        cmd.args([
+            "--function",
+            "tests/fixtures/build/js_function_javy_plugin_v2.wasm",
+        ])
+        .arg("--json")
+        .args(["--codec", "messagepack"])
+        .args(["--export", "run"])
+        .arg("--input")
+        .arg(input.as_os_str())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("Failed to spawn child process")
+        .wait_with_output()
+        .expect("Failed waiting for output");
+
+        // Command should succeed
+        cmd.assert().success();
+
+        // Input should be returned
+        cmd.assert().stdout(contains("hello"));
+        cmd.assert().stdout(contains("world"));
+
+        // Module output should be returned
+        cmd.assert().stdout(contains("discountApplicationStrategy"));
         Ok(())
     }
 }
