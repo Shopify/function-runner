@@ -1,3 +1,4 @@
+use crate::BytesContainer;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -11,21 +12,14 @@ pub struct InvalidOutput {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(untagged)]
-pub enum FunctionOutput {
-    JsonOutput(serde_json::Value),
-    InvalidJsonOutput(InvalidOutput),
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FunctionRunResult {
     pub name: String,
     pub size: u64,
     pub memory_usage: u64,
     pub instructions: u64,
     pub logs: String,
-    pub input: serde_json::Value,
-    pub output: FunctionOutput,
+    pub input: BytesContainer,
+    pub output: BytesContainer,
     #[serde(skip)]
     pub profile: Option<String>,
     #[serde(skip)]
@@ -37,24 +31,17 @@ const DEFAULT_INSTRUCTIONS_LIMIT: u64 = 11_000_000;
 const DEFAULT_INPUT_SIZE_LIMIT: u64 = 128_000;
 const DEFAULT_OUTPUT_SIZE_LIMIT: u64 = 20_000;
 
-pub fn get_json_size_as_bytes(value: &serde_json::Value) -> usize {
-    serde_json::to_vec(value).map(|v| v.len()).unwrap_or(0)
-}
-
 impl FunctionRunResult {
     pub fn to_json(&self) -> String {
         serde_json::to_string_pretty(&self).unwrap_or_else(|error| error.to_string())
     }
 
     pub fn input_size(&self) -> usize {
-        get_json_size_as_bytes(&self.input)
+        self.input.raw.len()
     }
 
     pub fn output_size(&self) -> usize {
-        match &self.output {
-            FunctionOutput::JsonOutput(value) => get_json_size_as_bytes(value),
-            FunctionOutput::InvalidJsonOutput(_value) => 0,
-        }
+        self.output.raw.len()
     }
 }
 
@@ -98,8 +85,7 @@ impl fmt::Display for FunctionRunResult {
             formatter,
             "{}\n\n{}",
             "            Input            ".black().on_bright_yellow(),
-            serde_json::to_string_pretty(&self.input)
-                .expect("Input should be serializable to a string")
+            self.input.humanized,
         )?;
 
         writeln!(
@@ -120,31 +106,27 @@ impl fmt::Display for FunctionRunResult {
             )?;
         }
 
-        match &self.output {
-            FunctionOutput::JsonOutput(json_output) => {
-                writeln!(
-                    formatter,
-                    "{}\n\n{}",
-                    "           Output           ".black().on_bright_green(),
-                    serde_json::to_string_pretty(&json_output)
-                        .expect("Output should be serializable to a string")
-                )?;
-            }
-            FunctionOutput::InvalidJsonOutput(invalid_output) => {
-                writeln!(
-                    formatter,
-                    "{}\n\n{}",
-                    "        Invalid Output      ".black().on_bright_red(),
-                    invalid_output.stdout
-                )?;
+        if let Some(e) = &self.output.encoding_error {
+            writeln!(
+                formatter,
+                "{}\n\n{}",
+                "        Invalid Output      ".black().on_bright_red(),
+                self.output.humanized,
+            )?;
 
-                writeln!(
-                    formatter,
-                    "{}\n\n{}",
-                    "         JSON Error         ".black().on_bright_red(),
-                    invalid_output.error
-                )?;
-            }
+            writeln!(
+                formatter,
+                "{}\n\n{}",
+                "         JSON Error         ".black().on_bright_red(),
+                e
+            )?;
+        } else {
+            writeln!(
+                formatter,
+                "{}\n\n{}",
+                "           Output           ".black().on_bright_green(),
+                self.output.humanized,
+            )?;
         }
 
         let input_size_limit = self.scale_factor * DEFAULT_INPUT_SIZE_LIMIT as f64;
@@ -234,13 +216,22 @@ mod tests {
     use anyhow::Result;
     use predicates::prelude::*;
 
+    use crate::*;
+
     use super::*;
+
+    fn json_output(raw: &[u8]) -> Result<BytesContainer> {
+        BytesContainer::new(BytesContainerType::Output, Codec::Json, raw.to_vec())
+    }
+
+    fn mock_json_input() -> Result<BytesContainer> {
+        let bytes = "{\"input_test\": \"input_value\"}".as_bytes();
+        BytesContainer::new(BytesContainerType::Input, Codec::Json, bytes.to_vec())
+    }
 
     #[test]
     fn test_js_output() -> Result<()> {
-        let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
-        let mock_function_input = serde_json::from_str(&mock_input_string)?;
-        let expected_input_display = serde_json::to_string_pretty(&mock_function_input)?;
+        let input = mock_json_input()?;
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -248,10 +239,10 @@ mod tests {
             memory_usage: 1000,
             instructions: 1001,
             logs: "test".to_string(),
-            input: mock_function_input,
-            output: FunctionOutput::JsonOutput(serde_json::json!({
+            input: input.clone(),
+            output: json_output(&serde_json::to_vec(&serde_json::json!({
                 "test": "test"
-            })),
+            }))?)?,
             profile: None,
             scale_factor: 1.0,
             success: true,
@@ -259,7 +250,7 @@ mod tests {
 
         let predicate = predicates::str::contains("Instructions: 1.001K")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains(expected_input_display))
+            .and(predicates::str::contains(input.humanized))
             .and(predicates::str::contains("Input Size: 28B"))
             .and(predicates::str::contains("Output Size: 15B"));
         assert!(predicate.eval(&function_run_result.to_string()));
@@ -270,9 +261,7 @@ mod tests {
 
     #[test]
     fn test_js_output_1000() -> Result<()> {
-        let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
-        let mock_function_input = serde_json::from_str(&mock_input_string)?;
-        let expected_input_display = serde_json::to_string_pretty(&mock_function_input)?;
+        let input = mock_json_input()?;
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -280,10 +269,10 @@ mod tests {
             memory_usage: 1000,
             instructions: 1000,
             logs: "test".to_string(),
-            input: mock_function_input,
-            output: FunctionOutput::JsonOutput(serde_json::json!({
+            input: input.clone(),
+            output: json_output(&serde_json::to_vec(&serde_json::json!({
                 "test": "test"
-            })),
+            }))?)?,
             profile: None,
             scale_factor: 1.0,
             success: true,
@@ -291,16 +280,14 @@ mod tests {
 
         let predicate = predicates::str::contains("Instructions: 1")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains(expected_input_display));
+            .and(predicates::str::contains(input.humanized));
         assert!(predicate.eval(&function_run_result.to_string()));
         Ok(())
     }
 
     #[test]
     fn test_instructions_less_than_1000() -> Result<()> {
-        let mock_input_string = "{\"input_test\": \"input_value\"}".to_string();
-        let mock_function_input = serde_json::from_str(&mock_input_string)?;
-        let expected_input_display = serde_json::to_string_pretty(&mock_function_input)?;
+        let input = mock_json_input()?;
 
         let function_run_result = FunctionRunResult {
             name: "test".to_string(),
@@ -308,10 +295,10 @@ mod tests {
             memory_usage: 1000,
             instructions: 999,
             logs: "test".to_string(),
-            input: mock_function_input,
-            output: FunctionOutput::JsonOutput(serde_json::json!({
+            input: input.clone(),
+            output: json_output(&serde_json::to_vec(&serde_json::json!({
                 "test": "test"
-            })),
+            }))?)?,
             profile: None,
             scale_factor: 1.0,
             success: true,
@@ -319,7 +306,7 @@ mod tests {
 
         let predicate = predicates::str::contains("Instructions: 999")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains(expected_input_display));
+            .and(predicates::str::contains(input.humanized));
         assert!(predicate.eval(&function_run_result.to_string()));
         Ok(())
     }

@@ -1,3 +1,5 @@
+use function_runner::{BytesContainer, BytesContainerType, Codec};
+
 use std::{
     fs::File,
     io::{stdin, BufReader, Read},
@@ -5,7 +7,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
-use clap::{Parser, ValueEnum};
+use clap::Parser;
 use function_runner::{
     bluejay_schema_analyzer::BluejaySchemaAnalyzer,
     engine::{run, FunctionRunParams, ProfileOpts},
@@ -15,17 +17,6 @@ use is_terminal::IsTerminal;
 
 const PROFILE_DEFAULT_INTERVAL: u32 = 500_000; // every 5us
 const DEFAULT_SCALE_FACTOR: f64 = 1.0;
-
-/// Supported input flavors
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-enum Codec {
-    /// JSON input, must be valid JSON
-    Json,
-    /// Raw input, no validation, passed as-is
-    Raw,
-    /// JSON input, will be converted to MessagePack, must be valid JSON
-    JsonToMessagepack,
-}
 
 /// Simple Function runner which takes JSON as a convenience.
 #[derive(Parser, Debug)]
@@ -144,26 +135,9 @@ fn main() -> Result<()> {
 
     let query_string = opts.read_query_to_string().transpose()?;
 
-    let (json_value, buffer) = match opts.codec {
-        Codec::Json => {
-            let json = serde_json::from_slice::<serde_json::Value>(&buffer)
-                .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
-            let minified_buffer =
-                serde_json::to_vec(&json).map_err(|e| anyhow!("Couldn't serialize JSON: {}", e))?;
-            (Some(json), minified_buffer)
-        }
-        Codec::Raw => (None, buffer),
-        Codec::JsonToMessagepack => {
-            let json: serde_json::Value = serde_json::from_slice(&buffer)
-                .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
-            let bytes = rmp_serde::to_vec(&json)
-                .map_err(|e| anyhow!("Couldn't convert JSON to MessagePack: {}", e))?;
-            (Some(json), bytes)
-        }
-    };
-
+    let input = BytesContainer::new(BytesContainerType::Input, opts.codec, buffer)?;
     let scale_factor = if let (Some(schema_string), Some(query_string), Some(json_value)) =
-        (schema_string, query_string, json_value)
+        (schema_string, query_string, input.json_value.clone())
     {
         BluejaySchemaAnalyzer::analyze_schema_definition(
             &schema_string,
@@ -180,7 +154,7 @@ fn main() -> Result<()> {
 
     let function_run_result = run(FunctionRunParams {
         function_path: opts.function,
-        input: buffer,
+        input,
         export: opts.export.as_ref(),
         profile_opts: profile_opts.as_ref(),
         scale_factor,
