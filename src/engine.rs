@@ -7,10 +7,8 @@ use wasmtime_wasi::pipe::{MemoryInputPipe, MemoryOutputPipe};
 use wasmtime_wasi::preview1::WasiP1Ctx;
 use wasmtime_wasi::{I32Exit, WasiCtxBuilder};
 
-use crate::function_run_result::{
-    FunctionOutput::{self, InvalidJsonOutput, JsonOutput},
-    FunctionRunResult, InvalidOutput,
-};
+use crate::function_run_result::FunctionRunResult;
+use crate::{BytesContainer, BytesContainerType};
 
 #[derive(Clone)]
 pub struct ProfileOpts {
@@ -50,7 +48,7 @@ fn import_modules<T>(
 #[derive(Default)]
 pub struct FunctionRunParams<'a> {
     pub function_path: PathBuf,
-    pub input: Vec<u8>,
+    pub input: BytesContainer,
     pub export: &'a str,
     pub profile_opts: Option<&'a ProfileOpts>,
     pub scale_factor: f64,
@@ -128,7 +126,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
-    let input_stream = MemoryInputPipe::new(input.clone());
+    let input_stream = MemoryInputPipe::new(input.raw.clone());
     let output_stream = MemoryOutputPipe::new(usize::MAX);
     let error_stream = MemoryOutputPipe::new(usize::MAX);
 
@@ -207,24 +205,10 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         .try_into_inner()
         .expect("Output stream reference still exists");
 
-    let output: FunctionOutput = match serde_json::from_slice(&raw_output) {
-        Ok(json_output) => JsonOutput(json_output),
-        Err(error) => InvalidJsonOutput(InvalidOutput {
-            stdout: std::str::from_utf8(&raw_output)
-                .map_err(|e| anyhow!("Couldn't print Function Output: {}", e))
-                .unwrap()
-                .to_owned(),
-            error: error.to_string(),
-        }),
-    };
+    let output = BytesContainer::new(BytesContainerType::Output, input.codec, raw_output.to_vec())?;
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len() / 1024;
-
-    let parsed_input =
-        String::from_utf8(input).map_err(|e| anyhow!("Couldn't parse input: {}", e))?;
-
-    let function_run_input = serde_json::from_str(&parsed_input)?;
 
     let function_run_result = FunctionRunResult {
         name: name.to_string(),
@@ -232,7 +216,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         memory_usage,
         instructions,
         logs: String::from_utf8_lossy(&logs).into(),
-        input: function_run_input,
+        input,
         output,
         profile: profile_data,
         scale_factor,
@@ -248,117 +232,133 @@ mod tests {
     use serde_json::json;
 
     use super::*;
+    use crate::Codec;
+    use anyhow::Result;
     use std::path::Path;
 
     const DEFAULT_EXPORT: &str = "_start";
 
+    fn json_input(raw: &[u8]) -> Result<BytesContainer> {
+        BytesContainer::new(BytesContainerType::Input, Codec::Json, raw.to_vec())
+    }
+
     #[test]
-    fn test_js_function() {
-        let input = include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec();
+    fn test_js_function() -> Result<()> {
+        let input = json_input(include_bytes!(
+            "../tests/fixtures/input/js_function_input.json"
+        ))?;
+
         let function_run_result = run(FunctionRunParams {
             function_path: Path::new("tests/fixtures/build/js_function.wasm").to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
             ..Default::default()
-        });
+        })?;
 
-        assert!(function_run_result.is_ok());
-        assert_eq!(function_run_result.unwrap().memory_usage, 1280);
+        assert_eq!(function_run_result.memory_usage, 1280);
+
+        Ok(())
     }
 
     #[test]
-    fn test_js_v2_function() {
-        let input = include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec();
+    fn test_js_v2_function() -> Result<()> {
+        let input = json_input(include_bytes!(
+            "../tests/fixtures/input/js_function_input.json"
+        ))?;
         let function_run_result = run(FunctionRunParams {
             function_path: Path::new("tests/fixtures/build/js_function_v2.wasm").to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
             ..Default::default()
-        });
+        })?;
 
-        assert!(function_run_result.is_ok());
-        assert_eq!(function_run_result.unwrap().memory_usage, 1344);
+        assert_eq!(function_run_result.memory_usage, 1344);
+        Ok(())
     }
 
     #[test]
-    fn test_js_v3_function() {
-        let input = include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec();
+    fn test_js_v3_function() -> Result<()> {
+        let input = json_input(include_bytes!(
+            "../tests/fixtures/input/js_function_input.json"
+        ))?;
+
         let function_run_result = run(FunctionRunParams {
             function_path: Path::new("tests/fixtures/build/js_function_v3.wasm").to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
             ..Default::default()
-        });
+        })?;
 
-        assert!(function_run_result.is_ok());
-        assert_eq!(function_run_result.unwrap().memory_usage, 1344);
+        assert_eq!(function_run_result.memory_usage, 1344);
+        Ok(())
     }
 
     #[test]
-    fn test_js_functions_javy_v1() {
-        let input = include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec();
+    fn test_js_functions_javy_v1() -> Result<()> {
+        let input = json_input(include_bytes!(
+            "../tests/fixtures/input/js_function_input.json"
+        ))?;
+
         let function_run_result = run(FunctionRunParams {
             function_path: Path::new("tests/fixtures/build/js_functions_javy_v1.wasm")
                 .to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
             ..Default::default()
-        });
+        })?;
 
-        assert!(function_run_result.is_ok());
-        assert_eq!(function_run_result.unwrap().memory_usage, 1344);
+        assert_eq!(function_run_result.memory_usage, 1344);
+        Ok(())
     }
 
     #[test]
-    fn test_exit_code_zero() {
+    fn test_exit_code_zero() -> Result<()> {
         let function_run_result = run(FunctionRunParams {
             function_path: Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
-            input: json!({ "code": 0 }).to_string().into(),
+            input: json_input(&serde_json::to_vec(&json!({ "code": 0 }))?)?,
             export: DEFAULT_EXPORT,
             ..Default::default()
-        })
-        .unwrap();
+        })?;
 
         assert_eq!(function_run_result.logs, "");
+        Ok(())
     }
 
     #[test]
-    fn test_exit_code_one() {
+    fn test_exit_code_one() -> Result<()> {
         let function_run_result = run(FunctionRunParams {
             function_path: Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
-            input: json!({ "code": 1 }).to_string().into(),
+            input: json_input(&serde_json::to_vec(&json!({ "code": 1 }))?)?,
             export: DEFAULT_EXPORT,
             ..Default::default()
-        })
-        .unwrap();
+        })?;
 
         assert_eq!(function_run_result.logs, "module exited with code: 1");
+        Ok(())
     }
 
     #[test]
-    fn test_linear_memory_usage_in_kb() {
+    fn test_linear_memory_usage_in_kb() -> Result<()> {
         let function_run_result = run(FunctionRunParams {
             function_path: Path::new("tests/fixtures/build/linear_memory.wasm").to_path_buf(),
-            input: "{}".as_bytes().to_vec(),
+            input: json_input(&serde_json::to_vec(&json!({}))?)?,
             export: DEFAULT_EXPORT,
             ..Default::default()
-        })
-        .unwrap();
+        })?;
 
         assert_eq!(function_run_result.memory_usage, 12800); // 200 * 64KiB pages
+        Ok(())
     }
 
     #[test]
-    fn test_logs_truncation() {
-        let input = "{}".as_bytes().to_vec();
+    fn test_logs_truncation() -> Result<()> {
         let function_run_result = run(FunctionRunParams {
+            input: json_input("{}".as_bytes())?,
             function_path: Path::new("tests/fixtures/build/log_truncation_function.wasm")
                 .to_path_buf(),
-            input,
             export: DEFAULT_EXPORT,
             ..Default::default()
-        })
-        .unwrap();
+        })?;
 
         assert!(
             function_run_result.to_string().contains(
@@ -368,23 +368,24 @@ mod tests {
             ),
             "Expected logs to be truncated, but were: {function_run_result}"
         );
+        Ok(())
     }
 
     #[test]
-    fn test_file_size_in_kb() {
+    fn test_file_size_in_kb() -> Result<()> {
         let file_path = Path::new("tests/fixtures/build/exit_code.wasm");
 
         let function_run_result = run(FunctionRunParams {
             function_path: file_path.to_path_buf(),
-            input: json!({ "code": 0 }).to_string().into(),
+            input: json_input(&serde_json::to_vec(&json!({ "code": 0 }))?)?,
             export: DEFAULT_EXPORT,
             ..Default::default()
-        })
-        .unwrap();
+        })?;
 
         assert_eq!(
             function_run_result.size,
             file_path.metadata().unwrap().len() / 1024
         );
+        Ok(())
     }
 }

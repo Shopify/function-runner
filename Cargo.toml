@@ -4,6 +4,9 @@ members = [
   "tests/fixtures/log_truncation_function",
   "tests/fixtures/exports",
   "tests/fixtures/noop",
+  "tests/fixtures/messagepack-valid",
+  "tests/fixtures/messagepack-invalid", 
+  "tests/fixtures/echo",
 ]
 
 [package]

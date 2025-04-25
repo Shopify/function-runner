@@ -1,19 +1,21 @@
 #[cfg(test)]
 mod tests {
 
+    use anyhow::Result;
     use assert_cmd::prelude::*;
     use assert_fs::prelude::*;
     use function_runner::function_run_result::FunctionRunResult;
     use predicates::prelude::*;
     use predicates::{prelude::predicate, str::contains};
     use serde_json::json;
+    use std::io::Write;
     use std::{
         fs::File,
         process::{Command, Stdio},
     };
 
     #[test]
-    fn run() -> Result<(), Box<dyn std::error::Error>> {
+    fn run() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let input_file = temp_input(json!({"count": 0}))?;
 
@@ -26,7 +28,7 @@ mod tests {
     }
 
     #[test]
-    fn invalid_json_input() -> Result<(), Box<dyn std::error::Error>> {
+    fn invalid_json_input() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
         cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
@@ -40,7 +42,7 @@ mod tests {
     }
 
     #[test]
-    fn run_stdin() -> Result<(), Box<dyn std::error::Error>> {
+    fn run_stdin() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
         let input_file = temp_input(json!({"exit_code": 0}))?;
@@ -63,7 +65,7 @@ mod tests {
     }
 
     #[test]
-    fn run_no_opts() -> Result<(), Box<dyn std::error::Error>> {
+    fn run_no_opts() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let output = cmd
             .stdout(Stdio::piped())
@@ -86,7 +88,7 @@ mod tests {
 
     #[test]
     #[ignore = "This test hangs on CI but runs locally, is_terminal is likely returning false in CI"]
-    fn run_function_no_input() -> Result<(), Box<dyn std::error::Error>> {
+    fn run_function_no_input() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
         cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"]);
@@ -98,7 +100,7 @@ mod tests {
     }
 
     #[test]
-    fn run_json() -> Result<(), Box<dyn std::error::Error>> {
+    fn run_json() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let input_file = temp_input(json!({"count": 0}))?;
 
@@ -115,7 +117,7 @@ mod tests {
     }
 
     #[test]
-    fn wasm_file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
+    fn wasm_file_doesnt_exist() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let input_file = temp_input(json!({"exit_code": 0}))?;
 
@@ -130,7 +132,7 @@ mod tests {
     }
 
     #[test]
-    fn input_file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
+    fn input_file_doesnt_exist() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
         cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
@@ -143,7 +145,7 @@ mod tests {
     }
 
     #[test]
-    fn profile_writes_file() -> Result<(), Box<dyn std::error::Error>> {
+    fn profile_writes_file() -> Result<()> {
         let (mut cmd, temp) = profile_base_cmd_in_temp_dir()?;
         cmd.arg("--profile").assert().success();
         temp.child("noop.perf").assert(predicate::path::exists());
@@ -152,7 +154,7 @@ mod tests {
     }
 
     #[test]
-    fn profile_writes_specified_file_name() -> Result<(), Box<dyn std::error::Error>> {
+    fn profile_writes_specified_file_name() -> Result<()> {
         let (mut cmd, temp) = profile_base_cmd_in_temp_dir()?;
         cmd.args(["--profile-out", "foo.perf"]).assert().success();
         temp.child("foo.perf").assert(predicate::path::exists());
@@ -161,7 +163,7 @@ mod tests {
     }
 
     #[test]
-    fn profile_frequency_triggers_profiling() -> Result<(), Box<dyn std::error::Error>> {
+    fn profile_frequency_triggers_profiling() -> Result<()> {
         let (mut cmd, temp) = profile_base_cmd_in_temp_dir()?;
         cmd.args(["--profile-frequency", "80000"])
             .assert()
@@ -172,7 +174,7 @@ mod tests {
     }
 
     #[test]
-    fn incorrect_input() -> Result<(), Box<dyn std::error::Error>> {
+    fn incorrect_input() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let input_file = temp_input(json!({}))?;
 
@@ -194,7 +196,7 @@ mod tests {
     }
 
     #[test]
-    fn exports() -> Result<(), Box<dyn std::error::Error>> {
+    fn exports() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let input_file = temp_input(json!({}))?;
         cmd.args(["--function", "tests/fixtures/build/exports.wasm"])
@@ -208,7 +210,7 @@ mod tests {
     }
 
     #[test]
-    fn missing_export() -> Result<(), Box<dyn std::error::Error>> {
+    fn missing_export() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let input_file = temp_input(json!({}))?;
         cmd.args(["--function", "tests/fixtures/build/exports.wasm"])
@@ -223,8 +225,7 @@ mod tests {
     }
 
     #[test]
-    fn failing_function_returns_non_zero_exit_code_for_module_errors(
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    fn failing_function_returns_non_zero_exit_code_for_module_errors() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let input_file = temp_input(json!({}))?;
         cmd.args([
@@ -241,8 +242,7 @@ mod tests {
         Ok(())
     }
 
-    fn profile_base_cmd_in_temp_dir(
-    ) -> Result<(Command, assert_fs::TempDir), Box<dyn std::error::Error>> {
+    fn profile_base_cmd_in_temp_dir() -> Result<(Command, assert_fs::TempDir)> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let cwd = std::env::current_dir()?;
         let temp = assert_fs::TempDir::new()?;
@@ -258,9 +258,7 @@ mod tests {
         Ok((cmd, temp))
     }
 
-    fn temp_input(
-        json: serde_json::Value,
-    ) -> Result<assert_fs::NamedTempFile, Box<dyn std::error::Error>> {
+    fn temp_input(json: serde_json::Value) -> Result<assert_fs::NamedTempFile> {
         let file = assert_fs::NamedTempFile::new("input.json")?;
         file.write_str(json.to_string().as_str())?;
 
@@ -268,8 +266,7 @@ mod tests {
     }
 
     #[test]
-    fn test_scale_limits_analyzer_use_defaults_when_query_and_schema_not_provided(
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    fn test_scale_limits_analyzer_use_defaults_when_query_and_schema_not_provided() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let input_file = temp_input(json!({"cart": {
             "lines": [
@@ -292,8 +289,7 @@ mod tests {
     }
 
     #[test]
-    fn test_scale_limits_analyzer_use_defaults_when_query_or_schema_not_provided(
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    fn test_scale_limits_analyzer_use_defaults_when_query_or_schema_not_provided() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let input_file = temp_input(json!({"cart": {
             "lines": [
@@ -318,7 +314,7 @@ mod tests {
     }
 
     #[test]
-    fn test_scale_limits_analyzer_with_scaled_limits() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_scale_limits_analyzer_with_scaled_limits() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
 
         let input_data = vec![json!({"quantity": 2}); 400];
@@ -348,6 +344,82 @@ mod tests {
             .stdout(contains("Input Size: 250.00KB"))
             .stdout(contains("Output Size: 39.06KB"))
             .stdout(contains("Instructions: 22M"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn messagepack_roundtrip() -> Result<()> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input = temp_input(json!({"hello": "world"}))?;
+
+        cmd.args(["--function", "tests/fixtures/build/messagepack-valid.wasm"])
+            .arg("--codec")
+            .arg("messagepack")
+            .arg("--json")
+            .arg("--input")
+            .arg(input.as_os_str())
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Failed to spawn child process")
+            .wait_with_output()
+            .expect("Failed waiting for output");
+
+        cmd.assert().success();
+        cmd.assert().stdout(contains("hello"));
+        cmd.assert().stdout(contains("world"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn messagepack_failure() -> Result<()> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input = temp_input(json!({}))?;
+
+        cmd.args([
+            "--function",
+            "tests/fixtures/build/messagepack-invalid.wasm",
+        ])
+        .arg("--codec")
+        .arg("messagepack")
+        .arg("--json")
+        .arg("--input")
+        .arg(input.as_os_str())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("Failed to spawn child process")
+        .wait_with_output()
+        .expect("Failed waiting for output");
+
+        cmd.assert().success();
+        cmd.assert().stdout(contains("null"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn raw_roundtrip() -> Result<()> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input = temp_input(json!({}))?;
+
+        let mut child = cmd
+            .args(["--function", "tests/fixtures/build/echo.wasm"])
+            .arg("--codec")
+            .arg("raw")
+            .arg("--json")
+            .arg("--input")
+            .arg(input.as_os_str())
+            .stdout(Stdio::piped())
+            .stdin(Stdio::piped())
+            .spawn()?;
+        if let Some(mut stdin) = child.stdin.take() {
+            stdin.write_all(&[1, 2])?;
+        }
+
+        child.wait_with_output()?;
+        cmd.assert().success();
+        cmd.assert().stdout(contains("7b 7d"));
 
         Ok(())
     }
