@@ -349,82 +349,6 @@ mod tests {
     }
 
     #[test]
-    fn messagepack_roundtrip() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
-        let input = temp_input(json!({"hello": "world"}))?;
-
-        cmd.args(["--function", "tests/fixtures/build/messagepack-valid.wasm"])
-            .arg("--codec")
-            .arg("messagepack")
-            .arg("--json")
-            .arg("--input")
-            .arg(input.as_os_str())
-            .stdout(Stdio::piped())
-            .spawn()
-            .expect("Failed to spawn child process")
-            .wait_with_output()
-            .expect("Failed waiting for output");
-
-        cmd.assert().success();
-        cmd.assert().stdout(contains("hello"));
-        cmd.assert().stdout(contains("world"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn messagepack_failure() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
-        let input = temp_input(json!({}))?;
-
-        cmd.args([
-            "--function",
-            "tests/fixtures/build/messagepack-invalid.wasm",
-        ])
-        .arg("--codec")
-        .arg("messagepack")
-        .arg("--json")
-        .arg("--input")
-        .arg(input.as_os_str())
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("Failed to spawn child process")
-        .wait_with_output()
-        .expect("Failed waiting for output");
-
-        cmd.assert().success();
-        cmd.assert().stdout(contains("null"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn raw_roundtrip() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
-        let input = temp_input(json!({}))?;
-
-        let mut child = cmd
-            .args(["--function", "tests/fixtures/build/echo.wasm"])
-            .arg("--codec")
-            .arg("raw")
-            .arg("--json")
-            .arg("--input")
-            .arg(input.as_os_str())
-            .stdout(Stdio::piped())
-            .stdin(Stdio::piped())
-            .spawn()?;
-        if let Some(mut stdin) = child.stdin.take() {
-            stdin.write_all(&[1, 2])?;
-        }
-
-        child.wait_with_output()?;
-        cmd.assert().success();
-        cmd.assert().stdout(contains("7b 7d"));
-
-        Ok(())
-    }
-
-    #[test]
     fn run_javy_plugin_v2() -> Result<()> {
         let mut cmd = Command::cargo_bin("function-runner")?;
         let input = temp_input(json!({"hello": "world"}))?;
@@ -434,7 +358,6 @@ mod tests {
             "tests/fixtures/build/js_function_javy_plugin_v2.wasm",
         ])
         .arg("--json")
-        .args(["--codec", "messagepack"])
         .args(["--export", "run"])
         .arg("--input")
         .arg(input.as_os_str())
@@ -453,6 +376,29 @@ mod tests {
 
         // Module output should be returned
         cmd.assert().stdout(contains("discountApplicationStrategy"));
+        Ok(())
+    }
+
+    #[test]
+    fn run_wasm_api_function() -> Result<()> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({
+            "test": "echo"
+        }))?;
+
+        cmd.args(["--function", "tests/fixtures/build/echo.trampolined.wasm"])
+            .arg("--json")
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Failed to spawn child process")
+            .wait_with_output()
+            .expect("Failed waiting for output");
+
+        cmd.assert().success();
+        cmd.assert().stdout(contains("\\\"test\\\": \\\"echo\\\""));
+
         Ok(())
     }
 }

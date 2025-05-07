@@ -1,4 +1,5 @@
 use function_runner::{BytesContainer, BytesContainerType, Codec};
+use wasmtime::Module;
 
 use std::{
     fs::File,
@@ -52,9 +53,6 @@ struct Opts {
     /// How many samples per second. Defaults to 500_000 (every 2us).
     #[clap(long)]
     profile_frequency: Option<u32>,
-
-    #[clap(short = 'c', long, value_enum, default_value = "json")]
-    codec: Codec,
 
     /// Path to graphql file containing Function schema; if omitted, defaults will be used to calculate limits.
     #[clap(short = 's', long)]
@@ -135,7 +133,18 @@ fn main() -> Result<()> {
 
     let query_string = opts.read_query_to_string().transpose()?;
 
-    let input = BytesContainer::new(BytesContainerType::Input, opts.codec, buffer)?;
+    let engine = function_runner::engine::new_engine()?;
+    let module = Module::from_file(&engine, &opts.function)
+        .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &opts.function, e))?;
+
+    // Infer codec from the module based on imported modules
+    let codec = if function_runner::engine::uses_msgpack_provider(&module) {
+        Codec::Messagepack
+    } else {
+        Codec::Json
+    };
+
+    let input = BytesContainer::new(BytesContainerType::Input, codec, buffer)?;
     let scale_factor = if let (Some(schema_string), Some(query_string), Some(json_value)) =
         (schema_string, query_string, input.json_value.clone())
     {
@@ -158,6 +167,8 @@ fn main() -> Result<()> {
         export: opts.export.as_ref(),
         profile_opts: profile_opts.as_ref(),
         scale_factor,
+        module,
+        engine,
     })?;
 
     if opts.json {
