@@ -57,7 +57,7 @@ is-terminal = "0.4.16"
 wasmprof = "0.10.0"
 bluejay-core = { version = "=0.2.0" }
 bluejay-parser = { version = "=0.2.0", features = ["format-errors"] }
-bluejay-validator = { version = "=0.2.0" }
+bluejay-validator = { version = "=0.3.0" }
 
 [dev-dependencies]
 assert_cmd = "2.0"
