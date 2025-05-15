@@ -48,3 +48,10 @@ jobs:
           toolchain: stable
           components: clippy
       - run: cargo clippy -- -D warnings
+  
+  build:
+    name: Build
+    needs: [check, test, fmt, clippy]
+    uses: ./.github/workflows/build-binaries.yml
+    with:
+      is_release: false
