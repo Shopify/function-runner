@@ -51,7 +51,6 @@ jobs:
   
   build:
     name: Build
-    needs: [check, test, fmt, clippy]
     uses: ./.github/workflows/build-binaries.yml
     with:
       is_release: false
