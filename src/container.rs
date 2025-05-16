@@ -21,9 +21,10 @@ pub struct BytesContainer {
     #[serde(skip)]
     pub codec: Codec,
     /// The JSON represantation of the bytes.
-    #[serde(skip)]
+    #[serde(flatten)]
     pub json_value: Option<serde_json::Value>,
     /// The human readable representation of the bytes.
+    #[serde(skip)]
     pub humanized: String,
     /// Context for encoding errors.
     #[serde(skip)]
