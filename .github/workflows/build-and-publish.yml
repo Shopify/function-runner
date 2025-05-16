@@ -1,14 +1,7 @@
 name: Build and Publish
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  release:
-    types:
-      - published
-  workflow_dispatch:
+  workflow_call:
     inputs:
       tag_name:
         description: "Tag name"
@@ -20,96 +13,49 @@ on:
         type: boolean
 
 jobs:
-  check:
-    name: Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
-        with:
-          toolchain: stable
-      - run: cargo check
-
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
-        with:
-          toolchain: stable
-      - run: cargo test
-
-  fmt:
-    name: Format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
-        with:
-          toolchain: stable
-          components: rustfmt
-      - run: cargo fmt --all -- --check
-
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
-        with:
-          toolchain: stable
-          components: clippy
-      - run: cargo clippy -- -D warnings
-
   build-and-publish:
     name: Build and Publish
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-          - name: linux
+          - name: x86_64-unknown-linux-gnu
             os: ubuntu-22.04 # Use oldest supported non-deprecated version so we link against older glibc version which allows running binary on a wider set of Linux systems
             path: target/x86_64-unknown-linux-gnu/release/function-runner
             asset_name: function-runner-x86_64-linux-${{ inputs.tag_name || github.event.release.tag_name }}
             shasum_cmd: sha256sum
-            target: x86_64-unknown-linux-gnu
-          - name: linux-arm64
+          - name: aarch64-unknown-linux-gnu
             os: ubuntu-22.04 # Use oldest supported non-deprecated version so we link against older glibc version which allows running binary on a wider set of Linux systems
             path: target/aarch64-unknown-linux-gnu/release/function-runner
             asset_name: function-runner-arm-linux-${{ inputs.tag_name || github.event.release.tag_name }}
             shasum_cmd: sha256sum
-            target: aarch64-unknown-linux-gnu
-          - name: macos
+          - name: x86_64-apple-darwin
             os: macos-latest
             path: target/x86_64-apple-darwin/release/function-runner
             asset_name: function-runner-x86_64-macos-${{ inputs.tag_name || github.event.release.tag_name }}
             shasum_cmd: shasum -a 256
-            target: x86_64-apple-darwin
-          - name: arm64-macos
+          - name: aarch64-apple-darwin
             os: macos-latest
             path: target/aarch64-apple-darwin/release/function-runner
             asset_name: function-runner-arm-macos-${{ inputs.tag_name || github.event.release.tag_name }}
             shasum_cmd: shasum -a 256
-            target: aarch64-apple-darwin
-          - name: windows
+          - name: x86_64-pc-windows-msvc
             os: windows-latest
             path: target\x86_64-pc-windows-msvc\release\function-runner.exe
             asset_name: function-runner-x86_64-windows-${{ inputs.tag_name || github.event.release.tag_name }}
             shasum_cmd: sha256sum
-            target: x86_64-pc-windows-msvc
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Install cross compiler
-        if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
+        if: ${{ matrix.name == 'aarch64-unknown-linux-gnu' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu
 
       - name: Set up cross compiler env variables
-        if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
+        if: ${{ matrix.name == 'aarch64-unknown-linux-gnu' }}
         run: |
           echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
           echo "CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
@@ -117,41 +63,41 @@ jobs:
 
       # Should no-op except for macos-arm case where that target won't be installed
       - name: Install target
-        run: rustup target add ${{ matrix.target }}
+        run: rustup target add ${{ matrix.name }}
 
-      - name: Build ${{ matrix.target }}
-        run: cargo build --release --target ${{ matrix.target }} --package function-runner
+      - name: Build ${{ matrix.name }}
+        run: cargo build --release --target ${{ matrix.name }} --package function-runner
 
       - name: Archive assets
         if: ${{ inputs.should_publish }}
         run: gzip -k -f ${{ matrix.path }} && mv ${{ matrix.path }}.gz ${{ matrix.asset_name }}.gz
 
-      - name: Upload assets to artifacts
-        if: ${{ inputs.should_publish }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.asset_name }}.gz
-          path: ${{ matrix.asset_name }}.gz
+    #   - name: Upload assets to artifacts
+    #     if: ${{ inputs.should_publish }}
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: ${{ matrix.asset_name }}.gz
+    #       path: ${{ matrix.asset_name }}.gz
 
-      - name: Upload assets to release
-        if: ${{ inputs.should_publish }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz
+    #   - name: Upload assets to release
+    #     if: ${{ inputs.should_publish }}
+    #     env:
+    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #     run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz
 
-      - name: Generate asset hash
-        if: ${{ inputs.should_publish }}
-        run: ${{ matrix.shasum_cmd }} ${{ matrix.asset_name }}.gz | awk '{ print $1 }' > ${{ matrix.asset_name }}.gz.sha256
+    #   - name: Generate asset hash
+    #     if: ${{ inputs.should_publish }}
+    #     run: ${{ matrix.shasum_cmd }} ${{ matrix.asset_name }}.gz | awk '{ print $1 }' > ${{ matrix.asset_name }}.gz.sha256
 
-      - name: Upload asset hash to artifacts
-        if: ${{ inputs.should_publish }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.asset_name }}.gz.sha256
-          path: ${{ matrix.asset_name }}.gz.sha256
+    #   - name: Upload asset hash to artifacts
+    #     if: ${{ inputs.should_publish }}
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: ${{ matrix.asset_name }}.gz.sha256
+    #       path: ${{ matrix.asset_name }}.gz.sha256
 
-      - name: Upload asset hash to release
-        if: ${{ inputs.should_publish }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz.sha256
+    #   - name: Upload asset hash to release
+    #     if: ${{ inputs.should_publish }}
+    #     env:
+    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #     run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz.sha256
