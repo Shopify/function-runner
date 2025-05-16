@@ -5,13 +5,13 @@ members = [
   "tests/fixtures/exports",
   "tests/fixtures/noop",
   "tests/fixtures/messagepack-valid",
-  "tests/fixtures/messagepack-invalid", 
+  "tests/fixtures/messagepack-invalid",
   "tests/fixtures/echo",
 ]
 
 [package]
 name = "function-runner"
-version = "8.0.1"
+version = "9.0.0"
 edition = "2021"
 
 
