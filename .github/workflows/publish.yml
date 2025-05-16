@@ -23,26 +23,31 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: linux
-            path: ${{ needs.build.outputs.linux_x86_64 }}
-            asset_name: function-runner-x86_64-linux-${{ inputs.tag_name || github.event.release.tag_name }}
+          - name: x86_64-unknown-linux-gnu
+            os: ubuntu-22.04 # Use oldest supported non-deprecated version so we link against older glibc version which allows running binary on a wider set of Linux systems
+            path: target/x86_64-unknown-linux-gnu/release/function-runner
             shasum_cmd: sha256sum
-          - name: linux-arm64
-            path: ${{ needs.build.outputs.linux_arm64 }}
-            asset_name: function-runner-arm-linux-${{ inputs.tag_name || github.event.release.tag_name }}
+            output_var: linux_x86_64
+          - name: aarch64-unknown-linux-gnu
+            os: ubuntu-22.04 # Use oldest supported non-deprecated version so we link against older glibc version which allows running binary on a wider set of Linux systems
+            path: target/aarch64-unknown-linux-gnu/release/function-runner
             shasum_cmd: sha256sum
-          - name: macos
-            path: ${{ needs.build.outputs.macos_x86_64 }}
-            asset_name: function-runner-x86_64-macos-${{ inputs.tag_name || github.event.release.tag_name }}
+            output_var: linux_arm64
+          - name: x86_64-apple-darwin
+            os: macos-latest
+            path: target/x86_64-apple-darwin/release/function-runner
             shasum_cmd: shasum -a 256
-          - name: arm64-macos
-            path: ${{ needs.build.outputs.macos_arm64 }}
-            asset_name: function-runner-arm-macos-${{ inputs.tag_name || github.event.release.tag_name }}
+            output_var: macos_x86_64
+          - name: aarch64-apple-darwin
+            os: macos-latest
+            path: target/aarch64-apple-darwin/release/function-runner
             shasum_cmd: shasum -a 256
-          - name: windows
-            path: ${{ needs.build.outputs.windows_x86_64 }}
-            asset_name: function-runner-x86_64-windows-${{ inputs.tag_name || github.event.release.tag_name }}
+            output_var: macos_arm64
+          - name: x86_64-pc-windows-msvc
+            os: windows-latest
+            path: target\x86_64-pc-windows-msvc\release\function-runner.exe
             shasum_cmd: sha256sum
+            output_var: windows_x86_64
 
     steps:
       - name: Archive assets
