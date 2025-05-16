@@ -15,9 +15,6 @@ jobs:
   build:
     name: Build
     uses: ./.github/workflows/build-binaries.yml
-    with:
-      tag_name: ${{ inputs.tag_name || github.event.release.tag_name }}
-      is_release: true
 
   publish:
     name: Publish
@@ -51,27 +48,27 @@ jobs:
       - name: Archive assets
         run: gzip -k -f ${{ matrix.path }} && mv ${{ matrix.path }}.gz ${{ matrix.asset_name }}.gz
 
-      - name: Upload assets to artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.asset_name }}.gz
-          path: ${{ matrix.asset_name }}.gz
+      # - name: Upload assets to artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ matrix.asset_name }}.gz
+      #     path: ${{ matrix.asset_name }}.gz
 
-      - name: Upload assets to release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz
+      # - name: Upload assets to release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz
 
-      - name: Generate asset hash
-        run: ${{ matrix.shasum_cmd }} ${{ matrix.asset_name }}.gz | awk '{ print $1 }' > ${{ matrix.asset_name }}.gz.sha256
+      # - name: Generate asset hash
+      #   run: ${{ matrix.shasum_cmd }} ${{ matrix.asset_name }}.gz | awk '{ print $1 }' > ${{ matrix.asset_name }}.gz.sha256
 
-      - name: Upload asset hash to artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.asset_name }}.gz.sha256
-          path: ${{ matrix.asset_name }}.gz.sha256
+      # - name: Upload asset hash to artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ matrix.asset_name }}.gz.sha256
+      #     path: ${{ matrix.asset_name }}.gz.sha256
 
-      - name: Upload asset hash to release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz.sha256
+      # - name: Upload asset hash to release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz.sha256
