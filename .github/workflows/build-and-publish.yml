@@ -72,32 +72,32 @@ jobs:
         if: ${{ inputs.should_publish }}
         run: gzip -k -f ${{ matrix.path }} && mv ${{ matrix.path }}.gz ${{ matrix.asset_name }}.gz
 
-    #   - name: Upload assets to artifacts
-    #     if: ${{ inputs.should_publish }}
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: ${{ matrix.asset_name }}.gz
-    #       path: ${{ matrix.asset_name }}.gz
+      - name: Upload assets to artifacts
+        if: ${{ inputs.should_publish }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}.gz
+          path: ${{ matrix.asset_name }}.gz
 
-    #   - name: Upload assets to release
-    #     if: ${{ inputs.should_publish }}
-    #     env:
-    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     run: gh release upload ${{ inputs.tag_name }} ${{ matrix.asset_name }}.gz
+      - name: Upload assets to release
+        if: ${{ inputs.should_publish }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ inputs.tag_name }} ${{ matrix.asset_name }}.gz
 
-    #   - name: Generate asset hash
-    #     if: ${{ inputs.should_publish }}
-    #     run: ${{ matrix.shasum_cmd }} ${{ matrix.asset_name }}.gz | awk '{ print $1 }' > ${{ matrix.asset_name }}.gz.sha256
+      - name: Generate asset hash
+        if: ${{ inputs.should_publish }}
+        run: ${{ matrix.shasum_cmd }} ${{ matrix.asset_name }}.gz | awk '{ print $1 }' > ${{ matrix.asset_name }}.gz.sha256
 
-    #   - name: Upload asset hash to artifacts
-    #     if: ${{ inputs.should_publish }}
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: ${{ matrix.asset_name }}.gz.sha256
-    #       path: ${{ matrix.asset_name }}.gz.sha256
+      - name: Upload asset hash to artifacts
+        if: ${{ inputs.should_publish }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}.gz.sha256
+          path: ${{ matrix.asset_name }}.gz.sha256
 
-    #   - name: Upload asset hash to release
-    #     if: ${{ inputs.should_publish }}
-    #     env:
-    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     run: gh release upload ${{ inputs.tag_name }} ${{ matrix.asset_name }}.gz.sha256
+      - name: Upload asset hash to release
+        if: ${{ inputs.should_publish }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ inputs.tag_name }} ${{ matrix.asset_name }}.gz.sha256
