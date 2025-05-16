@@ -2,9 +2,10 @@ name: Rust
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   check:
@@ -48,3 +49,10 @@ jobs:
           toolchain: stable
           components: clippy
       - run: cargo clippy -- -D warnings
+
+  build:
+    name: Build
+    uses: ./.github/workflows/build-and-publish.yml
+    with:
+      should_publish: false
+      tag_name: "standard-workflow"
