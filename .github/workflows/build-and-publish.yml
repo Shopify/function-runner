@@ -22,27 +22,27 @@ jobs:
           - name: x86_64-unknown-linux-gnu
             os: ubuntu-22.04 # Use oldest supported non-deprecated version so we link against older glibc version which allows running binary on a wider set of Linux systems
             path: target/x86_64-unknown-linux-gnu/release/function-runner
-            asset_name: function-runner-x86_64-linux-${{ inputs.tag_name || github.event.release.tag_name }}
+            asset_name: function-runner-x86_64-linux-${{ inputs.tag_name }}
             shasum_cmd: sha256sum
           - name: aarch64-unknown-linux-gnu
             os: ubuntu-22.04 # Use oldest supported non-deprecated version so we link against older glibc version which allows running binary on a wider set of Linux systems
             path: target/aarch64-unknown-linux-gnu/release/function-runner
-            asset_name: function-runner-arm-linux-${{ inputs.tag_name || github.event.release.tag_name }}
+            asset_name: function-runner-arm-linux-${{ inputs.tag_name }}
             shasum_cmd: sha256sum
           - name: x86_64-apple-darwin
             os: macos-latest
             path: target/x86_64-apple-darwin/release/function-runner
-            asset_name: function-runner-x86_64-macos-${{ inputs.tag_name || github.event.release.tag_name }}
+            asset_name: function-runner-x86_64-macos-${{ inputs.tag_name }}
             shasum_cmd: shasum -a 256
           - name: aarch64-apple-darwin
             os: macos-latest
             path: target/aarch64-apple-darwin/release/function-runner
-            asset_name: function-runner-arm-macos-${{ inputs.tag_name || github.event.release.tag_name }}
+            asset_name: function-runner-arm-macos-${{ inputs.tag_name }}
             shasum_cmd: shasum -a 256
           - name: x86_64-pc-windows-msvc
             os: windows-latest
             path: target\x86_64-pc-windows-msvc\release\function-runner.exe
-            asset_name: function-runner-x86_64-windows-${{ inputs.tag_name || github.event.release.tag_name }}
+            asset_name: function-runner-x86_64-windows-${{ inputs.tag_name }}
             shasum_cmd: sha256sum
 
     steps:
@@ -83,7 +83,7 @@ jobs:
     #     if: ${{ inputs.should_publish }}
     #     env:
     #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz
+    #     run: gh release upload ${{ inputs.tag_name }} ${{ matrix.asset_name }}.gz
 
     #   - name: Generate asset hash
     #     if: ${{ inputs.should_publish }}
@@ -100,4 +100,4 @@ jobs:
     #     if: ${{ inputs.should_publish }}
     #     env:
     #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz.sha256
+    #     run: gh release upload ${{ inputs.tag_name }} ${{ matrix.asset_name }}.gz.sha256
