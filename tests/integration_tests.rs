@@ -397,7 +397,7 @@ mod tests {
             .expect("Failed waiting for output");
 
         cmd.assert().success();
-        cmd.assert().stdout(contains("\\\"test\\\": \\\"echo\\\""));
+        cmd.assert().stdout(contains("\"test\": \"echo\""));
 
         Ok(())
     }
