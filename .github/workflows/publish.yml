@@ -34,13 +34,15 @@ jobs:
           # Upload all .gz files
           for file in artifacts/function-runner-*-${{ inputs.tag_name || github.event.release.tag_name }}.gz; do
             if [ -f "$file" ]; then
-              gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
+              echo "Uploading $file"
+              #gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
             fi
           done
 
           # Upload all .gz.sha256 files
           for file in artifacts/function-runner-*-${{ inputs.tag_name || github.event.release.tag_name }}.gz.sha256; do
             if [ -f "$file" ]; then
-              gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
+              echo "Uploading $file"
+              #gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
             fi
           done
