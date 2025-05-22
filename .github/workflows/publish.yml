@@ -32,13 +32,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Upload all .gz files
-          find artifacts -name "function-runner-*-${{ inputs.tag_name || github.event.release.tag_name }}.gz" -type f | while read file; do
-            echo "Uploading $file"
-            #gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
+          for file in artifacts/function-runner-*-${{ inputs.tag_name || github.event.release.tag_name }}.gz; do
+            if [ -f "$file" ]; then
+              echo "Uploading $file"
+              #gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
+            fi
           done
 
           # Upload all .gz.sha256 files
-          find artifacts -name "function-runner-*-${{ inputs.tag_name || github.event.release.tag_name }}.gz.sha256" -type f | while read file; do
-            echo "Uploading $file"
-            #gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
+          for file in artifacts/function-runner-*-${{ inputs.tag_name || github.event.release.tag_name }}.gz.sha256; do
+            if [ -f "$file" ]; then
+              echo "Uploading $file"
+              #gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
+            fi
           done
