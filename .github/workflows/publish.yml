@@ -12,8 +12,35 @@ on:
         type: string
 
 jobs:
-  build-and-publish:
-    uses: ./.github/workflows/build-and-publish.yml
+  build:
+    uses: ./.github/workflows/build.yml
     with:
-      should_publish: true
-      tag_name: ${{ inputs.tag_name || github.event.release.tag_name}}
+      tag_name: ${{ inputs.tag_name || github.event.release.tag_name }}
+
+  publish:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Upload assets to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Upload all .gz files
+          for file in artifacts/function-runner-*-${{ inputs.tag_name || github.event.release.tag_name }}.gz; do
+            if [ -f "$file" ]; then
+              gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
+            fi
+          done
+
+          # Upload all .gz.sha256 files
+          for file in artifacts/function-runner-*-${{ inputs.tag_name || github.event.release.tag_name }}.gz.sha256; do
+            if [ -f "$file" ]; then
+              gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
+            fi
+          done

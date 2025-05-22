@@ -51,7 +51,6 @@ jobs:
 
   build:
     name: Build
-    uses: ./.github/workflows/build-and-publish.yml
+    uses: ./.github/workflows/build.yml
     with:
-      should_publish: false
-      tag_name: "standard-workflow"
+      tag_name: "ci-build"
