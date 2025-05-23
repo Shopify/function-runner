@@ -78,5 +78,5 @@ jobs:
       - name: Upload asset hash to artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.asset_name }}.gz
+          name: ${{ matrix.asset_name }}.gz.sha256
           path: ${{ matrix.asset_name }}.gz.sha256
