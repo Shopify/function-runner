@@ -32,8 +32,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Upload all files from the build job
-          echo "ls -R artifacts"
           for file in artifacts/*; do
-            echo "Uploading $file"
-            #gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "artifacts/$file"
+            gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} $file
           done
