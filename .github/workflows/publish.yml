@@ -30,13 +30,10 @@ jobs:
       - name: Upload assets to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ASSET_FILES: ${{ join(fromJSON(needs.build.outputs.asset_files), ' ') }}
         run: |
-          # Upload all .gz files
-          find artifacts -name "function-runner-*-${{ inputs.tag_name || github.event.release.tag_name }}.gz" -type f | while read file; do
-            gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
-          done
-
-          # Upload all .gz.sha256 files
-          find artifacts -name "function-runner-*-${{ inputs.tag_name || github.event.release.tag_name }}.gz.sha256" -type f | while read file; do
-            gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "$file"
+          # Upload all files from the build job
+          for file in $ASSET_FILES; do
+            echo "Uploading $file"
+            #gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "artifacts/$file"
           done
