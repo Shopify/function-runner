@@ -80,11 +80,3 @@ jobs:
         with:
           name: ${{ matrix.asset_name }}.gz.sha256
           path: ${{ matrix.asset_name }}.gz.sha256
-
-      - name: Set output parameters
-        id: set-output
-        run: |
-          echo 'ASSET_FILES=["${{ matrix.asset_name }}.gz", "${{ matrix.asset_name }}.gz.sha256"]' >> "$GITHUB_OUTPUT"
-
-    outputs:
-      asset_files: ${{ steps.set-output.outputs.asset_files }}

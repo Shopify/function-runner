@@ -30,10 +30,10 @@ jobs:
       - name: Upload assets to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ASSET_FILES: ${{ join(fromJSON(needs.build.outputs.asset_files), ' ') }}
         run: |
           # Upload all files from the build job
-          for file in $ASSET_FILES; do
+          echo "ls -R artifacts"
+          for file in artifacts/*; do
             echo "Uploading $file"
             #gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} "artifacts/$file"
           done
