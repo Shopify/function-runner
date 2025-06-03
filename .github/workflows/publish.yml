@@ -12,90 +12,27 @@ on:
         type: string
 
 jobs:
-  compile:
-    name: Compile
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - name: linux
-            os: ubuntu-22.04 # Use oldest supported non-deprecated version so we link against older glibc version which allows running binary on a wider set of Linux systems
-            path: target/x86_64-unknown-linux-gnu/release/function-runner
-            asset_name: function-runner-x86_64-linux-${{ inputs.tag_name || github.event.release.tag_name }}
-            shasum_cmd: sha256sum
-            target: x86_64-unknown-linux-gnu
-          - name: linux-arm64
-            os: ubuntu-22.04 # Use oldest supported non-deprecated version so we link against older glibc version which allows running binary on a wider set of Linux systems
-            path: target/aarch64-unknown-linux-gnu/release/function-runner
-            asset_name: function-runner-arm-linux-${{ inputs.tag_name || github.event.release.tag_name }}
-            shasum_cmd: sha256sum
-            target: aarch64-unknown-linux-gnu
-          - name: macos
-            os: macos-latest
-            path: target/x86_64-apple-darwin/release/function-runner
-            asset_name: function-runner-x86_64-macos-${{ inputs.tag_name || github.event.release.tag_name }}
-            shasum_cmd: shasum -a 256
-            target: x86_64-apple-darwin
-          - name: arm64-macos
-            os: macos-latest
-            path: target/aarch64-apple-darwin/release/function-runner
-            asset_name: function-runner-arm-macos-${{ inputs.tag_name || github.event.release.tag_name }}
-            shasum_cmd: shasum -a 256
-            target: aarch64-apple-darwin
-          - name: windows
-            os: windows-latest
-            path: target\x86_64-pc-windows-msvc\release\function-runner.exe
-            asset_name: function-runner-x86_64-windows-${{ inputs.tag_name || github.event.release.tag_name }}
-            shasum_cmd: sha256sum
-            target: x86_64-pc-windows-msvc
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      tag_name: ${{ inputs.tag_name || github.event.release.tag_name }}
+      should_upload_artifacts: true
 
+  publish:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install cross compiler
-        if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu
-
-      - name: Set up cross compiler env variables
-        if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
-        run: |
-          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-          echo "CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-          echo "CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++" >> $GITHUB_ENV
-
-      # Should no-op except for macos-arm case where that target won't be installed
-      - name: Install target
-        run: rustup target add ${{ matrix.target }}
-
-      - name: Build ${{ matrix.target }}
-        run: cargo build --release --target ${{ matrix.target }} --package function-runner
-
-      - name: Archive assets
-        run: gzip -k -f ${{ matrix.path }} && mv ${{ matrix.path }}.gz ${{ matrix.asset_name }}.gz
-
-      - name: Upload assets to artifacts
-        uses: actions/upload-artifact@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.asset_name }}.gz
-          path: ${{ matrix.asset_name }}.gz
+          path: artifacts
 
       - name: Upload assets to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz
-
-      - name: Generate asset hash
-        run: ${{ matrix.shasum_cmd }} ${{ matrix.asset_name }}.gz | awk '{ print $1 }' > ${{ matrix.asset_name }}.gz.sha256
-
-      - name: Upload asset hash to artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.asset_name }}.gz.sha256
-          path: ${{ matrix.asset_name }}.gz.sha256
-
-      - name: Upload asset hash to release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} ${{ matrix.asset_name }}.gz.sha256
+        run: |
+          # Upload all files from the build job
+          for file in artifacts/*; do
+            gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} $file
+          done

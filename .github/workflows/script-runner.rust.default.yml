@@ -2,9 +2,9 @@ name: Rust
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   check:
@@ -48,3 +48,9 @@ jobs:
           toolchain: stable
           components: clippy
       - run: cargo clippy -- -D warnings
+
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yml
+    with:
+      tag_name: "ci-build"
