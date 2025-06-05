@@ -47,7 +47,7 @@ jobs:
             shasum_cmd: sha256sum
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Install cross compiler
         if: ${{ matrix.name == 'aarch64-unknown-linux-gnu' }}
@@ -74,7 +74,7 @@ jobs:
 
       - name: Upload assets to artifacts
         if: ${{ inputs.should_upload_artifacts }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ matrix.asset_name }}.gz
           path: ${{ matrix.asset_name }}.gz
@@ -85,7 +85,7 @@ jobs:
 
       - name: Upload asset hash to artifacts
         if: ${{ inputs.should_upload_artifacts }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ matrix.asset_name }}.gz.sha256
           path: ${{ matrix.asset_name }}.gz.sha256
