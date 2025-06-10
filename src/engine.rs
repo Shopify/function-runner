@@ -238,13 +238,14 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 /// 2. It keeps the door open for different configurations in the future without breaking changes
 /// 3. It makes it easier to find all places where we create an Engine
 pub fn new_engine() -> Result<Engine> {
-    Engine::new(
-        Config::new()
-            .wasm_multi_memory(true)
-            .wasm_threads(false)
-            .consume_fuel(true)
-            .epoch_interruption(true),
-    )
+    let mut config = Config::new();
+    config
+        .wasm_multi_memory(true)
+        .wasm_threads(false)
+        .consume_fuel(true)
+        .epoch_interruption(true);
+    config.cache_config_load_default()?;
+    Engine::new(&config)
 }
 
 #[cfg(test)]
