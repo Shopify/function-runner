@@ -132,70 +132,66 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let output_stream = MemoryOutputPipe::new(usize::MAX);
     let error_stream = MemoryOutputPipe::new(usize::MAX);
 
-    let memory_usage: u64;
-    let instructions: u64;
     let mut error_logs: String = String::new();
-    let mut module_result: Result<(), anyhow::Error>;
-    let profile_data: Option<String>;
 
-    {
-        let mut linker = Linker::new(&engine);
-        wasmtime_wasi::preview1::add_to_linker_sync(&mut linker, |ctx: &mut FunctionContext| {
-            &mut ctx.wasi
-        })?;
-        deterministic_wasi_ctx::replace_scheduling_functions(&mut linker)?;
-        let mut wasi_builder = WasiCtxBuilder::new();
-        wasi_builder.stdin(input_stream);
-        wasi_builder.stdout(output_stream.clone());
-        wasi_builder.stderr(error_stream.clone());
-        deterministic_wasi_ctx::add_determinism_to_wasi_ctx_builder(&mut wasi_builder);
-        let wasi = wasi_builder.build_p1();
-        let function_context = FunctionContext::new(wasi);
-        let mut store = Store::new(&engine, function_context);
-        store.limiter(|s| &mut s.limiter);
-        store.set_fuel(STARTING_FUEL)?;
-        store.set_epoch_deadline(1);
+    let mut linker = Linker::new(&engine);
+    wasmtime_wasi::preview1::add_to_linker_sync(&mut linker, |ctx: &mut FunctionContext| {
+        &mut ctx.wasi
+    })?;
+    deterministic_wasi_ctx::replace_scheduling_functions(&mut linker)?;
+    let mut wasi_builder = WasiCtxBuilder::new();
+    wasi_builder.stdin(input_stream);
+    wasi_builder.stdout(output_stream.clone());
+    wasi_builder.stderr(error_stream.clone());
+    deterministic_wasi_ctx::add_determinism_to_wasi_ctx_builder(&mut wasi_builder);
+    let wasi = wasi_builder.build_p1();
+    let function_context = FunctionContext::new(wasi);
+    let mut store = Store::new(&engine, function_context);
+    store.limiter(|s| &mut s.limiter);
+    store.set_fuel(STARTING_FUEL)?;
+    store.set_epoch_deadline(1);
 
-        import_modules(&module, &engine, &mut linker, &mut store);
+    import_modules(&module, &engine, &mut linker, &mut store);
 
-        linker.module(&mut store, "Function", &module)?;
-        let instance = linker.instantiate(&mut store, &module)?;
+    linker.module(&mut store, "Function", &module)?;
+    let instance = linker.instantiate(&mut store, &module)?;
 
-        let func = instance.get_typed_func::<(), ()>(store.as_context_mut(), export)?;
+    let func = instance.get_typed_func::<(), ()>(store.as_context_mut(), export)?;
 
-        (module_result, profile_data) = if let Some(profile_opts) = profile_opts {
-            let (result, profile_data) = wasmprof::ProfilerBuilder::new(&mut store)
-                .frequency(profile_opts.interval)
-                .weight_unit(wasmprof::WeightUnit::Fuel)
-                .profile(|store| func.call(store.as_context_mut(), ()));
+    let (mut module_result, profile_data) = if let Some(profile_opts) = profile_opts {
+        let (result, profile_data) = wasmprof::ProfilerBuilder::new(&mut store)
+            .frequency(profile_opts.interval)
+            .weight_unit(wasmprof::WeightUnit::Fuel)
+            .profile(|store| func.call(store.as_context_mut(), ()));
 
-            (
-                result,
-                Some(profile_data.into_collapsed_stacks().to_string()),
-            )
-        } else {
-            (func.call(store.as_context_mut(), ()), None)
-        };
-
-        // modules may exit with a specific exit code, an exit code of 0 is considered success but is reported as
-        // a GuestFault by wasmtime, so we need to map it to a success result. Any other exit code is considered
-        // a failure.
-        module_result = module_result.or_else(|error| match error.downcast_ref::<I32Exit>() {
-            Some(I32Exit(0)) => Ok(()),
-            Some(I32Exit(code)) => Err(anyhow!("module exited with code: {}", code)),
-            None => Err(error),
-        });
-
-        memory_usage = store.data().max_memory_bytes() as u64 / 1024;
-        instructions = STARTING_FUEL.saturating_sub(store.get_fuel().unwrap_or_default());
-
-        match module_result {
-            Ok(_) => {}
-            Err(ref e) => {
-                error_logs = e.to_string();
-            }
-        }
+        (
+            result,
+            Some(profile_data.into_collapsed_stacks().to_string()),
+        )
+    } else {
+        (func.call(store.as_context_mut(), ()), None)
     };
+
+    // modules may exit with a specific exit code, an exit code of 0 is considered success but is reported as
+    // a GuestFault by wasmtime, so we need to map it to a success result. Any other exit code is considered
+    // a failure.
+    module_result = module_result.or_else(|error| match error.downcast_ref::<I32Exit>() {
+        Some(I32Exit(0)) => Ok(()),
+        Some(I32Exit(code)) => Err(anyhow!("module exited with code: {}", code)),
+        None => Err(error),
+    });
+
+    let memory_usage = store.data().max_memory_bytes() as u64 / 1024;
+    let instructions = STARTING_FUEL.saturating_sub(store.get_fuel().unwrap_or_default());
+
+    match module_result {
+        Ok(_) => {}
+        Err(ref e) => {
+            error_logs = e.to_string();
+        }
+    }
+
+    drop(store);
 
     let mut logs = error_stream
         .try_into_inner()
