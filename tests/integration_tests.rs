@@ -403,4 +403,32 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn run_wasm_api_v2_function() -> Result<()> {
+        let trampolined_module = assert_fs::NamedTempFile::new("wasm_api_v2.trampolined.wasm")?;
+        test_utils::process_with_v2_trampoline(
+            "tests/fixtures/build/wasm_api_v2.wasm",
+            &trampolined_module,
+        )?;
+
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({"hello": "world"}))?;
+
+        cmd.arg("--function")
+            .arg(trampolined_module.as_os_str())
+            .arg("--json")
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .stdout(Stdio::piped())
+            .spawn()?
+            .wait_with_output()?;
+
+        cmd.assert().success();
+        cmd.assert().stdout(contains("world"));
+        cmd.assert()
+            .stdout(contains(format!("{}{}", "a".repeat(1015), "b".repeat(10))));
+
+        Ok(())
+    }
 }

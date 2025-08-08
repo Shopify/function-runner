@@ -1,0 +1,12 @@
+[package]
+name = "wasm_api_v2"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1.0"
+# shopify_function_wasm_api = "0.1.0"
+shopify_function_wasm_api = { path = "/Users/jeffcharles/src/github.com/Shopify/shopify-function-wasm-api/api" }
