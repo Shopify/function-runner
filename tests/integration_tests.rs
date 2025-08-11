@@ -8,7 +8,6 @@ mod tests {
     use predicates::prelude::*;
     use predicates::{prelude::predicate, str::contains};
     use serde_json::json;
-    use std::io::Write;
     use std::{
         fs::File,
         process::{Command, Stdio},
