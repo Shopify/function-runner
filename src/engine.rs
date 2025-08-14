@@ -468,17 +468,19 @@ mod tests {
     }
 
     #[test]
-    fn test_wasm_api_function() -> Result<()> {
-        let engine = new_engine()?;
-        let module = Module::from_file(
-            &engine,
-            Path::new("tests/fixtures/build/echo.trampolined.wasm"),
+    fn test_wasm_api_v1_function() -> Result<()> {
+        let trampolined_path = assert_fs::NamedTempFile::new("wasm_api_v1.trampolined.wasm")?;
+        test_utils::process_with_v1_trampoline(
+            "tests/fixtures/build/wasm_api_v1.wasm",
+            &trampolined_path,
         )?;
+        let engine = new_engine()?;
+        let module = Module::from_file(&engine, &trampolined_path)?;
         let expected_input_value = json!({"foo": "echo", "bar": "test"});
         let input = serde_json::to_vec(&expected_input_value).unwrap();
         let input_bytes = BytesContainer::new(BytesContainerType::Input, Codec::Json, input);
         let function_run_result = run(FunctionRunParams {
-            function_path: Path::new("tests/fixtures/build/echo.trampolined.wasm").to_path_buf(),
+            function_path: trampolined_path.to_path_buf(),
             input: input_bytes.unwrap(),
             export: DEFAULT_EXPORT,
             module,
