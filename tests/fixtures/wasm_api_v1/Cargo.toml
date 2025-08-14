@@ -1,0 +1,8 @@
+[package]
+name = "wasm_api_v1"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+shopify_function_wasm_api = "0.1.0"

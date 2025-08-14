@@ -1,3 +1,4 @@
 function-runner-*.gz*
 target/
+tmp/
 .DS_Store

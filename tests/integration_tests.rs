@@ -379,24 +379,27 @@ mod tests {
     }
 
     #[test]
-    fn run_wasm_api_function() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
-        let input_file = temp_input(json!({
-            "test": "echo"
-        }))?;
+    fn run_wasm_api_v1_function() -> Result<()> {
+        let trampolined_module = assert_fs::NamedTempFile::new("wasm_api_v1.trampolined.wasm")?;
+        test_utils::process_with_v1_trampoline(
+            "tests/fixtures/build/wasm_api_v1.wasm",
+            &trampolined_module,
+        )?;
 
-        cmd.args(["--function", "tests/fixtures/build/echo.trampolined.wasm"])
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({"hello": "world"}))?;
+
+        cmd.arg("--function")
+            .arg(trampolined_module.as_os_str())
             .arg("--json")
             .arg("--input")
             .arg(input_file.as_os_str())
             .stdout(Stdio::piped())
-            .spawn()
-            .expect("Failed to spawn child process")
-            .wait_with_output()
-            .expect("Failed waiting for output");
+            .spawn()?
+            .wait_with_output()?;
 
         cmd.assert().success();
-        cmd.assert().stdout(contains("\"test\": \"echo\""));
+        cmd.assert().stdout(contains("world"));
 
         Ok(())
     }
