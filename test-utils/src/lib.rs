@@ -9,7 +9,22 @@ pub fn process_with_v1_trampoline<P: AsRef<Path>, Q: AsRef<Path>>(
     wasm_path: P,
     trampolined_path: Q,
 ) -> Result<()> {
-    let trampoline_path = TRAMPOLINE_1_0_PATH
+    process_with_trampoline(&TRAMPOLINE_1_0_PATH, wasm_path, trampolined_path)
+}
+
+pub fn process_with_v2_trampoline<P: AsRef<Path>, Q: AsRef<Path>>(
+    wasm_path: P,
+    trampolined_path: Q,
+) -> Result<()> {
+    process_with_trampoline(&TRAMPOLINE_2_0_PATH, wasm_path, trampolined_path)
+}
+
+fn process_with_trampoline<P: AsRef<Path>, Q: AsRef<Path>>(
+    trampoline_path: &LazyLock<Result<PathBuf>>,
+    wasm_path: P,
+    trampolined_path: Q,
+) -> Result<()> {
+    let trampoline_path = trampoline_path
         .as_ref()
         .map_err(|e| anyhow!("Failed to download trampoline: {e}"))?;
     let status = Command::new(trampoline_path)
@@ -24,15 +39,19 @@ pub fn process_with_v1_trampoline<P: AsRef<Path>, Q: AsRef<Path>>(
     Ok(())
 }
 
-static TRAMPOLINE_1_0_PATH: LazyLock<Result<PathBuf>> = LazyLock::new(|| {
+static TRAMPOLINE_1_0_PATH: LazyLock<Result<PathBuf>> = LazyLock::new(|| trampoline_path("1.0.2"));
+
+static TRAMPOLINE_2_0_PATH: LazyLock<Result<PathBuf>> = LazyLock::new(|| trampoline_path("2.0.0"));
+
+fn trampoline_path(version: &str) -> Result<PathBuf> {
     let binaries_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../tmp");
-    let path = binaries_path.join("trampoline-1.0.2");
+    let path = binaries_path.join(format!("trampoline-{version}"));
     if !path.exists() {
         std::fs::create_dir_all(binaries_path)?;
-        download_trampoline(&path, "1.0.2")?;
+        download_trampoline(&path, version)?;
     }
     Ok(path)
-});
+}
 
 fn download_trampoline(destination: &Path, version: &str) -> Result<()> {
     let target_os = if cfg!(target_os = "macos") {

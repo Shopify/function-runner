@@ -13,6 +13,8 @@ Example Functions used as test fixtures.
 ```
 cargo build --target wasm32-wasip1 --profile=wasm -p exit_code -p exports -p log_truncation_function -p noop -p wasm_api_v1 &&
   find target/wasm32-wasip1/wasm/{exit_code.wasm,exports.wasm,log_truncation_function.wasm,noop.wasm,wasm_api_v1.wasm} | xargs -I {} sh -c 'name=$(basename {}); wasm-opt {} -Oz --enable-bulk-memory --strip-debug -o "tests/fixtures/build/$name"'
+cargo build --target wasm32-unknown-unknown --profile=wasm -p wasm_api_v2 &&
+  find target/wasm32-unknown-unknown/wasm/wasm_api_v2.wasm | xargs -I {} sh -c 'name=$(basename {}); wasm-opt {} -Oz --enable-bulk-memory --strip-debug -o "tests/fixtures/build/$name"'
 ```
 
 **JS examples:**

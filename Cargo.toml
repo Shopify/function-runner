@@ -8,6 +8,7 @@ members = [
   "tests/fixtures/messagepack-valid",
   "tests/fixtures/messagepack-invalid",
   "tests/fixtures/wasm_api_v1",
+  "tests/fixtures/wasm_api_v2",
 ]
 
 [package]
