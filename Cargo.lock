@@ -2461,11 +2461,12 @@ dependencies = [
 
 [[package]]
 name = "shopify_function_wasm_api"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a57a2e64ef7d28cbe26bf591fd084093327d9d359e38355010720d818cd92ba9"
+checksum = "cb7952650d134210fcd92b56a6cdc666a4ed5d0c56a8a21bf9113b62dee52d27"
 dependencies = [
  "rmp-serde",
+ "seq-macro",
  "serde_json",
  "shopify_function_provider",
  "shopify_function_wasm_api_core",
