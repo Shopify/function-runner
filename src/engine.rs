@@ -17,7 +17,10 @@ pub struct ProfileOpts {
 
 pub fn uses_msgpack_provider(module: &Module) -> bool {
     module.imports().map(|i| i.module()).any(|module| {
-        module.starts_with("shopify_function_v") || module == "shopify_functions_javy_v2"
+        module.starts_with("shopify_function_v")
+            || module
+                .strip_prefix("shopify_functions_javy_v")
+                .is_some_and(|v| v.parse::<usize>().is_ok_and(|v| v >= 2))
     })
 }
 
