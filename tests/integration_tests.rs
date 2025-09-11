@@ -403,4 +403,93 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn run_wasm_api_v2_function() -> Result<()> {
+        let trampolined_module = assert_fs::NamedTempFile::new("wasm_api_v2.trampolined.wasm")?;
+        test_utils::process_with_v2_trampoline(
+            "tests/fixtures/build/wasm_api_v2.wasm",
+            &trampolined_module,
+        )?;
+
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input_file = temp_input(json!({"hello": "world"}))?;
+
+        cmd.arg("--function")
+            .arg(trampolined_module.as_os_str())
+            .arg("--json")
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .stdout(Stdio::piped())
+            .spawn()?
+            .wait_with_output()?;
+
+        cmd.assert().success();
+        cmd.assert().stdout(contains("world"));
+        cmd.assert().stdout(contains(format!(
+            "[TRUNCATED]...{}{}",
+            "a".repeat(990),
+            "b".repeat(10)
+        )));
+
+        Ok(())
+    }
+
+    #[test]
+    fn run_javy_plugin_v3() -> Result<()> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input = temp_input(json!({"hello": "world"}))?;
+
+        cmd.args([
+            "--function",
+            "tests/fixtures/build/js_function_javy_plugin_v3.wasm",
+        ])
+        .arg("--json")
+        .arg("--input")
+        .arg(input.as_os_str())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("Failed to spawn child process")
+        .wait_with_output()
+        .expect("Failed waiting for output");
+
+        // Command should succeed
+        cmd.assert().success();
+
+        // Logs should be returned
+        cmd.assert().stdout(contains("this is an error message"));
+
+        // Input and module output should be returned
+        cmd.assert().stdout(contains("\"hello\": \"world output\""));
+        Ok(())
+    }
+
+    #[test]
+    fn invalid_import_combination() -> Result<()> {
+        let mut cmd = Command::cargo_bin("function-runner")?;
+        let input = temp_input(json!({"hello": "world"}))?;
+
+        cmd.args([
+            "--function",
+            "tests/fixtures/build/invalid_import_combination.wasm",
+        ])
+        .arg("--json")
+        .arg("--input")
+        .arg(input.as_os_str())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("Failed to spawn child process")
+        .wait_with_output()
+        .expect("Failed waiting for output");
+
+        // Command should fail
+        cmd.assert().failure();
+
+        // Error should mention not mixing WASI and the import
+        cmd.assert().stderr(contains(
+            "Error: Invalid Function, cannot use `shopify_function_v2` and import WASI. If using Rust, change the build target to `wasm32-unknown-unknown.",
+        ));
+
+        Ok(())
+    }
 }

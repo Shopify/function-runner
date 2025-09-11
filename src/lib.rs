@@ -2,6 +2,7 @@ pub mod bluejay_schema_analyzer;
 pub mod container;
 pub mod engine;
 pub mod function_run_result;
+mod io;
 pub mod scale_limits_analyzer;
 use clap::ValueEnum;
 
