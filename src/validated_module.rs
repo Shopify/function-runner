@@ -56,16 +56,12 @@ impl ValidatedModule {
 
         let uses_wasi = imports.contains(&"wasi_snapshot_preview1".to_string());
 
-        let mut std_import = None;
-        for import in imports {
-            if let Some(bytes) = StandardProviders::get(&format!("{import}.wasm")) {
-                std_import = Some(Provider {
-                    bytes: bytes.data,
-                    name: import,
-                });
-                break;
-            }
-        }
+        let std_import = imports.iter().find_map(|import| {
+            StandardProviders::get(&format!("{import}.wasm")).map(|file| Provider {
+                bytes: file.data,
+                name: import.into(),
+            })
+        });
 
         // If there are multiple standard imports or more than zero unknown imports,
         // the module will fail to instantiate because we only link the one
