@@ -96,11 +96,13 @@ impl IOHandler {
             IOStrategy::Memory(instance) => {
                 let instance = instance.expect("Should have been defined in initialize");
                 store.set_epoch_deadline(1); // Make sure we don't timeout while finalizing.
+                let old_fuel = store.get_fuel()?;
                 store.set_fuel(u64::MAX)?; // Make sure we don't run out of fuel finalizing.
                 let results_offset = instance
                     .get_typed_func::<(), i32>(store.as_context_mut(), "finalize")?
                     .call(store.as_context_mut(), ())?
                     as usize;
+                store.set_fuel(old_fuel)?;
 
                 let memory = instance
                     .get_memory(store.as_context_mut(), "memory")
