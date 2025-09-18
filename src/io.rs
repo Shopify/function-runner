@@ -73,6 +73,7 @@ impl IOHandler {
         store: &mut Store<T>,
     ) -> Result<()> {
         store.set_epoch_deadline(1); // Need to make sure we don't timeout during initialization.
+        let old_fuel = store.get_fuel()?;
         store.set_fuel(u64::MAX)?; // Make sure we have fuel for initialization.
         let mem_io_instance = instantiate_imports(&self.module, engine, linker, store);
         if let IOStrategy::Memory(ref mut instance) = self.strategy {
@@ -88,6 +89,7 @@ impl IOHandler {
                 .ok_or_else(|| anyhow!("Missing memory export named memory"))?
                 .write(store.as_context_mut(), input_offset as _, &self.input.raw)?;
         }
+        store.set_fuel(old_fuel)?;
         Ok(())
     }
 
