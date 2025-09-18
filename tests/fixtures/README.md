@@ -13,6 +13,8 @@ Example Functions used as test fixtures.
 ```
 cargo build --target wasm32-wasip1 --profile=wasm -p exit_code -p exports -p log_truncation_function -p noop -p wasm_api_v1 &&
   find target/wasm32-wasip1/wasm/{exit_code.wasm,exports.wasm,log_truncation_function.wasm,noop.wasm,wasm_api_v1.wasm} | xargs -I {} sh -c 'name=$(basename {}); wasm-opt {} -Oz --enable-bulk-memory --strip-debug -o "tests/fixtures/build/$name"'
+cargo build --target wasm32-unknown-unknown --profile=wasm -p wasm_api_v2 &&
+  find target/wasm32-unknown-unknown/wasm/wasm_api_v2.wasm | xargs -I {} sh -c 'name=$(basename {}); wasm-opt {} -Oz --enable-bulk-memory --strip-debug -o "tests/fixtures/build/$name"'
 ```
 
 **JS examples:**
@@ -34,6 +36,11 @@ javy build -C dynamic -C plugin=providers/shopify_functions_javy_v1.wasm -o test
 js_function_that_throws.wasm:
 ```
 javy build -C dynamic -C plugin=providers/javy_quickjs_provider_v3.wasm -o tests/fixtures/build/js_function_that_throws.wasm tests/fixtures/js_function_that_throws/src/functions.js
+```
+
+js_function_javy_plugin_v3.wasm:
+```
+javy build -C dynamic -C plugin=providers/shopify_functions_javy_v3.wasm -o tests/fixtures/build/js_function_javy_plugin_v3.wasm tests/fixtures/js_function_javy_plugin_v3/function.js
 ```
 
 **`*.wat` examples:**
