@@ -1,4 +1,4 @@
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
 use std::path::PathBuf;
 use std::string::String;
 use wasmtime::{AsContextMut, Config, Engine, Linker, Module, ResourceLimiter, Store};
@@ -7,6 +7,7 @@ use wasmtime_wasi::I32Exit;
 
 use crate::function_run_result::FunctionRunResult;
 use crate::io::{IOHandler, OutputAndLogs};
+use crate::validated_module::ValidatedModule;
 use crate::{BytesContainer, BytesContainerType};
 
 #[derive(Clone)]
@@ -98,9 +99,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         module,
     } = params;
 
-    validate_module(&module)?;
-
-    let mut io_handler = IOHandler::new(module, input.clone());
+    let mut io_handler = IOHandler::new(ValidatedModule::new(module)?, input.clone());
 
     let mut error_logs: String = String::new();
 
@@ -205,25 +204,6 @@ pub fn new_engine() -> Result<Engine> {
         .epoch_interruption(true);
     config.cache_config_load_default()?;
     Engine::new(&config)
-}
-
-fn validate_module(module: &Module) -> Result<()> {
-    // Need to track with deterministic order so don't use a hash
-    let mut imports = vec![];
-    for import in module.imports().map(|i| i.module().to_string()) {
-        if !imports.contains(&import) {
-            imports.push(import);
-        }
-    }
-
-    let uses_wasi = imports.contains(&"wasi_snapshot_preview1".to_string());
-    for import in imports {
-        if crate::io::is_mem_io_provider(&import) && uses_wasi {
-            bail!("Invalid Function, cannot use `{import}` and import WASI. If using Rust, change the build target to `wasm32-unknown-unknown.");
-        }
-    }
-
-    Ok(())
 }
 
 #[cfg(test)]

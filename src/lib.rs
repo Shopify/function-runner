@@ -4,6 +4,7 @@ pub mod engine;
 pub mod function_run_result;
 mod io;
 pub mod scale_limits_analyzer;
+mod validated_module;
 use clap::ValueEnum;
 
 pub use container::*;

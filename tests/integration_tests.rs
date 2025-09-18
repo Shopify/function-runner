@@ -487,7 +487,7 @@ mod tests {
 
         // Error should mention not mixing WASI and the import
         cmd.assert().stderr(contains(
-            "Error: Invalid Function, cannot use `shopify_function_v2` and import WASI. If using Rust, change the build target to `wasm32-unknown-unknown.",
+            "Error: Invalid Function, cannot use `shopify_function_v2` and import WASI. If using Rust, change the build target to `wasm32-unknown-unknown`.",
         ));
 
         Ok(())

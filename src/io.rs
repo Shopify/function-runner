@@ -1,7 +1,4 @@
-use std::collections::HashSet;
-
 use anyhow::{anyhow, Result};
-use rust_embed::RustEmbed;
 use wasmtime::{AsContext, AsContextMut, Engine, Instance, Linker, Module, Store};
 use wasmtime_wasi::{
     pipe::{MemoryInputPipe, MemoryOutputPipe},
@@ -9,11 +6,9 @@ use wasmtime_wasi::{
     WasiCtxBuilder,
 };
 
-use crate::{function_run_result::FUNCTION_LOG_LIMIT, BytesContainer};
-
-#[derive(RustEmbed)]
-#[folder = "providers/"]
-struct StandardProviders;
+use crate::{
+    function_run_result::FUNCTION_LOG_LIMIT, validated_module::ValidatedModule, BytesContainer,
+};
 
 pub(crate) struct OutputAndLogs {
     pub output: Vec<u8>,
@@ -32,14 +27,14 @@ enum IOStrategy {
 
 pub(crate) struct IOHandler {
     strategy: IOStrategy,
-    module: Module,
+    module: ValidatedModule,
     input: BytesContainer,
 }
 
 impl IOHandler {
-    pub(crate) fn new(module: Module, input: BytesContainer) -> Self {
+    pub(crate) fn new(module: ValidatedModule, input: BytesContainer) -> Self {
         Self {
-            strategy: if uses_mem_io(&module) {
+            strategy: if module.uses_mem_io() {
                 IOStrategy::Memory(None)
             } else {
                 IOStrategy::Wasi(WasiIO {
@@ -53,7 +48,7 @@ impl IOHandler {
     }
 
     pub(crate) fn module(&self) -> &Module {
-        &self.module
+        self.module.inner()
     }
 
     pub(crate) fn wasi(&self) -> Option<WasiP1Ctx> {
@@ -156,64 +151,30 @@ impl IOHandler {
     }
 }
 
-// Whether a module imports a provider that uses in-memory buffers for I/O.
-fn uses_mem_io(module: &Module) -> bool {
-    module.imports().map(|i| i.module()).any(is_mem_io_provider)
-}
-
-// Whether a provider exports functions for working with in-memory buffers for I/O.
-pub(crate) fn is_mem_io_provider(module: &str) -> bool {
-    let javy_plugin_version = module
-        .strip_prefix("shopify_functions_javy_v")
-        .map(|s| s.parse::<usize>())
-        .and_then(|result| result.ok());
-    if javy_plugin_version.is_some_and(|version| version >= 3) {
-        return true;
-    }
-
-    let functions_provider_version = module
-        .strip_prefix("shopify_function_v")
-        .map(|s| s.parse::<usize>())
-        .and_then(|result| result.ok());
-    if functions_provider_version.is_some_and(|version| version >= 2) {
-        return true;
-    }
-
-    false
-}
-
 fn instantiate_imports<T>(
-    module: &Module,
+    module: &ValidatedModule,
     engine: &Engine,
     linker: &mut Linker<T>,
     mut store: &mut Store<T>,
 ) -> Option<Instance> {
-    let imported_modules: HashSet<String> =
-        module.imports().map(|i| i.module().to_string()).collect();
-
     let mut mem_io_instance = None;
 
-    imported_modules.iter().for_each(|module_name| {
-        let provider_path = format!("{module_name}.wasm");
-        let imported_module_bytes = StandardProviders::get(&provider_path);
+    if let Some(std_import) = module.std_import() {
+        let imported_module = Module::from_binary(engine, &std_import.bytes)
+            .unwrap_or_else(|_| panic!("Failed to load module {}", std_import.name));
 
-        if let Some(bytes) = imported_module_bytes {
-            let imported_module = Module::from_binary(engine, &bytes.data)
-                .unwrap_or_else(|_| panic!("Failed to load module {module_name}"));
+        let imported_module_instance = linker
+            .instantiate(&mut store, &imported_module)
+            .expect("Failed to instantiate imported instance");
 
-            let imported_module_instance = linker
-                .instantiate(&mut store, &imported_module)
-                .expect("Failed to instantiate imported instance");
-
-            if is_mem_io_provider(module_name) {
-                mem_io_instance = Some(imported_module_instance);
-            }
-
-            linker
-                .instance(&mut store, module_name, imported_module_instance)
-                .expect("Failed to import module");
+        if std_import.is_mem_io_provider() {
+            mem_io_instance = Some(imported_module_instance);
         }
-    });
+
+        linker
+            .instance(&mut store, &std_import.name, imported_module_instance)
+            .expect("Failed to import module");
+    }
 
     mem_io_instance
 }
