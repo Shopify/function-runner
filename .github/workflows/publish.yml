@@ -27,6 +27,7 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           path: artifacts
+          merge-multiple: true
 
       - name: Upload assets to release
         env:
@@ -34,5 +35,5 @@ jobs:
         run: |
           # Upload all files from the build job
           for file in artifacts/*; do
-            gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} $file
+            gh release upload ${{ inputs.tag_name || github.event.release.tag_name }} $file --repo ${{ github.repository }}
           done
