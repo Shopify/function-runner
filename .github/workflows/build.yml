@@ -47,7 +47,7 @@ jobs:
             shasum_cmd: sha256sum
           - name: aarch64-pc-windows-msvc
             os: windows-latest
-            path: target\aarch64-pc-windows\release\function-runner.exe
+            path: target\aarch64-pc-windows-msvc\release\function-runner.exe
             asset_name: function-runner-arm-windows-${{ inputs.tag_name }}
             shasum_cmd: sha256sum
 
