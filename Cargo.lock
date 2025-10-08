@@ -913,7 +913,7 @@ dependencies = [
 
 [[package]]
 name = "function-runner"
-version = "9.1.1"
+version = "9.1.2"
 dependencies = [
  "anyhow",
  "assert_cmd",
