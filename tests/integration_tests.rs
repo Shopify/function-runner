@@ -2,6 +2,7 @@
 mod tests {
 
     use anyhow::Result;
+    use assert_cmd::cargo_bin;
     use assert_cmd::prelude::*;
     use assert_fs::prelude::*;
     use function_runner::function_run_result::FunctionRunResult;
@@ -15,7 +16,7 @@ mod tests {
 
     #[test]
     fn run() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({"count": 0}))?;
 
         cmd.args(["--function", "tests/fixtures/build/noop.wasm"])
@@ -28,7 +29,7 @@ mod tests {
 
     #[test]
     fn invalid_json_input() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
 
         cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
             .arg("--json")
@@ -42,7 +43,7 @@ mod tests {
 
     #[test]
     fn run_stdin() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
 
         let input_file = temp_input(json!({"exit_code": 0}))?;
         let file = File::open(input_file.path())?;
@@ -65,7 +66,7 @@ mod tests {
 
     #[test]
     fn run_no_opts() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let output = cmd
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
@@ -88,7 +89,7 @@ mod tests {
     #[test]
     #[ignore = "This test hangs on CI but runs locally, is_terminal is likely returning false in CI"]
     fn run_function_no_input() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
 
         cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"]);
         cmd.assert()
@@ -100,7 +101,7 @@ mod tests {
 
     #[test]
     fn run_json() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({"count": 0}))?;
 
         cmd.args(["--function", "tests/fixtures/build/noop.wasm"])
@@ -117,7 +118,7 @@ mod tests {
 
     #[test]
     fn wasm_file_doesnt_exist() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({"exit_code": 0}))?;
 
         cmd.args(["--function", "test/file/doesnt/exist"])
@@ -132,7 +133,7 @@ mod tests {
 
     #[test]
     fn input_file_doesnt_exist() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
 
         cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
             .args(["--input", "test/file/doesnt/exist.json"]);
@@ -174,7 +175,7 @@ mod tests {
 
     #[test]
     fn incorrect_input() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({}))?;
 
         cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
@@ -196,7 +197,7 @@ mod tests {
 
     #[test]
     fn exports() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({}))?;
         cmd.args(["--function", "tests/fixtures/build/exports.wasm"])
             .args(["--export", "export1"])
@@ -210,7 +211,7 @@ mod tests {
 
     #[test]
     fn missing_export() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({}))?;
         cmd.args(["--function", "tests/fixtures/build/exports.wasm"])
             .arg("--input")
@@ -225,7 +226,7 @@ mod tests {
 
     #[test]
     fn failing_function_returns_non_zero_exit_code_for_module_errors() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({}))?;
         cmd.args([
             "--function",
@@ -242,7 +243,7 @@ mod tests {
     }
 
     fn profile_base_cmd_in_temp_dir() -> Result<(Command, assert_fs::TempDir)> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let cwd = std::env::current_dir()?;
         let temp = assert_fs::TempDir::new()?;
         let input_file = temp.child("input.json");
@@ -266,7 +267,7 @@ mod tests {
 
     #[test]
     fn test_scale_limits_analyzer_use_defaults_when_query_and_schema_not_provided() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({"cart": {
             "lines": [
             {"quantity": 2}
@@ -289,7 +290,7 @@ mod tests {
 
     #[test]
     fn test_scale_limits_analyzer_use_defaults_when_query_or_schema_not_provided() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({"cart": {
             "lines": [
             {"quantity": 2}
@@ -314,7 +315,7 @@ mod tests {
 
     #[test]
     fn test_scale_limits_analyzer_with_scaled_limits() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
 
         let input_data = vec![json!({"quantity": 2}); 400];
         let json_data = json!({
@@ -349,7 +350,7 @@ mod tests {
 
     #[test]
     fn run_javy_plugin_v2() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input = temp_input(json!({"hello": "world"}))?;
 
         cmd.args([
@@ -386,7 +387,7 @@ mod tests {
             &trampolined_module,
         )?;
 
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({"hello": "world"}))?;
 
         cmd.arg("--function")
@@ -412,7 +413,7 @@ mod tests {
             &trampolined_module,
         )?;
 
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input_file = temp_input(json!({"hello": "world"}))?;
 
         cmd.arg("--function")
@@ -437,7 +438,7 @@ mod tests {
 
     #[test]
     fn run_javy_plugin_v3() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input = temp_input(json!({"hello": "world"}))?;
 
         cmd.args([
@@ -466,7 +467,7 @@ mod tests {
 
     #[test]
     fn invalid_import_combination() -> Result<()> {
-        let mut cmd = Command::cargo_bin("function-runner")?;
+        let mut cmd = Command::new(cargo_bin!());
         let input = temp_input(json!({"hello": "world"}))?;
 
         cmd.args([
