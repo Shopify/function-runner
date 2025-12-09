@@ -7,6 +7,11 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 100
+    ignore:
+      # `shopify_function_wasm_api` is only used by test fixtures and we want
+      # to ensure we are testing old versions since they link against older
+      # versions of the Wasm API which we want to ensure we continue to support
+      - dependency-name: "shopify_function_wasm_api"
     groups:
       wasmtime-dependencies:
         patterns:
