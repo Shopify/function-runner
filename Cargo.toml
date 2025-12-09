@@ -27,7 +27,7 @@ lto = true
 opt-level = 3
 
 [dependencies]
-wasmtime = { version = "=31.0.0", default-features = false, features = [
+wasmtime = { version = "=33.0.2", default-features = false, features = [
   "addr2line",
   "all-arch",
   "async",
