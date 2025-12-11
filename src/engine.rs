@@ -1,8 +1,8 @@
 use anyhow::{anyhow, Result};
 use std::path::PathBuf;
 use std::string::String;
-use wasmtime::{AsContextMut, Config, Engine, Linker, Module, ResourceLimiter, Store};
-use wasmtime_wasi::preview1::WasiP1Ctx;
+use wasmtime::{AsContextMut, Cache, Config, Engine, Linker, Module, ResourceLimiter, Store};
+use wasmtime_wasi::p1::WasiP1Ctx;
 use wasmtime_wasi::I32Exit;
 
 use crate::function_run_result::FunctionRunResult;
@@ -106,7 +106,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let mut linker = Linker::new(&engine);
     let wasi = io_handler.wasi();
     if wasi.is_some() {
-        wasmtime_wasi::preview1::add_to_linker_sync(&mut linker, |ctx: &mut FunctionContext| {
+        wasmtime_wasi::p1::add_to_linker_sync(&mut linker, |ctx: &mut FunctionContext| {
             ctx.wasi.as_mut().expect("Should have WASI context")
         })?;
         deterministic_wasi_ctx::replace_scheduling_functions(&mut linker)?;
@@ -201,8 +201,8 @@ pub fn new_engine() -> Result<Engine> {
         .wasm_multi_memory(true)
         .wasm_threads(false)
         .consume_fuel(true)
-        .epoch_interruption(true);
-    config.cache_config_load_default()?;
+        .epoch_interruption(true)
+        .cache(Some(Cache::from_file(None)?));
     Engine::new(&config)
 }
 

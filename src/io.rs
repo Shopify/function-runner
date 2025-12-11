@@ -1,8 +1,8 @@
 use anyhow::{anyhow, Result};
 use wasmtime::{AsContext, AsContextMut, Engine, Instance, Linker, Module, Store};
 use wasmtime_wasi::{
-    pipe::{MemoryInputPipe, MemoryOutputPipe},
-    preview1::WasiP1Ctx,
+    p1::WasiP1Ctx,
+    p2::pipe::{MemoryInputPipe, MemoryOutputPipe},
     WasiCtxBuilder,
 };
 
