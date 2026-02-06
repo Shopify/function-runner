@@ -21,6 +21,10 @@ updates:
       bluejay-dependencies:
         patterns:
           - "bluejay-*"
+      minor-versions:
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "github-actions"
     directory: "/"
     reviewers:
