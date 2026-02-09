@@ -6,4 +6,4 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 reqwest = { version = "0.13.1", features = ["blocking"] }
-flate2 = "1.1.8"
+flate2 = "1.1.9"
