@@ -438,21 +438,28 @@ mod tests {
 
     #[test]
     fn run_javy_plugin_v3() -> Result<()> {
+        run_javy_plugin_fixture("tests/fixtures/build/js_function_javy_plugin_v3.wasm")
+    }
+
+    #[test]
+    fn run_javy_plugin_v4() -> Result<()> {
+        run_javy_plugin_fixture("tests/fixtures/build/js_function_javy_plugin_v4.wasm")
+    }
+
+    fn run_javy_plugin_fixture(function_path: &str) -> Result<()> {
         let mut cmd = Command::new(cargo_bin!());
         let input = temp_input(json!({"hello": "world"}))?;
 
-        cmd.args([
-            "--function",
-            "tests/fixtures/build/js_function_javy_plugin_v3.wasm",
-        ])
-        .arg("--json")
-        .arg("--input")
-        .arg(input.as_os_str())
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("Failed to spawn child process")
-        .wait_with_output()
-        .expect("Failed waiting for output");
+        cmd.arg("--function")
+            .arg(function_path)
+            .arg("--json")
+            .arg("--input")
+            .arg(input.as_os_str())
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Failed to spawn child process")
+            .wait_with_output()
+            .expect("Failed waiting for output");
 
         // Command should succeed
         cmd.assert().success();
