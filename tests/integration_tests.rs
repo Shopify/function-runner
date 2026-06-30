@@ -65,6 +65,69 @@ mod tests {
     }
 
     #[test]
+    fn batch_continue_on_error_processes_all_and_counts_function_failures() -> Result<()> {
+        let mut cmd = Command::new(cargo_bin!());
+        let input_file = temp_batch_input("{\"code\":0}\n{\"code\":1}\n{\"code\":0}\n")?;
+
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+            .arg("--batch")
+            .arg("--batch-continue-on-error")
+            .arg("--input")
+            .arg(input_file.as_os_str());
+
+        let output = cmd.output()?;
+
+        assert!(output.status.success());
+
+        let stdout = String::from_utf8(output.stdout)?;
+        let results = stdout
+            .lines()
+            .map(serde_json::from_str::<serde_json::Value>)
+            .collect::<Result<Vec<_>, _>>()?;
+        assert_eq!(results.len(), 3);
+        assert_eq!(results[0]["success"], true);
+        assert_eq!(results[1]["success"], false);
+        assert_eq!(results[2]["success"], true);
+
+        assert_eq!(
+            String::from_utf8(output.stderr)?,
+            "Batch complete: 3 inputs processed, 2 successful, 1 failed\n"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_stops_on_function_failure_by_default() -> Result<()> {
+        let mut cmd = Command::new(cargo_bin!());
+        let input_file = temp_batch_input("{\"code\":0}\n{\"code\":1}\n{\"code\":0}\n")?;
+
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+            .arg("--batch")
+            .arg("--input")
+            .arg(input_file.as_os_str());
+
+        let output = cmd.output()?;
+
+        assert!(!output.status.success());
+
+        let stdout = String::from_utf8(output.stdout)?;
+        let results = stdout
+            .lines()
+            .map(serde_json::from_str::<serde_json::Value>)
+            .collect::<Result<Vec<_>, _>>()?;
+        assert_eq!(results.len(), 2);
+        assert_eq!(results[0]["success"], true);
+        assert_eq!(results[1]["success"], false);
+
+        assert!(String::from_utf8(output.stderr)?.contains(
+            "Function execution failed on line 2. Review the logs for more information."
+        ));
+
+        Ok(())
+    }
+
+    #[test]
     fn run_no_opts() -> Result<()> {
         let mut cmd = Command::new(cargo_bin!());
         let output = cmd
@@ -261,6 +324,13 @@ mod tests {
     fn temp_input(json: serde_json::Value) -> Result<assert_fs::NamedTempFile> {
         let file = assert_fs::NamedTempFile::new("input.json")?;
         file.write_str(json.to_string().as_str())?;
+
+        Ok(file)
+    }
+
+    fn temp_batch_input(jsonl: &str) -> Result<assert_fs::NamedTempFile> {
+        let file = assert_fs::NamedTempFile::new("input.jsonl")?;
+        file.write_str(jsonl)?;
 
         Ok(file)
     }
