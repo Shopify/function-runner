@@ -7,7 +7,9 @@ use wasmtime_wasi::{
 };
 
 use crate::{
-    function_run_result::FUNCTION_LOG_LIMIT, validated_module::ValidatedModule, BytesContainer,
+    function_run_result::FUNCTION_LOG_LIMIT,
+    validated_module::{CompiledProvider, ValidatedModule},
+    BytesContainer,
 };
 
 pub(crate) struct OutputAndLogs {
@@ -29,10 +31,15 @@ pub(crate) struct IOHandler {
     strategy: IOStrategy,
     module: ValidatedModule,
     input: BytesContainer,
+    compiled_provider: Option<CompiledProvider>,
 }
 
 impl IOHandler {
-    pub(crate) fn new(module: ValidatedModule, input: BytesContainer) -> Self {
+    pub(crate) fn new_with_compiled_provider(
+        module: ValidatedModule,
+        input: BytesContainer,
+        compiled_provider: Option<CompiledProvider>,
+    ) -> Self {
         Self {
             strategy: if module.uses_mem_io() {
                 IOStrategy::Memory(None)
@@ -44,6 +51,7 @@ impl IOHandler {
             },
             module,
             input,
+            compiled_provider,
         }
     }
 
@@ -75,7 +83,13 @@ impl IOHandler {
         store.set_epoch_deadline(1); // Need to make sure we don't timeout during initialization.
         let old_fuel = store.get_fuel()?;
         store.set_fuel(u64::MAX)?; // Make sure we have fuel for initialization.
-        let mem_io_instance = instantiate_imports(&self.module, engine, linker, store);
+        let mem_io_instance = instantiate_imports(
+            &self.module,
+            self.compiled_provider.as_ref(),
+            engine,
+            linker,
+            store,
+        );
         if let IOStrategy::Memory(ref mut instance) = self.strategy {
             *instance = mem_io_instance;
         }
@@ -157,6 +171,7 @@ impl IOHandler {
 
 fn instantiate_imports<T>(
     module: &ValidatedModule,
+    compiled_provider: Option<&CompiledProvider>,
     engine: &Engine,
     linker: &mut Linker<T>,
     mut store: &mut Store<T>,
@@ -164,14 +179,24 @@ fn instantiate_imports<T>(
     let mut mem_io_instance = None;
 
     if let Some(std_import) = module.std_import() {
-        let imported_module = Module::from_binary(engine, &std_import.bytes)
-            .unwrap_or_else(|_| panic!("Failed to load module {}", std_import.name));
+        let fallback_module;
+        let (imported_module, is_mem_io_provider) = match compiled_provider {
+            Some(compiled_provider) if compiled_provider.name() == std_import.name => (
+                compiled_provider.module(),
+                compiled_provider.is_mem_io_provider(),
+            ),
+            _ => {
+                fallback_module = Module::from_binary(engine, &std_import.bytes)
+                    .unwrap_or_else(|_| panic!("Failed to load module {}", std_import.name));
+                (&fallback_module, std_import.is_mem_io_provider())
+            }
+        };
 
         let imported_module_instance = linker
-            .instantiate(&mut store, &imported_module)
+            .instantiate(&mut store, imported_module)
             .expect("Failed to instantiate imported instance");
 
-        if std_import.is_mem_io_provider() {
+        if is_mem_io_provider {
             mem_io_instance = Some(imported_module_instance);
         }
 

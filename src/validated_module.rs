@@ -2,11 +2,32 @@ use std::borrow::Cow;
 
 use anyhow::{bail, Result};
 use rust_embed::RustEmbed;
-use wasmtime::Module;
+use wasmtime::{Engine, Module};
 
 #[derive(RustEmbed)]
 #[folder = "providers/"]
 struct StandardProviders;
+
+#[derive(Debug, Clone)]
+pub struct CompiledProvider {
+    name: String,
+    is_mem_io: bool,
+    module: Module,
+}
+
+impl CompiledProvider {
+    pub(crate) fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub(crate) fn is_mem_io_provider(&self) -> bool {
+        self.is_mem_io
+    }
+
+    pub(crate) fn module(&self) -> &Module {
+        &self.module
+    }
+}
 
 #[derive(Debug)]
 pub(crate) struct Provider {
@@ -15,6 +36,14 @@ pub(crate) struct Provider {
 }
 
 impl Provider {
+    pub(crate) fn compile(&self, engine: &Engine) -> Result<CompiledProvider> {
+        Ok(CompiledProvider {
+            name: self.name.clone(),
+            is_mem_io: self.is_mem_io_provider(),
+            module: Module::from_binary(engine, &self.bytes)?,
+        })
+    }
+
     pub(crate) fn is_mem_io_provider(&self) -> bool {
         let javy_plugin_version = self
             .name
@@ -45,6 +74,18 @@ pub(crate) struct ValidatedModule {
 }
 
 impl ValidatedModule {
+    pub(crate) fn compile_standard_provider(
+        module: &Module,
+        engine: &Engine,
+    ) -> Result<Option<CompiledProvider>> {
+        let validated_module = Self::new(module.clone())?;
+        validated_module
+            .std_import
+            .as_ref()
+            .map(|provider| provider.compile(engine))
+            .transpose()
+    }
+
     pub(crate) fn new(module: Module) -> Result<Self> {
         // Need to track with deterministic order so don't use a hash
         let mut imports = vec![];

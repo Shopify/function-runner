@@ -11,7 +11,7 @@ use anyhow::{anyhow, Result};
 use clap::Parser;
 use function_runner::{
     bluejay_schema_analyzer::BluejaySchemaAnalyzer,
-    engine::{run, FunctionRunParams, ProfileOpts},
+    engine::{run, run_with_compiled_provider, FunctionRunParams, ProfileOpts},
 };
 
 use is_terminal::IsTerminal;
@@ -231,6 +231,8 @@ fn run_batch_mode(
     let schema_string = opts.read_schema_to_string().transpose()?;
     let query_string = opts.read_query_to_string().transpose()?;
 
+    let compiled_provider = function_runner::engine::compile_standard_provider(module, engine)?;
+
     // Disable profiling in batch mode for performance
     let profile_opts = None;
 
@@ -313,15 +315,18 @@ fn run_batch_mode(
             };
 
         // Run function (reusing engine/module!)
-        let result = run(FunctionRunParams {
-            function_path: opts.function.clone(),
-            input,
-            export: opts.export.as_ref(),
-            profile_opts,
-            scale_factor,
-            module: module.clone(),
-            engine: engine.clone(),
-        });
+        let result = run_with_compiled_provider(
+            FunctionRunParams {
+                function_path: opts.function.clone(),
+                input,
+                export: opts.export.as_ref(),
+                profile_opts,
+                scale_factor,
+                module: module.clone(),
+                engine: engine.clone(),
+            },
+            compiled_provider.as_ref(),
+        );
 
         // Output result immediately (streaming JSONL - compact format for line-by-line parsing)
         match result {

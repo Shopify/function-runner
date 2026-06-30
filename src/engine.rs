@@ -7,6 +7,7 @@ use wasmtime_wasi::I32Exit;
 
 use crate::function_run_result::FunctionRunResult;
 use crate::io::{IOHandler, OutputAndLogs};
+pub use crate::validated_module::CompiledProvider;
 use crate::validated_module::ValidatedModule;
 use crate::{BytesContainer, BytesContainerType};
 
@@ -88,7 +89,21 @@ impl ResourceLimiter for MemoryLimiter {
     }
 }
 
+pub fn compile_standard_provider(
+    module: &Module,
+    engine: &Engine,
+) -> Result<Option<CompiledProvider>> {
+    ValidatedModule::compile_standard_provider(module, engine)
+}
+
 pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
+    run_with_compiled_provider(params, None)
+}
+
+pub fn run_with_compiled_provider(
+    params: FunctionRunParams,
+    compiled_provider: Option<&CompiledProvider>,
+) -> Result<FunctionRunResult> {
     let FunctionRunParams {
         function_path,
         input,
@@ -99,7 +114,11 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         module,
     } = params;
 
-    let mut io_handler = IOHandler::new(ValidatedModule::new(module)?, input.clone());
+    let mut io_handler = IOHandler::new_with_compiled_provider(
+        ValidatedModule::new(module)?,
+        input.clone(),
+        compiled_provider.cloned(),
+    );
 
     let mut error_logs: String = String::new();
 
