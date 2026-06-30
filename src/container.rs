@@ -148,6 +148,9 @@ mod tests {
         let input = BytesContainer::new(BytesContainerType::Input, Codec::Json, raw.clone())
             .expect("valid JSON input");
 
-        assert_eq!(String::from_utf8(input.raw).unwrap(), String::from_utf8(raw).unwrap());
+        assert_eq!(
+            String::from_utf8(input.raw).unwrap(),
+            String::from_utf8(raw).unwrap()
+        );
     }
 }
