@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use wasmtime::{AsContext, AsContextMut, Engine, Instance, Linker, Module, Store};
+use wasmtime::{AsContext, AsContextMut, Instance, Linker, Module, Store};
 use wasmtime_wasi::{
     p1::WasiP1Ctx,
     p2::pipe::{MemoryInputPipe, MemoryOutputPipe},
@@ -68,14 +68,13 @@ impl IOHandler {
 
     pub(crate) fn initialize<T>(
         &mut self,
-        engine: &Engine,
         linker: &mut Linker<T>,
         store: &mut Store<T>,
     ) -> Result<()> {
         store.set_epoch_deadline(1); // Need to make sure we don't timeout during initialization.
         let old_fuel = store.get_fuel()?;
         store.set_fuel(u64::MAX)?; // Make sure we have fuel for initialization.
-        let mem_io_instance = instantiate_imports(&self.module, engine, linker, store);
+        let mem_io_instance = instantiate_imports(&self.module, linker, store);
         if let IOStrategy::Memory(ref mut instance) = self.strategy {
             *instance = mem_io_instance;
         }
@@ -157,18 +156,14 @@ impl IOHandler {
 
 fn instantiate_imports<T>(
     module: &ValidatedModule,
-    engine: &Engine,
     linker: &mut Linker<T>,
     mut store: &mut Store<T>,
 ) -> Option<Instance> {
     let mut mem_io_instance = None;
 
     if let Some(std_import) = module.std_import() {
-        let imported_module = Module::from_binary(engine, &std_import.bytes)
-            .unwrap_or_else(|_| panic!("Failed to load module {}", std_import.name));
-
         let imported_module_instance = linker
-            .instantiate(&mut store, &imported_module)
+            .instantiate(&mut store, &std_import.module)
             .expect("Failed to instantiate imported instance");
 
         if std_import.is_mem_io_provider() {

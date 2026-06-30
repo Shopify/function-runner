@@ -128,6 +128,38 @@ mod tests {
     }
 
     #[test]
+    fn batch_javy_plugin_v3_uses_provider() -> Result<()> {
+        let mut cmd = Command::new(cargo_bin!());
+        let input_file = temp_batch_input("{\"hello\":\"world\"}\n{\"hello\":\"world\"}\n")?;
+
+        cmd.args([
+            "--function",
+            "tests/fixtures/build/js_function_javy_plugin_v3.wasm",
+        ])
+        .arg("--json")
+        .arg("--batch")
+        .arg("--input")
+        .arg(input_file.as_os_str());
+
+        let output = cmd.output()?;
+
+        assert!(output.status.success());
+
+        let stdout = String::from_utf8(output.stdout)?;
+        let results = stdout
+            .lines()
+            .map(serde_json::from_str::<serde_json::Value>)
+            .collect::<Result<Vec<_>, _>>()?;
+        assert_eq!(results.len(), 2);
+        assert!(results.iter().all(|result| result["success"] == true));
+        assert!(results
+            .iter()
+            .all(|result| result["output"].to_string().contains("world output")));
+
+        Ok(())
+    }
+
+    #[test]
     fn run_no_opts() -> Result<()> {
         let mut cmd = Command::new(cargo_bin!());
         let output = cmd
