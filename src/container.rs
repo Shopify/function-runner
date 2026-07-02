@@ -1,6 +1,7 @@
 use crate::Codec;
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Debug, Clone, Default)]
 pub enum BytesContainerType {
@@ -23,9 +24,6 @@ pub struct BytesContainer {
     /// The JSON represantation of the bytes.
     #[serde(flatten)]
     pub json_value: Option<serde_json::Value>,
-    /// The human readable representation of the bytes.
-    #[serde(skip)]
-    pub humanized: String,
     /// Context for encoding errors.
     #[serde(skip)]
     pub encoding_error: Option<String>,
@@ -35,7 +33,6 @@ impl Default for BytesContainer {
     fn default() -> Self {
         Self {
             codec: Codec::Raw,
-            humanized: "<raw codec>".into(),
             json_value: None,
             raw: Default::default(),
             encoding_error: None,
@@ -46,20 +43,11 @@ impl Default for BytesContainer {
 impl BytesContainer {
     pub fn new(ty: BytesContainerType, codec: Codec, raw: Vec<u8>) -> Result<Self> {
         match codec {
-            Codec::Raw => {
-                let humanized = raw
-                    .iter()
-                    .map(|b| format!("{:02x}", b))
-                    .collect::<Vec<String>>()
-                    .join(" ");
-
-                Ok(Self {
-                    raw,
-                    codec,
-                    humanized,
-                    ..Default::default()
-                })
-            }
+            Codec::Raw => Ok(Self {
+                raw,
+                codec,
+                ..Default::default()
+            }),
             Codec::Json => match ty {
                 BytesContainerType::Input => {
                     let json = serde_json::from_slice::<serde_json::Value>(&raw)
@@ -71,12 +59,12 @@ impl BytesContainer {
                         codec,
                         raw: minified_buffer,
                         json_value: Some(json.clone()),
-                        humanized: serde_json::to_string_pretty(&json)?,
                         encoding_error: None,
                     })
                 }
                 BytesContainerType::Output => {
                     let mut this = Self {
+                        raw: raw.clone(),
                         codec,
                         ..Default::default()
                     };
@@ -84,11 +72,9 @@ impl BytesContainer {
                     match serde_json::from_slice::<serde_json::Value>(&raw) {
                         Ok(json) => {
                             this.json_value = Some(json.clone());
-                            this.humanized = serde_json::to_string_pretty(&json)?;
                             this.raw = serde_json::to_vec(&json)?;
                         }
                         Err(e) => {
-                            this.humanized = String::from_utf8_lossy(&raw).into();
                             this.encoding_error = Some(e.to_string());
                         }
                     };
@@ -107,12 +93,12 @@ impl BytesContainer {
                         raw: bytes,
                         codec,
                         json_value: Some(json.clone()),
-                        humanized: serde_json::to_string_pretty(&json)?,
                         encoding_error: None,
                     })
                 }
                 BytesContainerType::Output => {
                     let mut this = Self {
+                        raw: raw.clone(),
                         codec,
                         ..Default::default()
                     };
@@ -121,11 +107,9 @@ impl BytesContainer {
                     match value {
                         Ok(json) => {
                             this.json_value = Some(json.clone());
-                            this.humanized = serde_json::to_string_pretty(&json)?;
                             this.raw = raw;
                         }
                         Err(e) => {
-                            this.humanized = String::from_utf8_lossy(&raw).into();
                             this.encoding_error = Some(e.to_string());
                         }
                     };
@@ -133,6 +117,45 @@ impl BytesContainer {
                     Ok(this)
                 }
             },
+        }
+    }
+}
+
+pub struct HumanizedBytes<'a> {
+    bytes: &'a BytesContainer,
+}
+
+impl<'a> From<&'a BytesContainer> for HumanizedBytes<'a> {
+    fn from(bytes: &'a BytesContainer) -> Self {
+        Self { bytes }
+    }
+}
+
+impl fmt::Display for HumanizedBytes<'_> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(json) = &self.bytes.json_value {
+            let humanized = serde_json::to_string_pretty(json).map_err(|_| fmt::Error)?;
+            return formatter.write_str(&humanized);
+        }
+
+        if self.bytes.encoding_error.is_some() {
+            return formatter.write_str(&String::from_utf8_lossy(&self.bytes.raw));
+        }
+
+        match self.bytes.codec {
+            Codec::Raw => {
+                for (index, byte) in self.bytes.raw.iter().enumerate() {
+                    if index > 0 {
+                        formatter.write_str(" ")?;
+                    }
+                    write!(formatter, "{byte:02x}")?;
+                }
+
+                Ok(())
+            }
+            Codec::Json | Codec::Messagepack => {
+                formatter.write_str(&String::from_utf8_lossy(&self.bytes.raw))
+            }
         }
     }
 }
@@ -151,6 +174,21 @@ mod tests {
         assert_eq!(
             String::from_utf8(input.raw).unwrap(),
             String::from_utf8(raw).unwrap()
+        );
+    }
+
+    #[test]
+    fn humanized_bytes_can_be_composed_from_a_bytes_container() {
+        let input = BytesContainer::new(
+            BytesContainerType::Input,
+            Codec::Json,
+            br#"{"input_test":"input_value"}"#.to_vec(),
+        )
+        .expect("valid JSON input");
+
+        assert_eq!(
+            HumanizedBytes::from(&input).to_string(),
+            "{\n  \"input_test\": \"input_value\"\n}"
         );
     }
 }
