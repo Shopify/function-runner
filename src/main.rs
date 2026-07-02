@@ -1,4 +1,5 @@
 use function_runner::{BytesContainer, BytesContainerType, Codec};
+use serde::Serialize;
 use wasmtime::Module;
 
 use std::{
@@ -69,6 +70,10 @@ struct Opts {
     /// In batch mode, continue processing on individual input errors (default: false)
     #[clap(long)]
     batch_continue_on_error: bool,
+
+    /// In batch mode, emit the full FunctionRunResult for each input (default: minimal output)
+    #[clap(long)]
+    batch_full_output: bool,
 }
 
 impl Opts {
@@ -213,6 +218,29 @@ fn run_single_mode(
     }
 }
 
+#[derive(Serialize)]
+struct MinimalBatchRunResult<'a> {
+    success: bool,
+    instructions: u64,
+    memory_usage: u64,
+    logs: &'a str,
+    output: &'a BytesContainer,
+}
+
+impl<'a> From<&'a function_runner::function_run_result::FunctionRunResult>
+    for MinimalBatchRunResult<'a>
+{
+    fn from(result: &'a function_runner::function_run_result::FunctionRunResult) -> Self {
+        Self {
+            success: result.success,
+            instructions: result.instructions,
+            memory_usage: result.memory_usage,
+            logs: &result.logs,
+            output: &result.output,
+        }
+    }
+}
+
 fn run_batch_mode(
     opts: &Opts,
     engine: &wasmtime::Engine,
@@ -338,8 +366,12 @@ fn run_batch_mode(
                 }
 
                 // Use compact JSON (not pretty-printed) for JSONL format
-                let compact_json = serde_json::to_string(&function_result)
-                    .unwrap_or_else(|error| error.to_string());
+                let compact_json = if opts.batch_full_output {
+                    serde_json::to_string(&function_result)
+                } else {
+                    serde_json::to_string(&MinimalBatchRunResult::from(&function_result))
+                }
+                .unwrap_or_else(|error| error.to_string());
                 println!("{}", compact_json);
 
                 if !function_succeeded && !opts.batch_continue_on_error {
