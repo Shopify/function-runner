@@ -88,11 +88,46 @@ mod tests {
         assert_eq!(results[0]["success"], true);
         assert_eq!(results[1]["success"], false);
         assert_eq!(results[2]["success"], true);
+        assert_eq!(results[0]["output"], json!({"exit": 0}));
+        assert!(results[0].get("instructions").is_some());
+        assert!(results[0].get("input").is_none());
+        assert!(results[0].get("name").is_none());
+        assert!(results[0].get("size").is_none());
 
         assert_eq!(
             String::from_utf8(output.stderr)?,
             "Batch complete: 3 inputs processed, 2 successful, 1 failed\n"
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_full_output_includes_input_and_function_metadata() -> Result<()> {
+        let mut cmd = Command::new(cargo_bin!());
+        let input_file = temp_batch_input("{\"code\":0}\n")?;
+
+        cmd.args(["--function", "tests/fixtures/build/exit_code.wasm"])
+            .arg("--batch")
+            .arg("--batch-full-output")
+            .arg("--input")
+            .arg(input_file.as_os_str());
+
+        let output = cmd.output()?;
+
+        assert!(output.status.success());
+
+        let stdout = String::from_utf8(output.stdout)?;
+        let results = stdout
+            .lines()
+            .map(serde_json::from_str::<serde_json::Value>)
+            .collect::<Result<Vec<_>, _>>()?;
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0]["success"], true);
+        assert_eq!(results[0]["input"], json!({"code": 0}));
+        assert_eq!(results[0]["output"], json!({"exit": 0}));
+        assert_eq!(results[0]["name"], "exit_code.wasm");
+        assert!(results[0].get("size").is_some());
 
         Ok(())
     }
