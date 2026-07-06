@@ -11,7 +11,7 @@ use anyhow::{anyhow, Result};
 use clap::Parser;
 use function_runner::{
     bluejay_schema_analyzer::BluejaySchemaAnalyzer,
-    engine::{run, FunctionRunParams, ProfileOpts},
+    engine::{run, FunctionRunParams, ProfileOpts, ValidatedModule},
 };
 
 use is_terminal::IsTerminal;
@@ -134,17 +134,21 @@ fn main() -> Result<()> {
         Codec::Json
     };
 
+    // Validate and compile the module (and its standard provider) once, then
+    // reuse it across every run so batch mode doesn't recompile per input.
+    let validated_module = ValidatedModule::new(module, &engine)?;
+
     if opts.batch {
-        run_batch_mode(&opts, &engine, &module, codec)
+        run_batch_mode(&opts, &engine, &validated_module, codec)
     } else {
-        run_single_mode(&opts, &engine, &module, codec)
+        run_single_mode(&opts, &engine, &validated_module, codec)
     }
 }
 
 fn run_single_mode(
     opts: &Opts,
     engine: &wasmtime::Engine,
-    module: &Module,
+    validated_module: &ValidatedModule,
     codec: Codec,
 ) -> Result<()> {
     let mut input: Box<dyn Read + Sync + Send + 'static> = if let Some(ref input) = opts.input {
@@ -188,7 +192,7 @@ fn run_single_mode(
         export: opts.export.as_ref(),
         profile_opts: profile_opts.as_ref(),
         scale_factor,
-        module: module.clone(),
+        module: validated_module.clone(),
         engine: engine.clone(),
     })?;
 
@@ -212,7 +216,7 @@ fn run_single_mode(
 fn run_batch_mode(
     opts: &Opts,
     engine: &wasmtime::Engine,
-    module: &Module,
+    validated_module: &ValidatedModule,
     codec: Codec,
 ) -> Result<()> {
     let input_reader: Box<dyn BufRead> = if let Some(ref input) = opts.input {
@@ -319,7 +323,7 @@ fn run_batch_mode(
             export: opts.export.as_ref(),
             profile_opts,
             scale_factor,
-            module: module.clone(),
+            module: validated_module.clone(),
             engine: engine.clone(),
         });
 

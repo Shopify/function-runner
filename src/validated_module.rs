@@ -1,16 +1,14 @@
-use std::borrow::Cow;
-
 use anyhow::{bail, Result};
 use rust_embed::RustEmbed;
-use wasmtime::Module;
+use wasmtime::{Engine, Module};
 
 #[derive(RustEmbed)]
 #[folder = "providers/"]
 struct StandardProviders;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct Provider {
-    pub(crate) bytes: Cow<'static, [u8]>,
+    pub(crate) module: Module,
     pub(crate) name: String,
 }
 
@@ -38,14 +36,14 @@ impl Provider {
     }
 }
 
-#[derive(Debug)]
-pub(crate) struct ValidatedModule {
+#[derive(Debug, Clone)]
+pub struct ValidatedModule {
     module: Module,
     std_import: Option<Provider>,
 }
 
 impl ValidatedModule {
-    pub(crate) fn new(module: Module) -> Result<Self> {
+    pub fn new(module: Module, engine: &Engine) -> Result<Self> {
         // Need to track with deterministic order so don't use a hash
         let mut imports = vec![];
         for import in module.imports().map(|i| i.module().to_string()) {
@@ -56,12 +54,17 @@ impl ValidatedModule {
 
         let uses_wasi = imports.contains(&"wasi_snapshot_preview1".to_string());
 
-        let std_import = imports.iter().find_map(|import| {
-            StandardProviders::get(&format!("{import}.wasm")).map(|file| Provider {
-                bytes: file.data,
-                name: import.into(),
+        let std_import = imports
+            .iter()
+            .find_map(|import| {
+                StandardProviders::get(&format!("{import}.wasm")).map(|file| {
+                    Module::from_binary(engine, &file.data).map(|module| Provider {
+                        module,
+                        name: import.into(),
+                    })
+                })
             })
-        });
+            .transpose()?;
 
         // If there are multiple standard imports or more than zero unknown imports,
         // the module will fail to instantiate because we only link the one
@@ -105,8 +108,9 @@ mod tests {
           (import "wasi_snapshot_preview1" "fd_read" (func))
         )
         "#;
-        let module = Module::new(&Engine::default(), &wat)?;
-        ValidatedModule::new(module)?;
+        let engine = Engine::default();
+        let module = Module::new(&engine, wat)?;
+        ValidatedModule::new(module, &engine)?;
         Ok(())
     }
 
@@ -118,8 +122,9 @@ mod tests {
           (import "shopify_function_v1" "shopify_function_input_get" (func))
         )
         "#;
-        let module = Module::new(&Engine::default(), &wat)?;
-        ValidatedModule::new(module)?;
+        let engine = Engine::default();
+        let module = Module::new(&engine, wat)?;
+        ValidatedModule::new(module, &engine)?;
         Ok(())
     }
 
@@ -130,8 +135,9 @@ mod tests {
           (import "shopify_function_v2" "shopify_function_input_get" (func))
         )
         "#;
-        let module = Module::new(&Engine::default(), &wat)?;
-        ValidatedModule::new(module)?;
+        let engine = Engine::default();
+        let module = Module::new(&engine, wat)?;
+        ValidatedModule::new(module, &engine)?;
         Ok(())
     }
 
@@ -143,8 +149,9 @@ mod tests {
           (import "shopify_function_v2" "shopify_function_input_get" (func))
         )
         "#;
-        let module = Module::new(&Engine::default(), &wat)?;
-        ValidatedModule::new(module).unwrap_err();
+        let engine = Engine::default();
+        let module = Module::new(&engine, wat)?;
+        ValidatedModule::new(module, &engine).unwrap_err();
         Ok(())
     }
 }

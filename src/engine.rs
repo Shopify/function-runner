@@ -7,7 +7,7 @@ use wasmtime_wasi::I32Exit;
 
 use crate::function_run_result::FunctionRunResult;
 use crate::io::{IOHandler, OutputAndLogs};
-use crate::validated_module::ValidatedModule;
+pub use crate::validated_module::ValidatedModule;
 use crate::{BytesContainer, BytesContainerType};
 
 #[derive(Clone)]
@@ -31,7 +31,7 @@ pub struct FunctionRunParams<'a> {
     pub export: &'a str,
     pub profile_opts: Option<&'a ProfileOpts>,
     pub scale_factor: f64,
-    pub module: Module,
+    pub module: ValidatedModule,
     pub engine: Engine,
 }
 
@@ -99,7 +99,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         module,
     } = params;
 
-    let mut io_handler = IOHandler::new(ValidatedModule::new(module)?, input.clone());
+    let mut io_handler = IOHandler::new(module, input.clone());
 
     let mut error_logs: String = String::new();
 
@@ -116,7 +116,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let mut store = Store::new(&engine, function_context);
     store.limiter(|s| &mut s.limiter);
 
-    io_handler.initialize(&engine, &mut linker, &mut store)?;
+    io_handler.initialize(&mut linker, &mut store)?;
 
     store.set_fuel(STARTING_FUEL)?;
     store.set_epoch_deadline(1);
@@ -235,7 +235,7 @@ mod tests {
             function_path: Path::new("tests/fixtures/build/js_function.wasm").to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
-            module,
+            module: ValidatedModule::new(module, &engine)?,
             engine,
             scale_factor: 1.0,
             profile_opts: None,
@@ -260,7 +260,7 @@ mod tests {
             function_path: Path::new("tests/fixtures/build/js_function_v2.wasm").to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
-            module,
+            module: ValidatedModule::new(module, &engine)?,
             engine,
             scale_factor: 1.0,
             profile_opts: None,
@@ -285,7 +285,7 @@ mod tests {
             function_path: Path::new("tests/fixtures/build/js_function_v3.wasm").to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
-            module,
+            module: ValidatedModule::new(module, &engine)?,
             engine,
             scale_factor: 1.0,
             profile_opts: None,
@@ -311,7 +311,7 @@ mod tests {
                 .to_path_buf(),
             input,
             export: DEFAULT_EXPORT,
-            module,
+            module: ValidatedModule::new(module, &engine)?,
             engine,
             scale_factor: 1.0,
             profile_opts: None,
@@ -329,7 +329,7 @@ mod tests {
             function_path: Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
             input: json_input(&serde_json::to_vec(&json!({ "code": 0 }))?)?,
             export: DEFAULT_EXPORT,
-            module,
+            module: ValidatedModule::new(module, &engine)?,
             engine,
             scale_factor: 1.0,
             profile_opts: None,
@@ -347,7 +347,7 @@ mod tests {
             function_path: Path::new("tests/fixtures/build/exit_code.wasm").to_path_buf(),
             input: json_input(&serde_json::to_vec(&json!({ "code": 1 }))?)?,
             export: DEFAULT_EXPORT,
-            module,
+            module: ValidatedModule::new(module, &engine)?,
             engine,
             scale_factor: 1.0,
             profile_opts: None,
@@ -368,7 +368,7 @@ mod tests {
             function_path: Path::new("tests/fixtures/build/linear_memory.wasm").to_path_buf(),
             input: json_input(&serde_json::to_vec(&json!({}))?)?,
             export: DEFAULT_EXPORT,
-            module,
+            module: ValidatedModule::new(module, &engine)?,
             engine,
             scale_factor: 1.0,
             profile_opts: None,
@@ -390,7 +390,7 @@ mod tests {
             function_path: Path::new("tests/fixtures/build/log_truncation_function.wasm")
                 .to_path_buf(),
             export: DEFAULT_EXPORT,
-            module,
+            module: ValidatedModule::new(module, &engine)?,
             engine,
             scale_factor: 1.0,
             profile_opts: None,
@@ -416,7 +416,7 @@ mod tests {
             function_path: file_path.to_path_buf(),
             input: json_input(&serde_json::to_vec(&json!({ "code": 0 }))?)?,
             export: DEFAULT_EXPORT,
-            module,
+            module: ValidatedModule::new(module, &engine)?,
             engine,
             scale_factor: 1.0,
             profile_opts: None,
@@ -445,7 +445,7 @@ mod tests {
             function_path: trampolined_path.to_path_buf(),
             input: input_bytes.unwrap(),
             export: DEFAULT_EXPORT,
-            module,
+            module: ValidatedModule::new(module, &engine)?,
             engine,
             scale_factor: 1.0,
             profile_opts: None,
