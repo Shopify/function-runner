@@ -136,3 +136,21 @@ impl BytesContainer {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn json_input_preserves_object_key_order_in_raw_bytes() {
+        let raw = br#"{"msg":{"sq-XK":"5.00 EUR Zbritje","en":"5.00 EUR Discount"}}"#.to_vec();
+
+        let input = BytesContainer::new(BytesContainerType::Input, Codec::Json, raw.clone())
+            .expect("valid JSON input");
+
+        assert_eq!(
+            String::from_utf8(input.raw).unwrap(),
+            String::from_utf8(raw).unwrap()
+        );
+    }
+}
