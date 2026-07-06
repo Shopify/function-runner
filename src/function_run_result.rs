@@ -1,4 +1,4 @@
-use crate::BytesContainer;
+use crate::{BytesContainer, HumanizedBytes};
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -85,7 +85,7 @@ impl fmt::Display for FunctionRunResult {
             formatter,
             "{}\n\n{}",
             "            Input            ".black().on_bright_yellow(),
-            self.input.humanized,
+            HumanizedBytes::from(&self.input),
         )?;
 
         writeln!(
@@ -111,7 +111,7 @@ impl fmt::Display for FunctionRunResult {
                 formatter,
                 "{}\n\n{}",
                 "        Invalid Output      ".black().on_bright_red(),
-                self.output.humanized,
+                HumanizedBytes::from(&self.output),
             )?;
 
             writeln!(
@@ -125,7 +125,7 @@ impl fmt::Display for FunctionRunResult {
                 formatter,
                 "{}\n\n{}",
                 "           Output           ".black().on_bright_green(),
-                self.output.humanized,
+                HumanizedBytes::from(&self.output),
             )?;
         }
 
@@ -248,9 +248,10 @@ mod tests {
             success: true,
         };
 
+        let input_humanized = HumanizedBytes::from(&input).to_string();
         let predicate = predicates::str::contains("Instructions: 1.001K")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains(input.humanized))
+            .and(predicates::str::contains(input_humanized))
             .and(predicates::str::contains("Input Size: 28B"))
             .and(predicates::str::contains("Output Size: 15B"));
         assert!(predicate.eval(&function_run_result.to_string()));
@@ -278,9 +279,10 @@ mod tests {
             success: true,
         };
 
+        let input_humanized = HumanizedBytes::from(&input).to_string();
         let predicate = predicates::str::contains("Instructions: 1")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains(input.humanized));
+            .and(predicates::str::contains(input_humanized));
         assert!(predicate.eval(&function_run_result.to_string()));
         Ok(())
     }
@@ -304,9 +306,10 @@ mod tests {
             success: true,
         };
 
+        let input_humanized = HumanizedBytes::from(&input).to_string();
         let predicate = predicates::str::contains("Instructions: 999")
             .and(predicates::str::contains("Linear Memory Usage: 1000KB"))
-            .and(predicates::str::contains(input.humanized));
+            .and(predicates::str::contains(input_humanized));
         assert!(predicate.eval(&function_run_result.to_string()));
         Ok(())
     }
