@@ -1,6 +1,38 @@
+use std::io;
+
 use crate::Codec;
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
+
+#[derive(Default)]
+struct ShopifyJsonFormatter;
+
+impl serde_json::ser::Formatter for ShopifyJsonFormatter {
+    fn write_string_fragment<W>(&mut self, writer: &mut W, fragment: &str) -> io::Result<()>
+    where
+        W: ?Sized + io::Write,
+    {
+        let mut start = 0;
+        for (index, byte) in fragment.bytes().enumerate() {
+            if byte == b'/' {
+                writer.write_all(&fragment.as_bytes()[start..index])?;
+                writer.write_all(br"\/")?;
+                start = index + 1;
+            }
+        }
+        writer.write_all(&fragment.as_bytes()[start..])
+    }
+}
+
+fn to_shopify_json_vec(value: &serde_json::Value) -> Result<Vec<u8>> {
+    let mut bytes = Vec::new();
+    let formatter = ShopifyJsonFormatter;
+    let mut serializer = serde_json::Serializer::with_formatter(&mut bytes, formatter);
+    value
+        .serialize(&mut serializer)
+        .map_err(|e| anyhow!("Couldn't serialize JSON: {}", e))?;
+    Ok(bytes)
+}
 
 #[derive(Debug, Clone, Default)]
 pub enum BytesContainerType {
@@ -64,8 +96,7 @@ impl BytesContainer {
                 BytesContainerType::Input => {
                     let json = serde_json::from_slice::<serde_json::Value>(&raw)
                         .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
-                    let minified_buffer = serde_json::to_vec(&json)
-                        .map_err(|e| anyhow!("Couldn't serialize JSON: {}", e))?;
+                    let minified_buffer = to_shopify_json_vec(&json)?;
 
                     Ok(Self {
                         codec,
@@ -134,5 +165,38 @@ impl BytesContainer {
                 }
             },
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn json_input_escapes_solidus_like_shopify_json() -> Result<()> {
+        let input = br#"{"id":"gid://shopify/Product/1"}"#.to_vec();
+
+        let container = BytesContainer::new(BytesContainerType::Input, Codec::Json, input)?;
+
+        assert_eq!(
+            String::from_utf8(container.raw).unwrap(),
+            r#"{"id":"gid:\/\/shopify\/Product\/1"}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn json_input_preserves_object_order() -> Result<()> {
+        let input = br#"{"b":1,"a":2}"#.to_vec();
+
+        let container = BytesContainer::new(BytesContainerType::Input, Codec::Json, input)?;
+
+        assert_eq!(
+            String::from_utf8(container.raw).unwrap(),
+            r#"{"b":1,"a":2}"#
+        );
+
+        Ok(())
     }
 }
