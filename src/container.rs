@@ -1,6 +1,47 @@
 use crate::Codec;
 use anyhow::{anyhow, Result};
+use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Serialize};
+
+struct MessagePackJsonValue<'a>(&'a serde_json::Value);
+
+impl Serialize for MessagePackJsonValue<'_> {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        match self.0 {
+            serde_json::Value::Null => serializer.serialize_unit(),
+            serde_json::Value::Bool(value) => serializer.serialize_bool(*value),
+            serde_json::Value::Number(value) => {
+                if let Some(value) = value.as_i64() {
+                    serializer.serialize_i64(value)
+                } else if let Some(value) = value.as_u64() {
+                    serializer.serialize_u64(value)
+                } else if let Some(value) = value.as_f64() {
+                    serializer.serialize_f64(value)
+                } else {
+                    serializer.serialize_str(&value.to_string())
+                }
+            }
+            serde_json::Value::String(value) => serializer.serialize_str(value),
+            serde_json::Value::Array(values) => {
+                let mut seq = serializer.serialize_seq(Some(values.len()))?;
+                for value in values {
+                    seq.serialize_element(&MessagePackJsonValue(value))?;
+                }
+                seq.end()
+            }
+            serde_json::Value::Object(values) => {
+                let mut map = serializer.serialize_map(Some(values.len()))?;
+                for (key, value) in values {
+                    map.serialize_entry(key, &MessagePackJsonValue(value))?;
+                }
+                map.end()
+            }
+        }
+    }
+}
 
 #[derive(Debug, Clone, Default)]
 pub enum BytesContainerType {
@@ -100,7 +141,7 @@ impl BytesContainer {
                 BytesContainerType::Input => {
                     let json: serde_json::Value = serde_json::from_slice(&raw)
                         .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
-                    let bytes = rmp_serde::to_vec(&json)
+                    let bytes = rmp_serde::to_vec(&MessagePackJsonValue(&json))
                         .map_err(|e| anyhow!("Couldn't convert JSON to MessagePack: {}", e))?;
 
                     Ok(Self {
@@ -134,5 +175,52 @@ impl BytesContainer {
                 }
             },
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn json_input_preserves_number_representation_when_minifying() -> Result<()> {
+        let input = br#"{ "longitude": -0.9191460999999999 }"#.to_vec();
+
+        let container = BytesContainer::new(BytesContainerType::Input, Codec::Json, input)?;
+
+        assert_eq!(
+            String::from_utf8(container.raw).unwrap(),
+            r#"{"longitude":-0.9191460999999999}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn messagepack_input_encodes_arbitrary_precision_numbers_as_numbers() -> Result<()> {
+        let input = br#"{"longitude":-0.9191460999999999}"#.to_vec();
+
+        let container = BytesContainer::new(BytesContainerType::Input, Codec::Messagepack, input)?;
+
+        assert_eq!(&container.raw[..12], b"\x81\xa9longitude\xcb");
+        let decoded: BTreeMap<String, f64> = rmp_serde::from_slice(&container.raw)?;
+        assert_eq!(decoded.get("longitude"), Some(&-0.9191460999999999));
+
+        Ok(())
+    }
+
+    #[test]
+    fn messagepack_input_preserves_object_order() -> Result<()> {
+        let input = br#"{"b":1,"a":2}"#.to_vec();
+
+        let container = BytesContainer::new(BytesContainerType::Input, Codec::Messagepack, input)?;
+
+        assert_eq!(
+            container.raw,
+            vec![0x82, 0xa1, b'b', 0x01, 0xa1, b'a', 0x02]
+        );
+
+        Ok(())
     }
 }
