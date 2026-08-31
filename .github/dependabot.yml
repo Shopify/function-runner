@@ -2,8 +2,6 @@ version: 2
 updates:
   - package-ecosystem: "cargo"
     directory: "/"
-    reviewers:
-      - "@Shopify/functions-dependabot-reviewers"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 100
@@ -27,7 +25,5 @@ updates:
           - "patch"
   - package-ecosystem: "github-actions"
     directory: "/"
-    reviewers:
-      - "@Shopify/functions-dependabot-reviewers"
     schedule:
       interval: "weekly"
