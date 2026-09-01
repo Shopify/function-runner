@@ -10,12 +10,11 @@ updates:
       # to ensure we are testing old versions since they link against older
       # versions of the Wasm API which we want to ensure we continue to support
       - dependency-name: "shopify_function_wasm_api"
+      # Keep the Wasmtime runtime dependency set pinned to LTS versions.
+      - dependency-name: "wasmtime"
+      - dependency-name: "wasmtime-wasi"
+      - dependency-name: "deterministic-wasi-ctx"
     groups:
-      wasmtime-dependencies:
-        patterns:
-          - "wasmtime"
-          - "wasmtime-wasi"
-          - "deterministic-wasi-ctx"
       bluejay-dependencies:
         patterns:
           - "bluejay-*"
