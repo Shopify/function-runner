@@ -20,12 +20,14 @@ impl BluejaySchemaAnalyzer {
         input: &serde_json::Value,
     ) -> Result<f64> {
         let document_definition = DefinitionDocument::parse(schema_string)
+            .result
             .map_err(|errors| anyhow!(Error::format_errors(schema_string, schema_path, errors)))?;
 
         let schema_definition = SchemaDefinition::try_from(&document_definition)
             .map_err(|errors| anyhow!(Error::format_errors(schema_string, schema_path, errors)))?;
 
         let executable_document = ExecutableDocument::parse(query)
+            .result
             .map_err(|errors| anyhow!(Error::format_errors(query, query_path, errors)))?;
 
         let cache =
