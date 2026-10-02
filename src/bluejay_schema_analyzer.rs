@@ -19,6 +19,18 @@ impl BluejaySchemaAnalyzer {
         query_path: Option<&str>,
         input: &serde_json::Value,
     ) -> Result<f64> {
+        Self::with_analyzer(schema_string, schema_path, query, query_path, |analyze| {
+            analyze(input)
+        })?
+    }
+
+    pub fn with_analyzer<R>(
+        schema_string: &str,
+        schema_path: Option<&str>,
+        query: &str,
+        query_path: Option<&str>,
+        f: impl FnOnce(&dyn Fn(&serde_json::Value) -> Result<f64>) -> R,
+    ) -> Result<R> {
         let document_definition = DefinitionDocument::parse(schema_string)
             .result
             .map_err(|errors| anyhow!(Error::format_errors(schema_string, schema_path, errors)))?;
@@ -30,18 +42,21 @@ impl BluejaySchemaAnalyzer {
             .result
             .map_err(|errors| anyhow!(Error::format_errors(query, query_path, errors)))?;
 
-        let cache =
-            bluejay_validator::executable::Cache::new(&executable_document, &schema_definition);
+        let analyze = |input: &serde_json::Value| {
+            let cache =
+                bluejay_validator::executable::Cache::new(&executable_document, &schema_definition);
+            ScaleLimitsAnalyzer::analyze(
+                &executable_document,
+                &schema_definition,
+                None,
+                &Default::default(),
+                &cache,
+                input,
+            )
+            .map_err(|e| anyhow!("Unable to analyze scale limits: {}", e.message()))
+        };
 
-        ScaleLimitsAnalyzer::analyze(
-            &executable_document,
-            &schema_definition,
-            None,
-            &Default::default(),
-            &cache,
-            input,
-        )
-        .map_err(|e| anyhow!("Unable to analyze scale limits: {}", e.message()))
+        Ok(f(&analyze))
     }
 }
 
@@ -82,6 +97,33 @@ mod tests {
             scale_factor, expected_scale_factor,
             "The scale factor did not match the expected value"
         );
+    }
+
+    #[test]
+    fn test_with_analyzer_analyzes_many_inputs() -> Result<()> {
+        let schema_string = r#"
+            directive @scaleLimits(rate: Float!) on FIELD_DEFINITION
+            type Query {
+                cartLines: [String] @scaleLimits(rate: 0.005)
+            }
+        "#;
+        let query = "{ cartLines }";
+
+        let scale_factors = BluejaySchemaAnalyzer::with_analyzer(
+            schema_string,
+            None,
+            query,
+            None,
+            |analyze| -> Result<Vec<f64>> {
+                [100, 500, 1000]
+                    .iter()
+                    .map(|length| analyze(&json!({ "cartLines": vec!["line"; *length] })))
+                    .collect()
+            },
+        )??;
+
+        assert_eq!(scale_factors, vec![1.0, 2.5, 5.0]);
+        Ok(())
     }
 
     #[test]

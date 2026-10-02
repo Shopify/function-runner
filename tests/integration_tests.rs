@@ -500,4 +500,348 @@ mod tests {
 
         Ok(())
     }
+
+    fn temp_batch_input(contents: &str) -> Result<assert_fs::NamedTempFile> {
+        let file = assert_fs::NamedTempFile::new("input.jsonl")?;
+        file.write_str(contents)?;
+
+        Ok(file)
+    }
+
+    fn batch_records(stdout: &[u8]) -> Result<Vec<serde_json::Value>> {
+        Ok(String::from_utf8(stdout.to_vec())?
+            .lines()
+            .map(serde_json::from_str::<serde_json::Value>)
+            .collect::<Result<Vec<_>, _>>()?)
+    }
+
+    #[test]
+    fn batch_writes_one_minimal_record_per_input() -> Result<()> {
+        let input_file = temp_batch_input("{\"code\":0}\n{\"code\":0}\n")?;
+
+        let output = Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/exit_code.wasm",
+                "--batch",
+            ])
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .output()?;
+
+        assert!(output.status.success());
+        let records = batch_records(&output.stdout)?;
+        assert_eq!(records.len(), 2);
+        assert_eq!(
+            records[0],
+            json!({
+                "line": 1,
+                "success": true,
+                "instructions": records[0]["instructions"],
+                "memory_usage": records[0]["memory_usage"],
+                "logs": "",
+                "output": {"exit": 0},
+            })
+        );
+        assert!(records[0]["instructions"].as_u64().unwrap() > 0);
+        assert_eq!(records[1]["line"], 2);
+        assert_eq!(
+            String::from_utf8(output.stderr)?,
+            "Batch complete: 2 inputs processed, 2 successful, 0 failed\n"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_reads_stdin_and_skips_blank_lines() -> Result<()> {
+        let input_file = temp_batch_input("{\"code\":0}\n\n   \n{\"code\":0}")?;
+
+        let output = Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/exit_code.wasm",
+                "--batch",
+            ])
+            .stdin(Stdio::from(File::open(input_file.path())?))
+            .output()?;
+
+        assert!(output.status.success());
+        let records = batch_records(&output.stdout)?;
+        let lines: Vec<_> = records.iter().map(|r| r["line"].clone()).collect();
+        assert_eq!(lines, vec![json!(1), json!(4)]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_stops_at_first_failure_by_default() -> Result<()> {
+        let input_file = temp_batch_input("{\"code\":0}\n{\"code\":1}\n{\"code\":0}\n")?;
+
+        let output = Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/exit_code.wasm",
+                "--batch",
+            ])
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .output()?;
+
+        assert!(!output.status.success());
+        let records = batch_records(&output.stdout)?;
+        assert_eq!(records.len(), 2);
+        assert_eq!(records[1]["line"], 2);
+        assert_eq!(records[1]["success"], false);
+        assert_eq!(records[1]["logs"], "module exited with code: 1");
+        assert_eq!(
+            String::from_utf8(output.stderr)?,
+            "Batch stopped: 2 inputs processed, 1 successful, 1 failed\n\
+             Error: The Function execution failed on line 2. Review the logs for more information.\n"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_reports_an_invalid_function_in_the_first_record() -> Result<()> {
+        let input_file = temp_batch_input("{}\n{}\n")?;
+
+        let output = Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/invalid_import_combination.wasm",
+                "--batch",
+            ])
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .output()?;
+
+        let error = "Invalid Function, cannot use `shopify_function_v2` and import WASI. If using Rust, change the build target to `wasm32-unknown-unknown`.";
+        assert!(!output.status.success());
+        assert_eq!(
+            batch_records(&output.stdout)?,
+            vec![json!({"line": 1, "success": false, "error": error})]
+        );
+        assert_eq!(
+            String::from_utf8(output.stderr)?,
+            format!(
+                "Batch stopped: 1 inputs processed, 0 successful, 1 failed\nError: Line 1: {error}\n"
+            )
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_continue_on_error_runs_all_inputs_and_fails_at_the_end() -> Result<()> {
+        let input_file =
+            temp_batch_input("{\"code\":0}\n{\"code\":1}\n{\"code\":\n{\"code\":0}\n")?;
+
+        let output = Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/exit_code.wasm",
+                "--batch",
+            ])
+            .arg("--batch-continue-on-error")
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .output()?;
+
+        assert!(!output.status.success());
+        let records = batch_records(&output.stdout)?;
+        assert_eq!(records.len(), 4);
+        let success: Vec<_> = records.iter().map(|r| r["success"].clone()).collect();
+        assert_eq!(
+            success,
+            vec![json!(true), json!(false), json!(false), json!(true)]
+        );
+        assert_eq!(
+            records[2],
+            json!({
+                "line": 3,
+                "success": false,
+                "error": "Invalid input JSON: EOF while parsing a value at line 2 column 0",
+            })
+        );
+        assert_eq!(
+            String::from_utf8(output.stderr)?,
+            "Batch complete: 4 inputs processed, 2 successful, 2 failed\n\
+             Error: 2 of 4 inputs failed\n"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_error_records_are_single_line_json() -> Result<()> {
+        let input_file = temp_batch_input("{\"code\":0}\n")?;
+
+        let output = Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/exit_code.wasm",
+                "--batch",
+            ])
+            .args(["--export", "missing \"export\"\nname"])
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .output()?;
+
+        assert!(!output.status.success());
+        let records = batch_records(&output.stdout)?;
+        assert_eq!(records.len(), 1);
+        assert_eq!(records[0]["success"], false);
+        assert!(records[0]["error"]
+            .as_str()
+            .unwrap()
+            .contains("missing \"export\"\nname"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_full_output_includes_the_full_result() -> Result<()> {
+        let input_file = temp_batch_input("{\"code\":0}\n")?;
+
+        let output = Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/exit_code.wasm",
+                "--batch",
+            ])
+            .arg("--batch-full-output")
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .output()?;
+
+        assert!(output.status.success());
+        let records = batch_records(&output.stdout)?;
+        assert_eq!(records.len(), 1);
+        assert_eq!(records[0]["line"], 1);
+        assert_eq!(records[0]["name"], "exit_code.wasm");
+        assert_eq!(records[0]["input"], json!({"code": 0}));
+        assert_eq!(records[0]["output"], json!({"exit": 0}));
+        assert_eq!(records[0]["success"], true);
+        assert!(records[0]["size"].is_u64());
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_reports_output_that_is_not_valid_json() -> Result<()> {
+        let input_file = temp_batch_input("{\"code\":0}\n")?;
+
+        let output = Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/messagepack-invalid.wasm",
+            ])
+            .arg("--batch")
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .output()?;
+
+        let records = batch_records(&output.stdout)?;
+        assert_eq!(records.len(), 1);
+        assert_eq!(records[0]["output"], serde_json::Value::Null);
+        assert!(records[0]["output_error"].is_string());
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_runs_javy_plugin_functions() -> Result<()> {
+        let input_file = temp_batch_input("{\"hello\":\"world\"}\n{\"hello\":\"world\"}\n")?;
+
+        let output = Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/js_function_javy_plugin_v3.wasm",
+                "--batch",
+            ])
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .output()?;
+
+        assert!(output.status.success());
+        let records = batch_records(&output.stdout)?;
+        assert_eq!(records.len(), 2);
+        for record in records {
+            assert_eq!(record["output"], json!({"hello": "world output"}));
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_uses_schema_and_query() -> Result<()> {
+        let input_file = temp_batch_input(
+            "{\"cart\":{\"lines\":[{\"quantity\":2}]}}\n{\"cart\":{\"lines\":[]}}\n",
+        )?;
+
+        let output = Command::new(cargo_bin!())
+            .args(["--function", "tests/fixtures/build/noop.wasm", "--batch"])
+            .args(["--schema-path", "tests/fixtures/schema/schema.graphql"])
+            .args(["--query-path", "tests/fixtures/query/query.graphql"])
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .output()?;
+
+        assert!(output.status.success());
+        assert_eq!(batch_records(&output.stdout)?.len(), 2);
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_fails_before_running_when_schema_is_invalid() -> Result<()> {
+        let schema = assert_fs::NamedTempFile::new("schema.graphql")?;
+        schema.write_str("type Query {")?;
+        let input_file = temp_batch_input("{\"cart\":{\"lines\":[]}}\n")?;
+
+        let output = Command::new(cargo_bin!())
+            .args(["--function", "tests/fixtures/build/noop.wasm", "--batch"])
+            .arg("--schema-path")
+            .arg(schema.as_os_str())
+            .args(["--query-path", "tests/fixtures/query/query.graphql"])
+            .arg("--input")
+            .arg(input_file.as_os_str())
+            .output()?;
+
+        assert!(!output.status.success());
+        assert!(output.stdout.is_empty());
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_options_require_batch() -> Result<()> {
+        for flag in ["--batch-continue-on-error", "--batch-full-output"] {
+            Command::new(cargo_bin!())
+                .args(["--function", "tests/fixtures/build/exit_code.wasm", flag])
+                .assert()
+                .failure()
+                .stderr(contains("--batch"));
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn batch_cannot_be_used_with_profiling() -> Result<()> {
+        Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/exit_code.wasm",
+                "--batch",
+                "--profile",
+            ])
+            .assert()
+            .failure()
+            .stderr(contains("cannot be used with"));
+
+        Ok(())
+    }
 }
