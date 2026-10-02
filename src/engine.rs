@@ -322,6 +322,49 @@ mod tests {
     }
 
     #[test]
+    fn test_repeated_runs_match_fresh_runs() -> Result<()> {
+        for path in [
+            "tests/fixtures/build/js_function.wasm",
+            "tests/fixtures/build/js_function_javy_plugin_v3.wasm",
+        ]
+        .map(Path::new)
+        {
+            let run_with = |engine: &Engine| -> Result<serde_json::Value> {
+                let module = Module::from_file(engine, path)?;
+                let codec = if uses_msgpack_provider(&module) {
+                    Codec::Messagepack
+                } else {
+                    Codec::Json
+                };
+                let input = BytesContainer::new(
+                    BytesContainerType::Input,
+                    codec,
+                    include_bytes!("../tests/fixtures/input/js_function_input.json").to_vec(),
+                )?;
+                let result = run(FunctionRunParams {
+                    function_path: path.to_path_buf(),
+                    input,
+                    export: DEFAULT_EXPORT,
+                    module,
+                    engine: engine.clone(),
+                    scale_factor: 1.0,
+                    profile_opts: None,
+                })?;
+                assert!(result.success);
+                Ok(serde_json::to_value(result)?)
+            };
+
+            let engine = new_engine()?;
+            let first = run_with(&engine)?;
+            assert_eq!(first, run_with(&engine)?);
+            assert_eq!(first, run_with(&new_engine()?)?);
+            assert_eq!(first, run_with(&engine)?);
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn test_exit_code_zero() -> Result<()> {
         let engine = new_engine()?;
         let module = Module::from_file(&engine, Path::new("tests/fixtures/build/exit_code.wasm"))?;
