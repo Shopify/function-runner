@@ -1,12 +1,51 @@
-use std::borrow::Cow;
+use std::{
+    borrow::Cow,
+    collections::HashMap,
+    sync::{Mutex, PoisonError},
+};
 
 use anyhow::{bail, Result};
 use rust_embed::RustEmbed;
-use wasmtime::Module;
+use wasmtime::{Engine, Module};
 
 #[derive(RustEmbed)]
 #[folder = "providers/"]
 struct StandardProviders;
+
+static COMPILED_PROVIDERS: Mutex<ProviderCache> = Mutex::new(ProviderCache::new());
+
+struct CompiledProviders {
+    engine: Engine,
+    modules: HashMap<String, Module>,
+}
+
+struct ProviderCache(Option<CompiledProviders>);
+
+impl ProviderCache {
+    const fn new() -> Self {
+        Self(None)
+    }
+
+    fn module(&mut self, engine: &Engine, provider: &Provider) -> Result<Module> {
+        let compiled = match &mut self.0 {
+            Some(compiled) if Engine::same(&compiled.engine, engine) => compiled,
+            cache => cache.insert(CompiledProviders {
+                engine: engine.clone(),
+                modules: HashMap::new(),
+            }),
+        };
+
+        if let Some(module) = compiled.modules.get(&provider.name) {
+            return Ok(module.clone());
+        }
+
+        let module = Module::from_binary(engine, &provider.bytes)?;
+        compiled
+            .modules
+            .insert(provider.name.clone(), module.clone());
+        Ok(module)
+    }
+}
 
 #[derive(Debug)]
 pub(crate) struct Provider {
@@ -15,6 +54,13 @@ pub(crate) struct Provider {
 }
 
 impl Provider {
+    pub(crate) fn module(&self, engine: &Engine) -> Result<Module> {
+        COMPILED_PROVIDERS
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .module(engine, self)
+    }
+
     pub(crate) fn is_mem_io_provider(&self) -> bool {
         let javy_plugin_version = self
             .name
@@ -96,7 +142,69 @@ mod tests {
     use anyhow::Result;
     use wasmtime::{Engine, Module};
 
-    use crate::validated_module::ValidatedModule;
+    use crate::validated_module::{Provider, ProviderCache, StandardProviders, ValidatedModule};
+
+    fn provider(name: &str) -> Provider {
+        Provider {
+            bytes: StandardProviders::get(&format!("{name}.wasm"))
+                .unwrap()
+                .data,
+            name: name.into(),
+        }
+    }
+
+    #[test]
+    fn test_provider_cache_reuses_module_for_same_engine() -> Result<()> {
+        let engine = Engine::default();
+        let provider = provider("shopify_function_v2");
+        let mut cache = ProviderCache::new();
+
+        let first = cache.module(&engine, &provider)?;
+        let second = cache.module(&engine.clone(), &provider)?;
+
+        assert_eq!(first.image_range(), second.image_range());
+        Ok(())
+    }
+
+    #[test]
+    fn test_provider_cache_keeps_each_provider() -> Result<()> {
+        let engine = Engine::default();
+        let v1 = provider("shopify_function_v1");
+        let v2 = provider("shopify_function_v2");
+        let mut cache = ProviderCache::new();
+
+        let first_v1 = cache.module(&engine, &v1)?;
+        let first_v2 = cache.module(&engine, &v2)?;
+
+        assert_ne!(first_v1.image_range(), first_v2.image_range());
+        assert_eq!(
+            first_v1.image_range(),
+            cache.module(&engine, &v1)?.image_range()
+        );
+        assert_eq!(
+            first_v2.image_range(),
+            cache.module(&engine, &v2)?.image_range()
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_provider_cache_holds_only_most_recent_engine() -> Result<()> {
+        let first_engine = Engine::default();
+        let second_engine = Engine::default();
+        let provider = provider("shopify_function_v2");
+        let mut cache = ProviderCache::new();
+
+        let first = cache.module(&first_engine, &provider)?;
+        let second = cache.module(&second_engine, &provider)?;
+        assert!(Engine::same(second.engine(), &second_engine));
+        assert_ne!(first.image_range(), second.image_range());
+
+        let first_again = cache.module(&first_engine, &provider)?;
+        assert!(Engine::same(first_again.engine(), &first_engine));
+        assert_ne!(first.image_range(), first_again.image_range());
+        Ok(())
+    }
 
     #[test]
     fn test_module_with_just_wasi() -> Result<()> {
