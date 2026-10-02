@@ -1,6 +1,9 @@
 mod batch;
 
-use function_runner::{BytesContainer, BytesContainerType, Codec};
+use function_runner::{
+    views::{JsonReport, TextReport},
+    BytesContainer, BytesContainerType, Codec,
+};
 use wasmtime::Module;
 
 use std::{
@@ -213,9 +216,9 @@ fn main() -> Result<()> {
     })?;
 
     if opts.json {
-        println!("{}", function_run_result.to_json());
+        println!("{}", JsonReport::from(&function_run_result));
     } else {
-        println!("{function_run_result}");
+        println!("{}", TextReport::from(&function_run_result));
     }
 
     if let Some(profile) = function_run_result.profile.as_ref() {
