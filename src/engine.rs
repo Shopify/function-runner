@@ -99,7 +99,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
         module,
     } = params;
 
-    let mut io_handler = IOHandler::new(ValidatedModule::new(module)?, input.clone());
+    let mut io_handler = IOHandler::new(ValidatedModule::new(module)?, &input);
 
     let mut error_logs: String = String::new();
 
@@ -165,11 +165,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     logs.extend_from_slice(error_logs.as_bytes());
 
     let output_codec = input.codec;
-    let output = BytesContainer::new(
-        BytesContainerType::Output,
-        output_codec,
-        raw_output.to_vec(),
-    )?;
+    let output = BytesContainer::new(BytesContainerType::Output, output_codec, raw_output)?;
 
     let name = function_path.file_name().unwrap().to_str().unwrap();
     let size = function_path.metadata()?.len() / 1024;
@@ -439,13 +435,14 @@ mod tests {
             profile_opts: None,
         })?;
 
+        let report = crate::views::TextReport::from(&function_run_result).to_string();
         assert!(
-            function_run_result.to_string().contains(
+            report.contains(
                 &"Logs would be truncated in production, length 6000 > 1000 limit"
                     .red()
                     .to_string()
             ),
-            "Expected logs to be truncated, but were: {function_run_result}"
+            "Expected logs to be truncated, but were: {report}"
         );
         Ok(())
     }
