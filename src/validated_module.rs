@@ -26,25 +26,47 @@ impl ProviderCache {
         Self(None)
     }
 
-    fn module(&mut self, engine: &Engine, provider: &Provider) -> Result<Module> {
-        let compiled = match &mut self.0 {
-            Some(compiled) if Engine::same(&compiled.engine, engine) => compiled,
-            cache => cache.insert(CompiledProviders {
-                engine: engine.clone(),
-                modules: HashMap::new(),
-            }),
-        };
-
-        if let Some(module) = compiled.modules.get(&provider.name) {
-            return Ok(module.clone());
+    fn get(&mut self, engine: &Engine, name: &str) -> Option<Module> {
+        match &mut self.0 {
+            Some(compiled) if Engine::same(&compiled.engine, engine) => {
+                compiled.modules.get(name).cloned()
+            }
+            cache => {
+                *cache = Some(CompiledProviders {
+                    engine: engine.clone(),
+                    modules: HashMap::new(),
+                });
+                None
+            }
         }
-
-        let module = Module::from_binary(engine, &provider.bytes)?;
-        compiled
-            .modules
-            .insert(provider.name.clone(), module.clone());
-        Ok(module)
     }
+
+    fn insert(&mut self, engine: &Engine, name: &str, module: Module) -> Module {
+        match &mut self.0 {
+            Some(compiled) if Engine::same(&compiled.engine, engine) => compiled
+                .modules
+                .entry(name.to_string())
+                .or_insert(module)
+                .clone(),
+            _ => module,
+        }
+    }
+}
+
+fn cached_module(
+    cache: &Mutex<ProviderCache>,
+    engine: &Engine,
+    name: &str,
+    compile: impl FnOnce() -> Result<Module>,
+) -> Result<Module> {
+    let lock = || cache.lock().unwrap_or_else(PoisonError::into_inner);
+
+    if let Some(module) = lock().get(engine, name) {
+        return Ok(module);
+    }
+
+    let module = compile()?;
+    Ok(lock().insert(engine, name, module))
 }
 
 #[derive(Debug)]
@@ -55,10 +77,9 @@ pub(crate) struct Provider {
 
 impl Provider {
     pub(crate) fn module(&self, engine: &Engine) -> Result<Module> {
-        COMPILED_PROVIDERS
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .module(engine, self)
+        cached_module(&COMPILED_PROVIDERS, engine, &self.name, || {
+            Module::from_binary(engine, &self.bytes)
+        })
     }
 
     pub(crate) fn is_mem_io_provider(&self) -> bool {
@@ -139,10 +160,14 @@ impl ValidatedModule {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Mutex;
+
     use anyhow::Result;
     use wasmtime::{Engine, Module};
 
-    use crate::validated_module::{Provider, ProviderCache, StandardProviders, ValidatedModule};
+    use crate::validated_module::{
+        cached_module, Provider, ProviderCache, StandardProviders, ValidatedModule,
+    };
 
     fn provider(name: &str) -> Provider {
         Provider {
@@ -153,14 +178,24 @@ mod tests {
         }
     }
 
+    fn module(
+        cache: &Mutex<ProviderCache>,
+        engine: &Engine,
+        provider: &Provider,
+    ) -> Result<Module> {
+        cached_module(cache, engine, &provider.name, || {
+            Module::from_binary(engine, &provider.bytes)
+        })
+    }
+
     #[test]
     fn test_provider_cache_reuses_module_for_same_engine() -> Result<()> {
         let engine = Engine::default();
         let provider = provider("shopify_function_v2");
-        let mut cache = ProviderCache::new();
+        let cache = Mutex::new(ProviderCache::new());
 
-        let first = cache.module(&engine, &provider)?;
-        let second = cache.module(&engine.clone(), &provider)?;
+        let first = module(&cache, &engine, &provider)?;
+        let second = module(&cache, &engine.clone(), &provider)?;
 
         assert_eq!(first.image_range(), second.image_range());
         Ok(())
@@ -171,19 +206,19 @@ mod tests {
         let engine = Engine::default();
         let v1 = provider("shopify_function_v1");
         let v2 = provider("shopify_function_v2");
-        let mut cache = ProviderCache::new();
+        let cache = Mutex::new(ProviderCache::new());
 
-        let first_v1 = cache.module(&engine, &v1)?;
-        let first_v2 = cache.module(&engine, &v2)?;
+        let first_v1 = module(&cache, &engine, &v1)?;
+        let first_v2 = module(&cache, &engine, &v2)?;
 
         assert_ne!(first_v1.image_range(), first_v2.image_range());
         assert_eq!(
             first_v1.image_range(),
-            cache.module(&engine, &v1)?.image_range()
+            module(&cache, &engine, &v1)?.image_range()
         );
         assert_eq!(
             first_v2.image_range(),
-            cache.module(&engine, &v2)?.image_range()
+            module(&cache, &engine, &v2)?.image_range()
         );
         Ok(())
     }
@@ -193,16 +228,63 @@ mod tests {
         let first_engine = Engine::default();
         let second_engine = Engine::default();
         let provider = provider("shopify_function_v2");
-        let mut cache = ProviderCache::new();
+        let cache = Mutex::new(ProviderCache::new());
 
-        let first = cache.module(&first_engine, &provider)?;
-        let second = cache.module(&second_engine, &provider)?;
+        let first = module(&cache, &first_engine, &provider)?;
+        let second = module(&cache, &second_engine, &provider)?;
         assert!(Engine::same(second.engine(), &second_engine));
         assert_ne!(first.image_range(), second.image_range());
 
-        let first_again = cache.module(&first_engine, &provider)?;
+        let first_again = module(&cache, &first_engine, &provider)?;
         assert!(Engine::same(first_again.engine(), &first_engine));
         assert_ne!(first.image_range(), first_again.image_range());
+        Ok(())
+    }
+
+    #[test]
+    fn test_provider_cache_serves_warm_lookups_during_compilation() -> Result<()> {
+        let engine = Engine::default();
+        let v1 = provider("shopify_function_v1");
+        let v2 = provider("shopify_function_v2");
+        let cache = Mutex::new(ProviderCache::new());
+        let warm_v1 = module(&cache, &engine, &v1)?;
+
+        cached_module(&cache, &engine, &v2.name, || {
+            let during_compile = cache
+                .try_lock()
+                .expect("compilation holds the cache lock")
+                .get(&engine, &v1.name)
+                .expect("warm provider is cached");
+            assert_eq!(warm_v1.image_range(), during_compile.image_range());
+            Module::from_binary(&engine, &v2.bytes)
+        })?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_provider_cache_skips_insert_when_engine_changes_during_compilation() -> Result<()> {
+        let first_engine = Engine::default();
+        let second_engine = Engine::default();
+        let provider = provider("shopify_function_v2");
+        let cache = Mutex::new(ProviderCache::new());
+        let mut second = None;
+
+        let first = cached_module(&cache, &first_engine, &provider.name, || {
+            second = Some(module(&cache, &second_engine, &provider)?);
+            Module::from_binary(&first_engine, &provider.bytes)
+        })?;
+        let second = second.unwrap();
+
+        assert!(Engine::same(first.engine(), &first_engine));
+        assert_eq!(
+            second.image_range(),
+            module(&cache, &second_engine, &provider)?.image_range()
+        );
+        assert_ne!(
+            first.image_range(),
+            module(&cache, &first_engine, &provider)?.image_range()
+        );
         Ok(())
     }
 
