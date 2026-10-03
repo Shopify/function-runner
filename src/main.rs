@@ -10,7 +10,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
-use clap::Parser;
+use clap::{error::ErrorKind, CommandFactory, Parser};
 use function_runner::{
     bluejay_schema_analyzer::BluejaySchemaAnalyzer,
     engine::{run, FunctionRunParams, ProfileOpts},
@@ -128,6 +128,15 @@ fn read_file_to_string(file_path: &PathBuf) -> Result<String> {
 
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
+
+    if opts.batch && opts.json {
+        Opts::command()
+            .error(
+                ErrorKind::ArgumentConflict,
+                "--json cannot be used with --batch. Batch records are already JSON; use --batch-full-output for the full result.",
+            )
+            .exit();
+    }
 
     let mut input: Box<dyn BufRead> = if let Some(ref input) = opts.input {
         Box::new(BufReader::new(File::open(input).map_err(|e| {

@@ -895,6 +895,22 @@ mod tests {
     }
 
     #[test]
+    fn batch_cannot_be_used_with_json() -> Result<()> {
+        Command::new(cargo_bin!())
+            .args([
+                "--function",
+                "tests/fixtures/build/exit_code.wasm",
+                "--batch",
+                "--json",
+            ])
+            .assert()
+            .failure()
+            .stderr(contains("--batch-full-output"));
+
+        Ok(())
+    }
+
+    #[test]
     fn batch_cannot_be_used_with_profiling() -> Result<()> {
         Command::new(cargo_bin!())
             .args([

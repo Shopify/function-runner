@@ -64,6 +64,9 @@ Batch options:
   are, so `output` is `null` when the output is not valid JSON, and
   `output_error` gives the reason.
 
+`--json` cannot be used with `--batch`: batch records are already JSON. Use
+`--batch-full-output` for the full result.
+
 The exit code is `0` only if every input succeeds. `--schema-path` and
 `--query-path` work in batch mode; the schema and query are parsed once.
 Profiling is not available in batch mode.
