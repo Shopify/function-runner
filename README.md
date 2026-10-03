@@ -74,9 +74,9 @@ Profiling is not available in batch mode.
 ## Library usage
 
 To compute scale factors for many inputs, use
-`bluejay_schema_analyzer::BluejaySchemaAnalyzer::with_analyzer`. It parses and
-validates the schema and query once, then calls your closure with an `analyze`
-function that returns the scale factor for one input:
+`bluejay_schema_analyzer::BluejaySchemaAnalyzer::with_analyzer`. It parses the
+schema and query once, then calls your closure with an `analyze` function that
+returns the scale factor for one input:
 
 ```rust
 use function_runner::bluejay_schema_analyzer::BluejaySchemaAnalyzer;
@@ -90,9 +90,12 @@ let scale_factors = BluejaySchemaAnalyzer::with_analyzer(
 )??;
 ```
 
-The outer `Result` holds schema and query errors. The inner `Result` holds
-analysis errors for an input. The `test_with_analyzer_analyzes_many_inputs`
-test in `src/bluejay_schema_analyzer.rs` runs this pattern.
+The outer `Result` holds schema and query parse errors. The inner `Result`
+holds analysis errors for an input, for example when `analyze` cannot select
+an operation in the query. `with_analyzer` does not check the query against
+the schema, so a query with an unknown field still parses. The
+`test_with_analyzer_analyzes_many_inputs` test in
+`src/bluejay_schema_analyzer.rs` runs this pattern.
 
 ## Development
 
