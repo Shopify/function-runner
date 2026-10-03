@@ -141,6 +141,11 @@ fn main() -> Result<()> {
         ));
     };
 
+    let mut buffer = Vec::new();
+    if !opts.batch {
+        input.read_to_end(&mut buffer)?;
+    }
+
     let schema_string = opts.read_schema_to_string().transpose()?;
 
     let query_string = opts.read_query_to_string().transpose()?;
@@ -181,9 +186,6 @@ fn main() -> Result<()> {
             },
         );
     }
-
-    let mut buffer = Vec::new();
-    input.read_to_end(&mut buffer)?;
 
     let input = BytesContainer::new(BytesContainerType::Input, codec, buffer)?;
     let scale_factor = if let (Some(schema_string), Some(query_string), Some(json_value)) =

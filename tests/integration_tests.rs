@@ -145,6 +145,20 @@ mod tests {
     }
 
     #[test]
+    fn input_read_error_comes_before_function_load_error() -> Result<()> {
+        let output = Command::new(cargo_bin!())
+            .args(["--input", ".", "--function", "test/file/doesnt/exist"])
+            .output()?;
+
+        assert!(!output.status.success());
+        let stderr = String::from_utf8(output.stderr)?;
+        assert!(stderr.starts_with("Error: "), "{stderr}");
+        assert!(!stderr.contains("Couldn't load the Function"), "{stderr}");
+
+        Ok(())
+    }
+
+    #[test]
     fn profile_writes_file() -> Result<()> {
         let (mut cmd, temp) = profile_base_cmd_in_temp_dir()?;
         cmd.arg("--profile").assert().success();
