@@ -744,23 +744,74 @@ mod tests {
     }
 
     #[test]
+    fn batch_keeps_json_values_of_any_type() -> Result<()> {
+        let values = [
+            json!({"code": 0}),
+            json!([]),
+            json!([1, 2]),
+            json!(null),
+            json!(123),
+            json!(1.5),
+            json!(true),
+            json!("test"),
+        ];
+        let lines = values
+            .iter()
+            .map(|value| format!("{value}\n"))
+            .collect::<String>();
+        let input_file = temp_batch_input(&lines)?;
+
+        for full_output in [false, true] {
+            let mut cmd = Command::new(cargo_bin!());
+            cmd.args(["--function", "tests/fixtures/build/noop.wasm", "--batch"])
+                .arg("--input")
+                .arg(input_file.as_os_str());
+            if full_output {
+                cmd.arg("--batch-full-output");
+            }
+            let output = cmd.output()?;
+
+            assert!(output.status.success(), "full_output: {full_output}");
+            let records = batch_records(&output.stdout)?;
+            assert_eq!(records.len(), values.len());
+            for (record, value) in records.iter().zip(&values) {
+                assert_eq!(record["success"], true, "{record}");
+                assert_eq!(&record["output"], value, "{record}");
+                if full_output {
+                    assert_eq!(&record["input"], value, "{record}");
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn batch_reports_output_that_is_not_valid_json() -> Result<()> {
         let input_file = temp_batch_input("{\"code\":0}\n")?;
 
-        let output = Command::new(cargo_bin!())
-            .args([
+        for full_output in [false, true] {
+            let mut cmd = Command::new(cargo_bin!());
+            cmd.args([
                 "--function",
                 "tests/fixtures/build/messagepack-invalid.wasm",
+                "--batch",
             ])
-            .arg("--batch")
             .arg("--input")
-            .arg(input_file.as_os_str())
-            .output()?;
+            .arg(input_file.as_os_str());
+            if full_output {
+                cmd.arg("--batch-full-output");
+            }
+            let output = cmd.output()?;
 
-        let records = batch_records(&output.stdout)?;
-        assert_eq!(records.len(), 1);
-        assert_eq!(records[0]["output"], serde_json::Value::Null);
-        assert!(records[0]["output_error"].is_string());
+            let records = batch_records(&output.stdout)?;
+            assert_eq!(records.len(), 1);
+            assert_eq!(records[0]["output"], serde_json::Value::Null);
+            assert!(records[0]["output_error"].is_string());
+            if full_output {
+                assert_eq!(records[0]["input"], json!({"code": 0}));
+            }
+        }
 
         Ok(())
     }

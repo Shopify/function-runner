@@ -60,7 +60,9 @@ Batch options:
 - `--batch-continue-on-error`: run all inputs even if some fail. Without it,
   the batch stops after the first failed input.
 - `--batch-full-output`: write the full result for each input, the same fields
-  as `--json` plus `line`.
+  as `--json` plus `line`. `input` and `output` hold the JSON values as they
+  are, so `output` is `null` when the output is not valid JSON, and
+  `output_error` gives the reason.
 
 The exit code is `0` only if every input succeeds. `--schema-path` and
 `--query-path` work in batch mode; the schema and query are parsed once.

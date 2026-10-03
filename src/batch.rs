@@ -44,8 +44,14 @@ struct MinimalRecord<'a> {
 #[derive(Serialize)]
 struct FullRecord<'a> {
     line: usize,
-    #[serde(flatten)]
-    result: &'a FunctionRunResult,
+    name: &'a str,
+    size: u64,
+    memory_usage: u64,
+    instructions: u64,
+    logs: &'a str,
+    input: Option<&'a serde_json::Value>,
+    output: Option<&'a serde_json::Value>,
+    success: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     output_error: Option<&'a str>,
 }
@@ -197,7 +203,14 @@ fn write_result_record(
             &mut *record,
             &FullRecord {
                 line,
-                result,
+                name: &result.name,
+                size: result.size,
+                memory_usage: result.memory_usage,
+                instructions: result.instructions,
+                logs: &result.logs,
+                input: result.input.json_value.as_ref(),
+                output: result.output.json_value.as_ref(),
+                success: result.success,
                 output_error,
             },
         )
