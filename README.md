@@ -73,6 +73,26 @@ Profiling is not available in batch mode.
 
 ## Library usage
 
+The `views` module turns run data into output. Each view borrows the data and
+builds its text only when you display it:
+
+- `ReadableBytes::from(&container)`: readable text for an input or an output.
+  It is pretty-printed JSON when the bytes decode to JSON or MessagePack, a hex
+  dump for the `Raw` codec, or the bytes as lossy UTF-8 when an output does not
+  decode. `encoding_error` gives the reason, and `raw` keeps the bytes.
+- `TextReport::from(&result)`: the report that the CLI prints by default.
+- `JsonReport::from(&result)`: the JSON that `--json` prints. It uses the
+  result's serde serialization, so `serde_json::to_value(&result)` has the same
+  fields.
+
+```rust
+use function_runner::views::{JsonReport, ReadableBytes, TextReport};
+
+println!("{}", TextReport::from(&result));
+println!("{}", JsonReport::from(&result));
+println!("{}", ReadableBytes::from(&result.output));
+```
+
 To compute scale factors for many inputs, use
 `bluejay_schema_analyzer::BluejaySchemaAnalyzer::with_analyzer`. It parses the
 schema and query once, then calls your closure with an `analyze` function that
@@ -96,6 +116,24 @@ an operation in the query. `with_analyzer` does not check the query against
 the schema, so a query with an unknown field still parses. The
 `test_with_analyzer_analyzes_many_inputs` test in
 `src/bluejay_schema_analyzer.rs` runs this pattern.
+
+### Upgrading to 10.0
+
+10.0 moves display code out of `BytesContainer` and `FunctionRunResult` and
+into the `views` module:
+
+| 9.x | 10.0 |
+|---|---|
+| `container.humanized` | `ReadableBytes::from(&container).to_string()` |
+| `result.to_string()` or `format!("{result}")` | `TextReport::from(&result).to_string()` |
+| `result.to_json()` | `JsonReport::from(&result).to_string()` |
+
+Other changes:
+
+- `BytesContainer::raw` keeps the bytes of an output that does not decode. In
+  9.x it was empty.
+- `Codec` no longer implements `clap::ValueEnum`.
+- The unused `InvalidOutput` type is removed.
 
 ## Development
 
