@@ -58,10 +58,7 @@ impl<'a>
         &mut self,
         field: &'a <ExecutableDocument<'a> as bluejay_core::executable::ExecutableDocument>::Field,
         field_definition: &'_ <SchemaDefinition as CoreSchemaDefinition>::FieldDefinition,
-        _scoped_type: bluejay_core::definition::TypeDefinitionReference<
-            '_,
-            <SchemaDefinition<'_> as CoreSchemaDefinition>::TypeDefinition,
-        >,
+        _scoped_type: bluejay_core::definition::TypeDefinitionReference<'_, SchemaDefinition<'_>>,
         _included: bool, // Ignoring `_included` as @include and @skip directives are not supported in Shopify Functions.
     ) {
         self.path_stack.push(field.response_key());
@@ -107,10 +104,7 @@ impl<'a>
         &mut self,
         _field: &'a <ExecutableDocument<'a> as bluejay_core::executable::ExecutableDocument>::Field,
         _field_definition: &'a <SchemaDefinition<'a> as CoreSchemaDefinition>::FieldDefinition,
-        _scoped_type: bluejay_core::definition::TypeDefinitionReference<
-            'a,
-            <SchemaDefinition<'a> as CoreSchemaDefinition>::TypeDefinition,
-        >,
+        _scoped_type: bluejay_core::definition::TypeDefinitionReference<'a, SchemaDefinition<'a>>,
         _included: bool,
     ) {
         self.path_stack.pop().unwrap();

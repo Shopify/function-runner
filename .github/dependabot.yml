@@ -15,10 +15,15 @@ updates:
       - dependency-name: "wasmtime-wasi"
       - dependency-name: "deterministic-wasi-ctx"
     groups:
+      # Bluejay crates share version-specific traits and must be upgraded together.
+      # Keep this group unrestricted so it includes breaking pre-1.0 updates too.
       bluejay-dependencies:
         patterns:
           - "bluejay-*"
       minor-versions:
+        # Prevent this group from taking precedence over the Bluejay group.
+        exclude-patterns:
+          - "bluejay-*"
         update-types:
           - "minor"
           - "patch"
