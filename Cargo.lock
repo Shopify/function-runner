@@ -230,9 +230,9 @@ dependencies = [
 
 [[package]]
 name = "bluejay-core"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50aa6831e7fed962546653a284439a7cc65d24aa91a0a733249c2a2306ae18b3"
+checksum = "8b3a305ee3448b41672b9c1351cb135a1ec309f3b685ad9f3a8da38490a7ce5c"
 dependencies = [
  "enum-as-inner",
  "itertools 0.15.0",
@@ -241,24 +241,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "bluejay-core"
+name = "bluejay-parser"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b3a305ee3448b41672b9c1351cb135a1ec309f3b685ad9f3a8da38490a7ce5c"
-dependencies = [
- "enum-as-inner",
- "itertools 0.15.0",
- "strum 0.28.0",
-]
-
-[[package]]
-name = "bluejay-parser"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1cfca647f161b017b222bc18b889436f058d00161fccdaa88ab20bb1400875f8"
+checksum = "c1f1e8dc53b532a8d6d1ec8e976687aa24dfa0480e7b19ba30c6afceb8d14e09"
 dependencies = [
  "ariadne",
- "bluejay-core 0.4.0",
+ "bluejay-core",
  "enum-as-inner",
  "itertools 0.15.0",
  "logos",
@@ -267,14 +256,13 @@ dependencies = [
 
 [[package]]
 name = "bluejay-validator"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e72c362c99a7ef4760cd9c07bebb69698cd63e89cad21c268f756a1f61b1c6c"
+checksum = "4c20fb1d457c98eed619de1edacfed26b459afa20e5536eec1a5a37fb3f6457c"
 dependencies = [
- "bluejay-core 0.4.0",
+ "bluejay-core",
  "bluejay-parser",
  "itertools 0.15.0",
- "paste",
  "seq-macro",
  "serde_json",
 ]
@@ -1019,7 +1007,7 @@ dependencies = [
  "anyhow",
  "assert_cmd",
  "assert_fs",
- "bluejay-core 0.5.0",
+ "bluejay-core",
  "bluejay-parser",
  "bluejay-validator",
  "clap",
