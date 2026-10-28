@@ -25,14 +25,14 @@ enum IOStrategy {
     Memory(Option<Instance>),
 }
 
-pub(crate) struct IOHandler {
+pub(crate) struct IOHandler<'a> {
     strategy: IOStrategy,
     module: ValidatedModule,
-    input: BytesContainer,
+    input: &'a BytesContainer,
 }
 
-impl IOHandler {
-    pub(crate) fn new(module: ValidatedModule, input: BytesContainer) -> Self {
+impl<'a> IOHandler<'a> {
+    pub(crate) fn new(module: ValidatedModule, input: &'a BytesContainer) -> Self {
         Self {
             strategy: if module.uses_mem_io() {
                 IOStrategy::Memory(None)

@@ -5,12 +5,12 @@ pub mod function_run_result;
 mod io;
 pub mod scale_limits_analyzer;
 mod validated_module;
-use clap::ValueEnum;
+pub mod views;
 
 pub use container::*;
 
 /// Supported input encoding.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Default)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum Codec {
     #[default]
     /// JSON input.
