@@ -164,7 +164,8 @@ fn instantiate_imports<T>(
     let mut mem_io_instance = None;
 
     if let Some(std_import) = module.std_import() {
-        let imported_module = Module::from_binary(engine, &std_import.bytes)
+        let imported_module = std_import
+            .module(engine)
             .unwrap_or_else(|_| panic!("Failed to load module {}", std_import.name));
 
         let imported_module_instance = linker
