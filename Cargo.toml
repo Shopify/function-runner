@@ -27,7 +27,7 @@ lto = true
 opt-level = 3
 
 [dependencies]
-wasmtime = { version = "=48.0.0", default-features = false, features = [
+wasmtime = { version = "48", default-features = false, features = [
   "addr2line",
   "all-arch",
   "async",
@@ -46,7 +46,7 @@ wasmtime = { version = "=48.0.0", default-features = false, features = [
   "wat",
   "winch",
 ] }
-wasmtime-wasi = "=48.0.0"
+wasmtime-wasi = "48"
 deterministic-wasi-ctx = "=4.0.7"
 anyhow = "1.0"
 clap = { version = "4.5", features = ["derive"] }
