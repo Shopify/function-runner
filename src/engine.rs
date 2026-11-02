@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use std::path::PathBuf;
 use std::string::String;
 use wasmtime::{AsContextMut, Cache, Config, Engine, Linker, Module, ResourceLimiter, Store};
-use wasmtime_wasi::preview1::WasiP1Ctx;
+use wasmtime_wasi::p1::WasiP1Ctx;
 use wasmtime_wasi::I32Exit;
 
 use crate::function_run_result::FunctionRunResult;
@@ -68,7 +68,7 @@ impl ResourceLimiter for MemoryLimiter {
         _current: usize,
         desired: usize,
         _maximum: Option<usize>,
-    ) -> anyhow::Result<bool> {
+    ) -> wasmtime::Result<bool> {
         self.max_memory_bytes = std::cmp::max(self.max_memory_bytes, desired);
         Ok(true)
     }
@@ -79,7 +79,7 @@ impl ResourceLimiter for MemoryLimiter {
         _current: usize,
         _desired: usize,
         _maximum: Option<usize>,
-    ) -> anyhow::Result<bool> {
+    ) -> wasmtime::Result<bool> {
         Ok(true)
     }
 
@@ -106,7 +106,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     let mut linker = Linker::new(&engine);
     let wasi = io_handler.wasi();
     if wasi.is_some() {
-        wasmtime_wasi::preview1::add_to_linker_sync(&mut linker, |ctx: &mut FunctionContext| {
+        wasmtime_wasi::p1::add_to_linker_sync(&mut linker, |ctx: &mut FunctionContext| {
             ctx.wasi.as_mut().expect("Should have WASI context")
         })?;
         deterministic_wasi_ctx::replace_scheduling_functions(&mut linker)?;
@@ -125,7 +125,7 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 
     let func = instance.get_typed_func::<(), ()>(store.as_context_mut(), export)?;
 
-    let (mut module_result, profile_data) = if let Some(profile_opts) = profile_opts {
+    let (module_result, profile_data) = if let Some(profile_opts) = profile_opts {
         let (result, profile_data) = wasmprof::ProfilerBuilder::new(&mut store)
             .frequency(profile_opts.interval)
             .weight_unit(wasmprof::WeightUnit::Fuel)
@@ -141,10 +141,10 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
     // modules may exit with a specific exit code, an exit code of 0 is considered success but is reported as
     // a GuestFault by wasmtime, so we need to map it to a success result. Any other exit code is considered
     // a failure.
-    module_result = module_result.or_else(|error| match error.downcast_ref::<I32Exit>() {
+    let module_result = module_result.or_else(|error| match error.downcast_ref::<I32Exit>() {
         Some(I32Exit(0)) => Ok(()),
         Some(I32Exit(code)) => Err(anyhow!("module exited with code: {}", code)),
-        None => Err(error),
+        None => Err(error.into()),
     });
 
     let memory_usage = store.data().max_memory_bytes() as u64 / 1024;
@@ -196,14 +196,22 @@ pub fn run(params: FunctionRunParams) -> Result<FunctionRunResult> {
 /// 2. It keeps the door open for different configurations in the future without breaking changes
 /// 3. It makes it easier to find all places where we create an Engine
 pub fn new_engine() -> Result<Engine> {
+    // Match runtime-engine: bulk memory operations pay the flat operator cost,
+    // not an additional unit of fuel for every byte processed.
+    let mut operator_cost = wasmtime::OperatorCost::new();
+    operator_cost.variable.memory_copy_per_byte = 0;
+    operator_cost.variable.memory_fill_per_byte = 0;
+    operator_cost.variable.memory_init_per_byte = 0;
+
     let mut config = Config::new();
     config
+        .operator_cost(operator_cost)
         .wasm_multi_memory(true)
         .wasm_threads(false)
         .consume_fuel(true)
         .epoch_interruption(true)
         .cache(Some(Cache::from_file(None)?));
-    Engine::new(&config)
+    Ok(Engine::new(&config)?)
 }
 
 #[cfg(test)]
@@ -220,6 +228,44 @@ mod tests {
 
     fn json_input(raw: &[u8]) -> Result<BytesContainer> {
         BytesContainer::new(BytesContainerType::Input, Codec::Json, raw.to_vec())
+    }
+
+    #[test]
+    fn test_bulk_memory_fuel_is_independent_of_byte_count() -> Result<()> {
+        let engine = new_engine()?;
+        let module = Module::new(
+            &engine,
+            r#"(module
+                (memory 1)
+                (data $bytes "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
+                (func (export "copy") (param $len i32)
+                    (memory.copy (i32.const 0) (i32.const 1024) (local.get $len)))
+                (func (export "fill") (param $len i32)
+                    (memory.fill (i32.const 0) (i32.const 65) (local.get $len)))
+                (func (export "init") (param $len i32)
+                    (memory.init $bytes (i32.const 0) (i32.const 0) (local.get $len))))"#,
+        )?;
+        let mut store = Store::new(&engine, ());
+        store.set_epoch_deadline(1);
+        store.set_fuel(STARTING_FUEL)?;
+        let instance = wasmtime::Instance::new(&mut store, &module, &[])?;
+
+        for export in ["copy", "fill", "init"] {
+            let func = instance.get_typed_func::<i32, ()>(&mut store, export)?;
+            let mut fuel_consumed = Vec::new();
+            for len in [0, 1, 64] {
+                store.set_fuel(STARTING_FUEL)?;
+                func.call(&mut store, len)?;
+                fuel_consumed.push(STARTING_FUEL - store.get_fuel()?);
+            }
+            assert!(
+                fuel_consumed[0] > 0,
+                "{export} must still consume flat fuel"
+            );
+            assert_eq!(fuel_consumed[0], fuel_consumed[1], "{export}");
+            assert_eq!(fuel_consumed[1], fuel_consumed[2], "{export}");
+        }
+        Ok(())
     }
 
     #[test]
