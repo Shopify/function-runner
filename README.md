@@ -25,7 +25,7 @@ To see the list of possible commands and arguments, run `function-runner --help`
 
 ## Development
 
-Building requires a rust toolchain of `1.66.0` to `1.67.0`. `cargo install --path . --locked` will build
+Building requires Rust `1.95.0` or newer (see [rust-toolchain.toml](rust-toolchain.toml)). `cargo install --path . --locked` will build
 and add the `function-runner` command to your path.
 
 ### Commands
