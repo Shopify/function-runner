@@ -1,14 +1,16 @@
+mod batch;
+
 use function_runner::{BytesContainer, BytesContainerType, Codec};
 use wasmtime::Module;
 
 use std::{
     fs::File,
-    io::{stdin, BufReader, Read},
+    io::{stdin, stdout, BufRead, BufReader, Read},
     path::PathBuf,
 };
 
 use anyhow::{anyhow, Result};
-use clap::Parser;
+use clap::{error::ErrorKind, CommandFactory, Parser};
 use function_runner::{
     bluejay_schema_analyzer::BluejaySchemaAnalyzer,
     engine::{run, FunctionRunParams, ProfileOpts},
@@ -31,6 +33,19 @@ struct Opts {
     /// Path to json file containing Function input; if omitted, stdin is used
     #[clap(short, long)]
     input: Option<PathBuf>,
+
+    /// Run the Function once for each line of a JSON Lines input (one JSON input per line).
+    /// Writes one JSON result per line to stdout and a summary to stderr.
+    #[clap(long, conflicts_with_all = ["profile", "profile_out", "profile_frequency"])]
+    batch: bool,
+
+    /// With --batch, run all inputs even if some fail. By default, the batch stops at the first failure.
+    #[clap(long, requires = "batch")]
+    batch_continue_on_error: bool,
+
+    /// With --batch, write the full result (including the input) for each input.
+    #[clap(long, requires = "batch")]
+    batch_full_output: bool,
 
     /// Name of the export to invoke.
     #[clap(short, long, default_value = "_start")]
@@ -114,7 +129,16 @@ fn read_file_to_string(file_path: &PathBuf) -> Result<String> {
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let mut input: Box<dyn Read + Sync + Send + 'static> = if let Some(ref input) = opts.input {
+    if opts.batch && opts.json {
+        Opts::command()
+            .error(
+                ErrorKind::ArgumentConflict,
+                "--json cannot be used with --batch. Batch records are already JSON; use --batch-full-output for the full result.",
+            )
+            .exit();
+    }
+
+    let mut input: Box<dyn BufRead> = if let Some(ref input) = opts.input {
         Box::new(BufReader::new(File::open(input).map_err(|e| {
             anyhow!("Couldn't load input {:?}: {}", input, e)
         })?))
@@ -127,7 +151,9 @@ fn main() -> Result<()> {
     };
 
     let mut buffer = Vec::new();
-    input.read_to_end(&mut buffer)?;
+    if !opts.batch {
+        input.read_to_end(&mut buffer)?;
+    }
 
     let schema_string = opts.read_schema_to_string().transpose()?;
 
@@ -143,6 +169,32 @@ fn main() -> Result<()> {
     } else {
         Codec::Json
     };
+
+    if opts.batch {
+        let scale_limits = match (&schema_string, &query_string) {
+            (Some(schema), Some(query)) => Some(batch::ScaleLimitsSource {
+                schema,
+                schema_path: opts.schema_path.as_ref().and_then(|p| p.to_str()),
+                query,
+                query_path: opts.query_path.as_ref().and_then(|p| p.to_str()),
+            }),
+            _ => None,
+        };
+        return batch::run_batch(
+            input,
+            stdout().lock(),
+            &module,
+            scale_limits,
+            &batch::BatchOptions {
+                function_path: &opts.function,
+                export: &opts.export,
+                codec,
+                default_scale_factor: DEFAULT_SCALE_FACTOR,
+                continue_on_error: opts.batch_continue_on_error,
+                full_output: opts.batch_full_output,
+            },
+        );
+    }
 
     let input = BytesContainer::new(BytesContainerType::Input, codec, buffer)?;
     let scale_factor = if let (Some(schema_string), Some(query_string), Some(json_value)) =
